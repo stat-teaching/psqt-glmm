@@ -1,0 +1,15 @@
+{
+  "hash": "454f8cbedd2e7441ce3fb32c7bfd2f0c",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ntitle: A presentation with Polylux via Quarto\n---\n\n\n::: {.cell}\n\n```{.r .cell-code}\nmtheme <- function(){\n    ggplot2::theme_minimal(20)   \n}\n\nggplot2::theme_set(mtheme())\n\nknitr::opts_chunk$set(\n    echo = TRUE,\n    fig.align = \"center\",\n    message = FALSE,\n    warning = FALSE\n)\n```\n:::\n\n\n\n## Contenuti\n\nQuesto corso ha l'obiettivo di espandere i modelli lineari e generalizzati che avete già affrontato introducendo la distinzione tra **effetti fissi** ed **effetti random**. Questo ha diversi vantaggi, tra cui:\n\n- gestire strutture dati complesse con dipendenza/correlazione tra osservazioni\n- distinguere chiaramente diversi livelli di nidificazione (*nesting*) tipici delle strutture dati multilivello\n- includere predittori specifici per ogni livello\n\n## Terminologia\n\nIn generale, la terminologia in statistica può essere complessa e confondente. Potreste aver sentito:\n\n\n::: {.callout}\n\nVariance component models, Random intercept and slope models. Random effects models, Random coefficient models, Varying coefficient models, Intercepts and/or slopes-as-outcomes models, Hierarchical linear models Multilevel models, Growth curve models, etc.\n\n:::\n\nTutti questi sono, più o meno, sinonimi o casi particolari della generica famiglia dei **mixed-effects models**.\n\n\n\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": null,
+    "postProcess": false
+  }
+}

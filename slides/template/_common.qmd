@@ -1,0 +1,14 @@
+```{r}
+mtheme <- function(){
+    ggplot2::theme_minimal(20)   
+}
+
+ggplot2::theme_set(mtheme())
+
+knitr::opts_chunk$set(
+    echo = TRUE,
+    fig.align = "center",
+    message = FALSE,
+    warning = FALSE
+)
+```

@@ -1,0 +1,37 @@
+project:
+  type: website
+  output-dir: docs
+  render:
+    - "*.qmd"
+    - "!local/"
+
+execute:
+  freeze: auto  # re-render only when source changes
+
+website:
+  title: "PSQT-GLMM"
+  navbar:
+    background: primary
+    search: true
+    left:
+      - href: index.qmd
+        text: Home
+    right:
+      - icon: github
+        href: https://github.com/stat-teaching/metasimulation
+        aria-label: GitHub
+  page-footer: "Master PSQT - Quantitative Psychology"
+        
+author: 
+  - name: "Filippo Gambarota"
+    email: filippo.gambarota@unipd.it
+    twitter: fgambarota
+    github: filippogambarota
+    orcid: "0000-0002-6666-1747"
+institute: "University of Padova"
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true

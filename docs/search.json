@@ -1,0 +1,44 @@
+[
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "About this site"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Generalized Linear Mixed-Effects Models",
+    "section": "",
+    "text": "This is a Quarto website.\nTo learn more about Quarto websites visit https://quarto.org/docs/websites."
+  },
+  {
+    "objectID": "slides/01-intro.html#ciao-1",
+    "href": "slides/01-intro.html#ciao-1",
+    "title": "Introduzione al Corso",
+    "section": "ciao",
+    "text": "ciao\ncome vanno queste slides?"
+  },
+  {
+    "objectID": "index.html#slides",
+    "href": "index.html#slides",
+    "title": "Generalized Linear Mixed-Effects Models",
+    "section": "Slides",
+    "text": "Slides\n\n\n   \n    \n    \n      Order By\n      Default\n      \n        Date - Oldest\n      \n      \n        Date - Newest\n      \n      \n        Title\n      \n      \n        Author\n      \n    \n  \n    \n      \n      \n    \n\n\n\n\n\n\nDate\n\n\n\nTitle\n\n\n\nAuthor\n\n\n\n\n\n\n\n\nJun 29, 2026\n\n\nIntroduzione al corso\n\n\nFilippo Gambarota\n\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "slides/01-intro.html#contenuti",
+    "href": "slides/01-intro.html#contenuti",
+    "title": "Introduzione al corso",
+    "section": "Contenuti",
+    "text": "Contenuti\nQuesto corso ha l’obiettivo di espandere i modelli lineari e generalizzati che avete già affrontato introducendo la distinzione tra effetti fissi ed effetti random. Questo ha diversi vantaggi, tra cui:\n\ngestire strutture dati complesse con dipendenza/correlazione tra osservazioni\ndistinguere chiaramente diversi livelli di nidificazione (nesting) tipici delle strutture dati multilivello\nincludere predittori specifici per ogni livello"
+  },
+  {
+    "objectID": "slides/01-intro.html#terminologia",
+    "href": "slides/01-intro.html#terminologia",
+    "title": "Introduzione al corso",
+    "section": "Terminologia",
+    "text": "Terminologia\nIn generale, la terminologia in statistica può essere complessa e confondente. Potreste aver sentito:\n\n\n\nVariance component models, Random intercept and slope models. Random effects models, Random coefficient models, Varying coefficient models, Intercepts and/or slopes-as-outcomes models, Hierarchical linear models Multilevel models, Growth curve models, etc.\n\n\n\nTutti questi sono, più o meno, sinonimi o casi particolari della generica famiglia dei mixed-effects models."
+  }
+]

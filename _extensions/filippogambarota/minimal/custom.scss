@@ -1,0 +1,41 @@
+/*-- scss:defaults --*/
+
+$root-font-size: 33px;
+$h2-font-size: 55px;
+$refs-font-size: 0.8em!default;
+
+$body-bg: #ffffffff;
+$body-color: #242424ff;
+
+$link-color: #ce4589;
+
+$presentation-font-size-root: 33px;
+$presentation-h1-font-size: 80px!important;
+$presentation-h2-font-size: $h2-font-size!important;
+$code-block-font-size: 0.7em;
+
+/*-- scss:rules --*/
+
+.reveal blockquote {
+    font-size: $root-font-size;
+}
+
+.reveal .slide-menu-button {
+    display: none!important;
+}
+  
+.reveal .progress {
+    display: none!important;
+}
+
+summary {
+    font-size: 60%;
+}
+
+[id^="reference"] h2 {
+  font-size: $h2-font-size !important;
+}
+
+.csl-entry {
+    font-size: $refs-font-size;
+}
