@@ -74,7 +74,7 @@ ul.task-list li input[type="checkbox"] {
 <script>
 
   window.document.addEventListener("DOMContentLoaded", function (_event) {
-    const listingTargetEl = window.document.querySelector('#listing-slides .list');
+    const listingTargetEl = window.document.querySelector('#listing-materials .list');
     if (!listingTargetEl) {
       // No listing discovered, do not attach.
       return; 
@@ -87,7 +87,7 @@ ul.task-list li input[type="checkbox"] {
     };
 
     window['quarto-listings'] = window['quarto-listings'] || {};
-    window['quarto-listings']['listing-slides'] = new List('listing-slides', options);
+    window['quarto-listings']['listing-materials'] = new List('listing-materials', options);
 
     if (window['quarto-listing-loaded']) {
       window['quarto-listing-loaded']();
@@ -181,6 +181,7 @@ window.Quarto = {
    
   <ul>
   <li><a href="#slides" id="toc-slides" class="nav-link active" data-scroll-target="#slides">Slides</a></li>
+  <li><a href="#getting-started" id="toc-getting-started" class="nav-link" data-scroll-target="#getting-started">Getting started</a></li>
   </ul>
 </nav>
     </div>
@@ -223,11 +224,11 @@ window.Quarto = {
 <p>To learn more about Quarto websites visit <a href="https://quarto.org/docs/websites" class="uri">https://quarto.org/docs/websites</a>.</p>
 <section id="slides" class="level2">
 <h2 class="anchored" data-anchor-id="slides">Slides</h2>
-<div id="listing-slides" class="quarto-listing quarto-listing-container-table">
+<div id="listing-materials" class="quarto-listing quarto-listing-container-table">
 <div class="listing-actions-group">
    <div class="input-group input-group-sm quarto-listing-sort">
     <span class="input-group-text"><i class="bi bi-sort-down"></i></span>
-    <select id="listing-slides-sort" class="form-select" aria-label="Order By" onchange="window['quarto-listings']['listing-slides'].sort(this.options[this.selectedIndex].value, { order: this.options[this.selectedIndex].getAttribute('data-direction')})">
+    <select id="listing-materials-sort" class="form-select" aria-label="Order By" onchange="window['quarto-listings']['listing-materials'].sort(this.options[this.selectedIndex].value, { order: this.options[this.selectedIndex].getAttribute('data-direction')})">
       <option value="" disabled="" selected="" hidden="">Order By</option>
       <option value="index" data-direction="asc">Default</option>
       <option value="listing-date-sort" data-direction="asc">
@@ -269,12 +270,51 @@ window.Quarto = {
 </thead>
 <tbody class="list">
 
-<tr data-index="0" data-listing-date-sort="1782735493000" data-listing-file-modified-sort="1782735493547" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="3" data-listing-word-count-sort="577" data-listing-title-sort="Introduzione al corso" data-listing-filename-sort="01-intro.qmd">
+<tr data-index="0" data-listing-file-modified-sort="1782914315873" data-listing-reading-time-sort="30" data-listing-word-count-sort="5826" data-listing-title-sort="Introduzione ai Linear Mixed-Effects Models" data-listing-filename-sort="01-intro-glmm.qmd">
+<td>
+<span class="listing-date">&nbsp;</span>
+</td>
+<td>
+<a href="./materials/01-intro-glmm.html" class="title listing-title">Introduzione ai Linear Mixed-Effects Models</a>
+</td>
+<td>
+<span class="listing-author">Filippo Gambarota</span>
+</td>
+
+</tr>
+
+<tr data-index="1" data-listing-file-modified-sort="1782994926146" data-listing-reading-time-sort="15" data-listing-word-count-sort="2923" data-listing-title-sort="Introduzione ai Linear Mixed-Effects Models" data-listing-filename-sort="02-complex-random-structures.qmd">
+<td>
+<span class="listing-date">&nbsp;</span>
+</td>
+<td>
+<a href="./materials/02-complex-random-structures.html" class="title listing-title">Introduzione ai Linear Mixed-Effects Models</a>
+</td>
+<td>
+<span class="listing-author">Filippo Gambarota</span>
+</td>
+
+</tr>
+
+<tr data-index="2" data-listing-date-sort="1782739276000" data-listing-file-modified-sort="1782739276983" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="745" data-listing-title-sort="Introduzione al corso" data-listing-filename-sort="01-intro.qmd">
 <td>
 <span class="listing-date">Jun 29, 2026</span>
 </td>
 <td>
-<a href="./slides/01-intro.pdf" class="title listing-title">Introduzione al corso</a>
+<a href="./materials/slides/01-intro.pdf" class="title listing-title">Introduzione al corso</a>
+</td>
+<td>
+<span class="listing-author">Filippo Gambarota</span>
+</td>
+
+</tr>
+
+<tr data-index="3" data-listing-file-modified-sort="1783012718964" data-listing-reading-time-sort="3" data-listing-word-count-sort="542" data-listing-title-sort="centering" data-listing-filename-sort="03-centering.qmd">
+<td>
+<span class="listing-date">&nbsp;</span>
+</td>
+<td>
+<a href="./materials/03-centering.html" class="title listing-title">centering</a>
 </td>
 <td>
 <span class="listing-author">Filippo Gambarota</span>
@@ -286,6 +326,9 @@ window.Quarto = {
 </table>
 <div class="listing-no-matching d-none">No matching items</div>
 </div>
+</section>
+<section id="getting-started" class="level2">
+<h2 class="anchored" data-anchor-id="getting-started">Getting started</h2>
 
 
 

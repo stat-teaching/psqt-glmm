@@ -1,8 +1,8 @@
 ---
 title: "Generalized Linear Mixed-Effects Models"
 listing: 
-  - id: slides
-    contents: "slides/*.qmd"
+  - id: materials
+    contents: "materials"
     type: table
 ---
 
@@ -12,6 +12,10 @@ To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
 
 ## Slides
 
-:::{#slides}
+:::{#materials}
 :::
+
+## Getting started
+
+
 

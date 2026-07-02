@@ -1,2 +1,3 @@
 snowflake.log
 /.quarto/
+**/*.quarto_ipynb

@@ -1,0 +1,990 @@
+---
+title: Introduzione ai Linear Mixed-Effects Models
+---
+
+{{< include template/_common.qmd >}}
+
+```{r}
+#| label: setup
+#| include: false
+
+options(digits = 3)
+filor::set_filter_output()
+```
+
+```{r}
+library(lme4)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(glmmTMB)
+dat <- sleepstudy
+# ?sleepstudy
+```
+
+Cominciamo direttamente con un esempio con il dataset `sleepstudy` del pacchetto `lme4`^[Vedremo che questo pacchetto è quello più utilizzato e completo per implementare modelli con effetti random in R].
+
+Il dataset riguarda l'impatto della deprivazione da sonno nei tempi di reazione di un gruppo di soggetti.
+
+> The average reaction time per day (in milliseconds) for subjects in a sleep deprivation study. Days 0-1 were adaptation and training (T1/T2), day 2 was baseline (B); sleep deprivation started after day 2.
+
+Partiamo esplorando il dataset:
+
+```{r}
+head(dat)
+tail(dat)
+```
+
+Vediamo che `Reaction` è il tempo di reazione in millisecondi, `Days` sono i giorni di deprivazione e `Subject` è un codice univoco per ogni partecipante.
+
+Vediamo la distribuzione marginale dei tempi di risposta:
+
+```{r}
+hist(dat$Reaction, breaks = 20)
+```
+
+Vediamo il numero di giorni che abbiamo di deprivazione. Per ogni giorno di deprivazione (massimo 9) abbiamo 18 soggetti.
+
+```{r}
+table(dat$Days)
+table(dat$Subject)
+table(soggetti = dat$Subject, giorni = dat$Days)
+```
+
+Quindi abbiamo un dataset completo, senza valori mancanti. Tutti i soggetti hanno tutte le osservazioni. Ora vediamo qualche statistica descrittiva del tempo (in ms) in funzione dei giorni di deprivazione.
+
+```{r}
+dat |> 
+    ggplot(aes(x = factor(Days), y = Reaction)) +
+    geom_boxplot()
+```
+
+Si vede chiaramente un pattern, dove al crescere della deprivazione crescono chiaramente i tempi di reazione. Ovviamente è presente della variabilità ma la mediana del tempo cresce chiaramente.
+
+Vediamo ora la situazione per ogni soggetto. Ogni linea è il trend di ogni soggetto. Vediamo che nonostante ci sia variabilità tra soggetti, il pattern è abbastanza comune per tutti : al crescere della deprivazione da sonno, si abbassano i tempi di reazione.
+
+```{r}
+dat |> 
+    ggplot(aes(x = Days, y = Reaction)) +
+    geom_line(aes(group = Subject))
+```
+
+Ora, proviamo a stimare con un modello statistico questo trend che vediamo ad occhio dove i tempi di reazione aumentano. Se lo affrontiamo con gli strumenti che conosciamo finora ovvero i modelli lineari, possiamo implementare un modello di questo tipo:
+
+$$
+\mbox{RT}_{i} = \beta_0 + \beta_1 \mbox{Days}_i + \epsilon_i
+$$
+
+Possiamo anche implementarlo direttamente in R:
+
+```{r}
+fit_lm <- lm(Reaction ~ Days, data = dat)
+summary(fit_lm)
+```
+
+Possiamo intepretare i parametri in modo classico:
+
+- $\beta_0$: al tempo 0 (Days = 0) il tempo di reazione medio è `r coef(fit_lm)[1]` ms
+- $\beta_1$: per ogni giorno che passa di deprivazione, il tempo di reazione medio aumenta di `r coef(fit_lm)[2]` ms
+
+Questo modello sta cercando di stimare la relazione tra Days e Reaction $\beta_1$ utilizzando tutte le osservazioni $i$ del dataset. Notate qualcosa di strano?
+
+Da nessuna parte nel modello si tiene conto del fatto che le righe del dataset sono **raggruppate** in base al soggetto. Ogni soggetto ha 10 righe (0-9) che indicano il suo tempo di reazione. Questo comporta che le righe non sono indipendenti ovvero che le righe associate al soggetto 308 sono (probabilmente) più simili tra loro rispetto alle righe di un'altro soggetto.
+
+In termini pratici, se un soggetto parte a tempo 0 con un tempo di reazione alto mentre un'altro soggetto parte con un tempo di reazione basso è probabile che anche le osservazioni per gli altri tempi siano in media più alte/basse.
+
+Vediamo un grafico con tutte le osservazioni per ogni soggetto. Il punto rosso rappresenta la media di ogni soggetto.
+
+```{r}
+#| label: fig-cluster-means
+
+dat |> 
+    ggplot(aes(x = Subject, y = Reaction)) +
+    geom_point(size = 2) +
+    stat_summary(fun = mean, geom = "point", size = 5, col = "red")
+```
+
+Da questo grafico vediamo che:
+
+- ogni soggetto ha la sua media e le medie dei soggetti sono diverse tra loro
+- le osservazioni di un soggetto sono più simili tra loro rispetto ad osservazioni di due soggetti diversi
+
+Proviamo ad unire i due plot precedenti facendo vedere variazioni di media e anche dell'effetto dei giorni di deprivazione:
+
+```{r}
+plot(Reaction ~ Days, data = dat, type = "b")
+points(dat$Days[dat$Days == 0], dat$Reaction[dat$Days == 0], col = "red", pch = 19, cex = 2)
+```
+
+Dal grafico si vede che ogni soggetto ha il suo punto di partenza. Inoltre ogni soggetto ha il suo trend che varia in modo importante. 
+
+Il modello che abbiamo scritto prima ignora completamente il fatto che le misurazioni siano raggruppate (*nested*) nel soggetto. Ignora anche che ogni soggetto sembra avere, oltre alla sua baseline, anche la sua pendenza/slope rispetto all'effetto dei giorni.
+
+```{r}
+dat |> 
+  ggplot(aes(x = Days, y = Reaction)) +
+  geom_point(size = 3) +
+  geom_line(aes(group = Subject)) +
+  geom_smooth(method = "lm", se = FALSE, lwd = 2)
+```
+
+Proviamo, invece di fare un modello complessivo, a fare un modello per ogni soggetto. Quindi facciamo con `lm` lo stesso modello ma individualmente per ogni soggetto. Possiamo usare la funzione `lme4::lmList()`. Questi sono i parametri stimati, $\beta_0$ e $\beta_1$ per ogni soggetto. Confrontiamoli con quelli che abbiamo stimato dal modello completo:
+
+```{r}
+fitl <- lmList(Reaction ~ Days | Subject, data = dat)
+# aggiungiamo quello completo
+fitl <- c(fitl, "full" = list(fit_lm))
+fitl <- do.call(rbind, lapply(fitl, coef))
+fitl
+```
+
+Chiaramente c'è una differenza importante, che possiamo visualizzare anche graficamente. La retta rossa è il modello completo (uguale per tutti), quella blu è il modello per soggetto. Per molti soggetti il modello complessivo è una buona approssimazione dell'effetto individuale, per altri meno.
+
+```{r}
+#| label: fig-prova
+dat |> 
+  ggplot(aes(x = Days, y = Reaction)) +
+  geom_point() +
+  geom_line(aes(group = Subject)) +
+  facet_wrap(~Subject) +
+  geom_abline(intercept = coef(fit_lm)[1], slope = coef(fit_lm)[2], lwd = 1, col = "red") +
+  geom_smooth(method = "lm", se = FALSE)
+```
+
+Questi due approcci che abbiamo usato hanno un nome specifico e si chiamano:
+
+- **complete pooling**: modello che ignora il fatto che ci sono soggetti diversi con osservazioni nested. Stima una relazione unica ignorando la correlazione tra osservazioni dello stesso soggetto.
+- **no pooling**: modello(i) che ignorano in un certo senso il trend medio e preferiscono avere un parametro (o meglio due, $\beta_0$ e $\beta_1$) per ogni soggetto.
+
+Possiamo trovare pregi e difetti di entrambi. Proviamo ad elencarne alcuni:
+
+- il **complete pooling** non tiene conto del cluster/soggetto. Vedremo dopo meglio le conseguenze ma sta ignorando una componente fondamentale della struttura dati. Il "vantaggio" è che a prescindere dal numero di soggetti ed osservazioni, il numero di parametri stimati è sempre minimo. In questo caso solo 3, $\beta_0$, $\beta_1$ e $\sigma^2_{\epsilon}$.
+- il **no pooling**: tiene, forse troppo, conto del fatto che ci sono cluster/soggetti tanto che decide di stimare un intero modello per ognuno. Il vantaggio è che teniamo conto delle differenze che abbiamo visto anche ad occhio, lo svantaggio è che il numero di parametri cresce tantissimo all'aumentare dei cluster/soggetti e alla complessità del modello.
+
+Potete immaginare che un approccio sensato stia nel mezzo, ma prima di vedere più formalmente come implementarlo, facciamo un passo indietro riguardo il **complete pooling** ed il fatto di ignorare i cluster.
+
+Mentre è chiaro che stimare un parametro per soggetto sia una scelta problematica, il problema di ignorare i soggetti/cluster è meno chiaro. La questione si esprime bene in termini di informazione.
+
+Immaginate di misurare i tempi di reazione di un soggetto, 9 volte, oppure di misurare i tempi di reazione in 9 soggetti diversi una volta. E' chiaro che:
+
+Immaginate due situazioni: misuriamo i tempi di reazione di uno stesso soggetto 9 volte, oppure misuriamo i tempi di reazione di 9 soggetti diversi una sola volta ciascuno. In entrambi i casi abbiamo 9 osservazioni, ma non abbiamo la stessa quantità di informazione indipendente.
+
+Nel primo caso, le osservazioni sono parzialmente ridondanti: se un soggetto è mediamente molto veloce, è probabile che tutte le sue misurazioni tendano a essere più veloci. Le 9 osservazioni ci informano molto bene su quel soggetto, ma meno sulla variabilità generale tra soggetti.
+
+Nel secondo caso, invece, ogni osservazione proviene da un soggetto diverso. Le osservazioni sono quindi meno dipendenti tra loro e portano più informazione sulla popolazione di soggetti da cui sono state estratte.
+
+Il problema nasce quando trattiamo le 9 misurazioni dello stesso soggetto come se fossero equivalenti a 9 soggetti diversi. In quel caso sovrastimiamo la quantità di informazione indipendente contenuta nei dati.
+
+Ora riprendiamo il grafico precedente:
+
+```{r}
+#| label: fig-cluster-means
+#| echo: false
+```
+
+Ora, se le medie dei soggetti sono diverse tra loro automaticamente le osservazioni saranno più correlate. Avere una baseline diversa comporta che le osservazioni del soggetto 308 tenderanno ad essere maggiori (e più simili tra loro) di quelle del soggetto 309.
+
+Quindi, la variabilità tra le medie dei soggetti (cluster) è un indice di quanto sono correlati. In modo grezzo e non formalmente corretto proviamo a calcolare un indice chiamiamolo $\rho$. Dove $\sigma^2_{\text{id}}$ è la variabilità dovuta ai soggetti e $\sigma^2_{y}$ è la variabilità totale.
+
+$$
+\frac{\sigma^2_{\text{id}}}{\sigma^2_{y}}
+$$
+
+```{r}
+sigma2y <- var(dat$Reaction)
+sigma2id <- var(tapply(dat$Reaction, dat$Subject, mean))
+sigma2id / sigma2y
+```
+
+Quindi il 47% circa, della varibilità totale è dovuta al raggruppamento delle osservazioni per soggetto. Dopo lo vedremo più formalmente ma questo indice si chiama **intraclass correlation** (ICC) e rappresenta appunto una stima della correlazione tra osservazioni nello stesso cluster. Prima di passare al modello più formale vediamo l'impatto dell'ICC:
+
+$$
+n_{\text{eff}} = \frac{km}{1 + (m - 1) \rho}
+$$
+
+Dove $m$ è il numero totale di osservazioni (medio) in ogni cluster e $k$ è il numero di cluster. Quindi $n = km$ è il numero totale di osservazioni nel dataset e $\rho$ è l'ICC che abbiamo calcolato prima^[Questo non è il calcolo preciso, quello più accurato lo faremo dopo con le stime del modello ma può essere inteso come un'approssimazione]. Questa formula calcola quello che si chiama *effective sample size* ovvero il numero di osservazioni effettive una volta che teniamo conto della correlazione.
+
+Calcoliamolo nel nostro caso e poi vediamo alcuni scenari:
+
+```{r}
+neff <- function(k, m, r) (k*m)/(1 + (m-1)*r)
+
+k <- length(unique(dat$Subject))
+m <- mean(tapply(dat$Reaction, dat$Subject, length))
+r <- sigma2id / sigma2y
+
+# osservazioni totali
+k * m 
+# osservazioni effettive
+neff(k, m, r)
+```
+
+Quindi abbiamo un numero effettivo di osservazioni di circa 35 a fronte di un totale di 180 che è una riduzione importante. Questo è il motivo principale per cui usare un modello lineare che ignora la clusterizzazione delle osservazioni può essere estremamente problematico. Vediamo qualche scenario:
+
+```{r}
+ggplot() +
+    stat_function(fun = function(x) neff(k, m, x)) +
+    xlab("ICC") +
+    ylab("Effective Sample Size")
+```
+
+Come vedete, quando ICC = 0 non abbiamo perdita di informazione. Questo è quello che il modello lineare semplice assume normalmente. Quando, nel caso estremo, ICC = 1 allora il numero di osservazioni effettive corrisponde al numero di cluster. In altri termini tutte le osservazioni all'interno del cluster sono esattamente identiche e quindi $m$ osservazioni valgono come 1.
+
+```{r}
+# funzione per simulare dati con un certo icc
+simICC <- function(k, m, icc){
+  obs <- rep(1:k, each = m)
+  ym <- rnorm(k, 0, sqrt(icc))
+  y <- ym[obs] + rnorm(k*m, 0, sqrt(1 - icc))
+  data.frame(id = obs, y = y, icc = icc)
+}
+
+icc <- c(0, 0.5, 0.8)
+
+lapply(icc, function(x) simICC(10, 50, x)) |> 
+    do.call(rbind, args = _) |> 
+    ggplot(aes(x = id, y = y)) +
+    facet_wrap(~icc) +
+    geom_point() +
+    stat_summary(fun = mean, col = "red", geom = "point", size = 4) +
+    xlab("Soggetti") +
+    ylab("Y")
+```
+
+Come vedete in questi dati simulati, all'aumentare dell'ICC aumenta la variabilità tra le medie dei cluster/soggetti e inoltre la variabilità dentro i cluster diminuisce perchè le osservazioni tendono a diventare più simili tra loro.
+
+In termini pratici, il problema più importante di ignorare il clustering delle osservazioni è legato alla sovrastima (fittizia) della precisione (quindi sottostima dell'errore standard) del modello lineare classico. Immaginiamo che il modello stia stimando una semplice media il cui errore standard è:
+
+$$
+\text{SE}_{\bar y} = \frac{\hat \sigma^2_y}{\sqrt{n}} \quad n = km
+$$
+
+Quindi proviamo a fare una simulazione con i nostri dati stimando i tempi di reazione medi del nostro dataset.
+
+```{r}
+# media generale
+(ybar <- mean(dat$Reaction))
+n <- nrow(dat)
+
+# errore standard come lo stimerebbe il modello lm()
+sd(dat$Reaction) / sqrt(n)
+
+# errore standard tenendo conto di ICC
+n_eff <- neff(k, m, r)
+sd(dat$Reaction) / sqrt(n_eff)
+```
+
+L'errore standard è drasticamente più grande perchè teniamo conto dell'informazione effettiva al netto della correlazione (ICC). Questo vale per qualsiasi parametro in un modello dove ignoriamo la presenza dei cluster (e ovviamente ICC > 0).
+
+Vediamo adesso più formalmente come espandere il modello lineare che conosciamo. L'idea di base che dobbiamo incorporare è quella del clustering. Il nostro modello ne deve tenere conto, quindi dimentichiamoci l'idea del **complete-pooling**. Se volessimo introdurre l'idea del **no-pooling** che tiene conto (all'estremo) del clustering dobbiamo stimare un parametro per soggetto:
+
+```{r}
+fit_pool <- lm(Reaction ~ 1, data = dat)
+fit_no_pool <- lm(Reaction ~ 0 + Subject, data = dat)
+
+summary(fit_pool)
+summary(fit_no_pool)
+```
+
+Per incorporare il cluster abbiamo capito che il parametro critico è ICC o comunque la variabilità tra le medie dei cluster. Quindi possiamo parametrizzare il modello in modo che ci sia una media generale (come nel **complete-pooling**) ma che sia chiaro come ogni cluster/soggetto si collochi rispetto alla media generale.
+
+```{r}
+#| fig-width: 10
+#| fig-height: 6
+#| code-fold: true
+
+dat |> 
+    # media generale
+    mutate(gm = mean(Reaction)) |> 
+    group_by(Subject) |> 
+    # media di ogni soggetto
+    mutate(cm = mean(Reaction)) |>
+    ungroup() |> 
+    ggplot(aes(x = Subject, y = Reaction)) +
+    geom_hline(yintercept = mean(dat$Reaction)) +
+    geom_segment(aes(x = Subject, xend = Subject, y = gm, yend = cm), col = "dodgerblue", lwd = 1) +
+    geom_segment(aes(x = Subject, xend = Subject, y = Reaction, yend = cm),col = "darkgreen", position = position_jitter(width = 0.3, seed = 2026)) +
+    geom_point(size = 2, alpha = 0.2, position = position_jitter(width = 0.3, seed = 2026)) +
+    stat_summary(fun = mean, geom = "point", size = 5, col = "red")
+```
+
+In questo grafico vediamo che ogni osservazione può essere scomposta nella sua deviazione rispetto alla media del cluster che a sua volta devia rispetto alla media generale. Quindi, il tempo di reazione del soggetto $i$ nell'osservazione $j$ è:
+
+$$
+\text{RT}_{ij} = \overline{\text{RT}} + \textcolor{blue}{u_i} + \textcolor{green}{\epsilon_{ij}}
+$$
+
+Dove quindi la media di ogni soggetto è $\textcolor{red}{\overline{\text{RT}}_i} = \overline{\text{RT}} + \textcolor{blue}{u_i}$. In questo modo, il parametro critico diventa $\text{Var}(u_i)$ ovvero la variabilità tra le medie dei cluster. Se $\text{Var}(u_i) \approx 0$ allora tutte le osservazioni deviano solo rispetto alla media generale $\overline{\text{RT}}$ (e siamo nel **complete-pooling**). $\text{Var}(\epsilon_{ij})$ rimane sempre, come nel modello lineare, la varianza dei residui.
+
+Il segreto del modello ad effetti misti è quello di fare un **partial-pooling** ovvero non stimare un parametro per soggetto/cluster ma stimare $\text{Var}(u_i)$ ovvero la variabilità dei cluster attorno alla media generale. Questo permette di tenere conto dei cluster ma di evitare di stimare un parametro per ogni soggetto.
+
+In termini di modello possiamo scrivere più formalmente:
+
+$$
+RT_{ij} = \mu_0 + u_i + \epsilon_{ij}
+$$
+
+$$
+u_i \sim \mathcal{N}(0, \sigma^2_{u})
+$$
+
+$$
+\epsilon_{ij} \sim \mathcal{N}(0, \sigma^2_{\epsilon})
+$$
+
+L'assunzione principale (oltre a quelle che già facciamo con il modello lineare classico) è che le deviazioni dei soggetti/cluster rispetto alla media generale siano distributite normalmente. Ora vediamo direttamente come implementarlo in R con il pacchetto `lme4`. La funzione principale è `lme4::lmer()`:
+
+```{r}
+library(lme4)
+
+fit <- lmer(Reaction ~ 1 + (1|Subject), data = dat)
+fit
+```
+
+La sintassi è relativamente semplice e divisa in due parti:
+
+- **parte fissa**: `Reaction ~ 1` che identifica la componente sistematica del modello ovvero quelli che abbiamo chiamato effetti fissi. Questa parte viene scritta allo stesso modo di `lm()`.
+- **parte random**: `(1|Subject)` che descrive il clustering, in questo caso rispetto ai soggetti. 
+
+La sintassi per la parte random è leggermente complessa e non molto intuitiva. Sostanzialmente ogni effetto random (ovvero ogni variable che crea dei cluster) ha il suo effetto random. Questo viene aggiunto con `+` alla parte fissa `+ (1|Subject)`. La scrittura è `predittore|cluster` quindi a sinistra di `|` si mette un possibile predittore, in questo caso `1|` indica che abbiamo solo intercetta, nessun predittore. A destra `|cluster` si mette la variabile che identifica i cluster.
+
+La variabile cluster deve ovviamente essere nel nostro dataset e deve ripetere lo stesso valore per ogni osservazione associata a quel cluster.
+```{r}
+head(dat, n = 20)
+```
+
+Ora vediamo cosa è stato stimato dal modello:
+
+```{r}
+summary(fit)
+```
+
+Nel summary del modello vediamo una divisione chiara tra parte fissa e random. La parte fissa è sostanzialmente uguale a quella che otteniamo con `lm`. Abbiamo il parametro stimato, l'errore standard e la statistica test. Una cosa che non abbiamo sono i p value. Questo è un punto critico ma di base, con i modelli mixed-effects il calcolo dei gradi di libertà (necessario per i p value) non è semplice e non c'è un modo univoco.
+
+Il modo più semplice per averli è usare il pacchetto `lmerTest` che usa un'approssimazione per il calcolo:
+
+```{r}
+library(lmerTest)
+# dobbiamo ri-fittare il modello dopo aver caricato il pacchetto perchè lmerTest
+# contiene un wrapper della funzione lmer()
+fit <- lmer(Reaction ~ 1 + (1|Subject), data = dat)
+summary(fit)
+```
+
+La parte più interessante è però quella random:
+
+```{r, lines = "^Random effects|^Number of obs"}
+#| echo: false
+
+summary(fit)
+```
+
+La parte `residual` è quella che avremmo ottenuto anche dal modello con `lm` e rappresenta $\sigma^2_{\epsilon}$ ovvero la variabilità dei residui. Invece la parte `subject` è la stima di $\sigma^2_{u}$ ovvero della variazione attorno alla media generale.
+
+Questo modello è detto *random-intercept model* perchè consente ad ogni cluster/soggetto di avere la sua media ed è espressa come deviazione rispetto alla media generale `(Intercept)`.
+
+Possiamo anche calcolare l'ICC in modo più accurato ovvero usando le componenti di varianza calcolate dal modello.
+
+$$
+\mbox{ICC} = \frac{\sigma^2_{u}}{\sigma^2_{u} + \sigma^2_{\epsilon}}
+$$
+
+Ovvero la varianza delle intercette di ogni cluster/soggetto sulla variabilità totale. Possiamo usare il pacchetto `performance` ed il pacchetto `insight` per estrarre informazioni utili da questi modelli.
+
+```{r}
+# la funzione get_variance estrae tutte le componenti di varianza dal modello
+(v <- insight::get_variance(fit))
+v$var.intercept / (v$var.intercept + v$var.residual)
+
+# oppure direttamente con la funzione performance::icc()
+performance::icc(fit)
+```
+
+Questa è la stima più accurata di quello che avevamo calcolato a mano in precendenza. Questo significa che il 40% della variabilità totale è spiegata/dovuta al clustering delle osservazioni dentro i soggetti. Vediamo la differenza con il modello con `lm()`:
+
+```{r}
+fit_lm <- lm(Reaction ~ 1, data = dat)
+summary(fit_lm)
+summary(fit)
+```
+
+Come vedete, la stima dell'intercetta generale (quindi i tempi di reazione medi) è praticamente identica tra i due modelli. Quello che è drasticamente diverso è l'errore standard. Se notate, la differenza è simile a quella che avevamo calcolato a mano. Ignorando il clustering, abbiamo una sovrastima della precisione dovuta ad aver violato l'assunzione di indipendenza delle osservazioni.
+
+Una cosa che possiamo fare ora è stimare il punteggio medio di ogni soggetto che sarà quindi $\beta_0 + u_i$ ovvero l'intercetta generale più la deviazione soggetto-specifica. Possiamo ottenere queste stime con la funzione `ranef()`:
+
+```{r}
+# queste le stime dei parametri fissi beta_0
+(fe <- fixef(fit))
+# queste sono le stime di u_i
+(re <- ranef(fit))
+
+b0 <- fe[1]
+u <- re$Subject[, 1]
+by_subj <- data.frame(b0 = b0, u = u, yi = b0 + u)
+by_subj
+```
+
+Un'altro modo più efficiente di ottere le stime è usare la funzione `coeff()` che fornisce direttamente la stima come combinazione lineare di parametri fissi e random.
+
+```{r}
+coef(fit)
+```
+
+Confrontiamo queste stime con quelle ottenute dal modello **no-pooling** quindi stimando direttamente un parametro per ogni soggetto:
+
+```{r}
+re_comp <- data.frame(no_pool = coef(fit_no_pool), lmer = coef(fit)$Subject[, 1])
+re_comp$subject <- gsub("Subject", "", rownames(re_comp))
+re_comp
+```
+
+Intanto si vede che le stime non sono identiche ma generalmente molto simili.
+
+```{r}
+re_comp |> 
+    pivot_longer(c(no_pool, lmer)) |>
+    ggplot(aes(x = subject, y = value, color = name)) +
+    geom_point() +
+    geom_hline(yintercept = fixef(fit)[1])
+```
+
+Dal grafico vediamo un concetto molto importante ovvero quello dello *shrinkage*. Come vedete, le stime fatte dal modello con `lmer` sono sistematicamente minori. In termini fisici è come se fossero più attirate verso il centro (la stima dell'effetto medio, linea nera) rispetto a quelle con il modello `lm` (un parametro per soggetto).
+
+Vediamo anche che lo *shrinkage* non è casuale, né necessariamente uguale per tutti i gruppi. Nel caso più semplice di un modello a intercetta variabile,
+
+$$
+y_{ij} = \mu + u_j + \varepsilon_{ij}
+$$
+
+con:
+
+$$
+u_j \sim N(0,\tau^2)
+$$
+
+e
+
+$$
+\varepsilon_{ij} \sim N(0,\sigma^2)
+$$
+
+la stima della media del gruppo $j$ può essere scritta come:
+
+$$
+\hat{\mu}_j =
+\hat{\mu} + \lambda_j(\bar{y}_j - \hat{\mu})
+$$
+
+dove $\bar{y}_j$ è la media grezza del gruppo $j$, $\hat{\mu}$ è la media globale stimata e $\lambda_j$ è un peso compreso tra 0 e 1:
+
+$$
+\lambda_j =
+\frac{\tau^2}{\tau^2 + \sigma^2/n_j}
+$$
+
+La stessa espressione può essere riscritta come media pesata tra la media globale e la media osservata del gruppo:
+
+$$
+\hat{\mu}_j =
+(1-\lambda_j)\hat{\mu} + \lambda_j \bar{y}_j
+$$
+
+Quindi la stima del gruppo non coincide necessariamente con la sua media grezza: è una stima intermedia tra la media globale e la media del gruppo. Il peso $\lambda_j$ misura quanto il modello si fida dell’informazione specifica del gruppo.
+
+Se $\lambda_j$ è vicino a 1, la stima del gruppo sarà molto vicina a $\bar{y}_j$. Se invece $\lambda_j$ è vicino a 0, la stima del gruppo sarà molto vicina a $\hat{\mu}$.
+
+### Casi limite
+
+Se il gruppo ha molte osservazioni, cioè se $n_j$ è molto grande, allora:
+
+$$
+\frac{\sigma^2}{n_j} \to 0
+$$
+
+e quindi:
+
+$$
+\lambda_j \to
+\frac{\tau^2}{\tau^2 + 0}
+=
+1
+$$
+
+In questo caso:
+
+$$
+\hat{\mu}_j
+\to
+\bar{y}_j
+$$
+
+Il modello si fida molto della media osservata del gruppo e lo shrinkage tende a scomparire.
+
+Al contrario, se il gruppo ha poche osservazioni, il termine $\sigma^2/n_j$ rimane più grande. Di conseguenza, $\lambda_j$ diminuisce e la stima del gruppo viene tirata maggiormente verso la media globale.
+
+Anche la varianza tra gruppi è importante. Se $\tau^2$ è molto piccola, il modello conclude che i gruppi non differiscono molto tra loro:
+
+$$
+\lambda_j \to 0
+$$
+
+e quindi:
+
+$$
+\hat{\mu}_j \to \hat{\mu}
+$$
+
+Le stime dei gruppi collassano verso la media globale.
+
+Se invece $\tau^2$ è grande rispetto a $\sigma^2/n_j$, il modello riconosce molta variabilità reale tra gruppi. In questo caso $\lambda_j$ è più vicino a 1 e lo shrinkage è più debole.
+
+### Interpretazione
+
+Lo shrinkage aumenta quando:
+
+$$
+n_j \downarrow
+$$
+
+cioè quando il gruppo ha poche osservazioni;
+
+$$
+\sigma^2 \uparrow
+$$
+
+cioè quando c’è molta variabilità residua entro gruppo;
+
+$$
+\tau^2 \downarrow
+$$
+
+cioè quando i gruppi sembrano poco diversi tra loro.
+
+Al contrario, lo shrinkage diminuisce quando il gruppo ha molte osservazioni, quando la variabilità residua è bassa e quando il modello riconosce una forte variabilità reale tra gruppi.
+
+È importante distinguere tra shrinkage proporzionale e shrinkage assoluto. Se due gruppi hanno lo stesso numero di osservazioni, lo stesso modello applica la stessa proporzione di shrinkage. Tuttavia, un gruppo più lontano dalla media globale viene spostato di più in termini assoluti, semplicemente perché la sua distanza iniziale è maggiore.
+
+Infatti:
+
+$$
+\bar{y}_j - \hat{\mu}_j =
+(1-\lambda_j)(\bar{y}_j - \hat{\mu})
+$$
+
+Per esempio, se $\lambda_j = .70$, il modello conserva il 70% della deviazione del gruppo dalla media globale e ne riduce il 30%. Se un gruppo dista 10 dalla media globale, lo spostamento sarà 3; se un gruppo dista 100, lo spostamento sarà 30. Il secondo gruppo viene quindi trascinato di più in termini assoluti, ma non in termini proporzionali.
+
+In sintesi, lo shrinkage è una forma di **partial pooling**: il mixed model non usa solo la media del singolo gruppo, come farebbe una stima completamente separata, ma non ignora nemmeno le differenze tra gruppi, come farebbe un modello completamente aggregato. Produce invece una stima intermedia, tanto più vicina alla media del gruppo quanto più l’informazione su quel gruppo è precisa.
+
+## Modello con predittori
+
+Vediamo ora cosa succede aggiungendo il predittore `Days` nel modello con intercetta random. Partiamo dal modello in R e poi formalizziamo quello che succede:
+
+```{r}
+fit_days <- lmer(Reaction ~ 1 + Days + (1|Subject), data = dat)
+summary(fit_days, cor = FALSE)
+```
+
+Ora abbiamo anche l'effetto fisso di `Days` che ovviamente intepretiamo allo stesso modo di un modello con `lm`. Confrontiamolo comunque con la stima che ignora i cluster:
+
+```{r}
+fit_days_lm <- lm(Reaction ~ Days, data = dat)
+summary(fit_days_lm)
+
+# la funzione car::compareCoefs è molto utile per 
+# confrontare visivamente le stime di modelli diversi
+car::compareCoefs(fit_days, fit_days_lm)
+```
+
+Vediamo lo stesso pattern del modello precedente, le stime degli effetti fissi sono praticamente identiche ma gli standard error sono decisamente maggiori nel modello con `lmer` (nulla di nuovo).
+
+Il modello con `lm` sta stimando un'intercetta comune a tutti e una slope/pendenza comune a tutti. Il modello `fit_days` invece incorpora il clustering dei soggetti stimando un'intercetta specifica per ogni soggetto. Vediamo graficamente:
+
+```{r}
+# Estraiamo i coefficienti
+coefs_lmer <- data.frame(coef(fit_days)$Subject)
+names(coefs_lmer) <- c("b0", "b1")
+coefs_lmer$b0_lm <- coef(fit_days_lm)[1]
+coefs_lmer$b1_lm <- coef(fit_days_lm)[2]
+coefs_lmer$Subject <- rownames(coefs_lmer)
+head(coefs_lmer)
+
+# ora espandiamo con i Days
+
+coefs_lmer <- expand_grid(coefs_lmer, Days = 0:9)
+head(coefs_lmer)
+
+# calcoliamo i valori
+coefs_lmer$y_lm <- with(coefs_lmer, b0_lm + b1_lm * Days)
+coefs_lmer$y_lmer <- with(coefs_lmer, b0 + b1 * Days)
+
+head(coefs_lmer)
+
+coefs_lmer |> 
+    pivot_longer(c(y_lm, y_lmer)) |> 
+    ggplot(aes(x = Days, y = value, color = Subject)) +
+    geom_line() +
+    facet_wrap(~name)
+```
+
+Quello che si vede è che la pendenza rimane la stessa per ogni soggetto in entrambi i modelli. Tuttavia nel modello con `lmer` ogni soggetto ha la sua intercetta e quindi una parte di variabilità viene catturata dal termine random. 
+
+In termini pratici stiamo introducendo nel modello le differenze individuali nei termini che ogni soggetto ha il suo tempo di reazione medio di partenza.
+
+In termini più formali, il nostro modello ora diventa:
+
+$$
+y_{ij} = \beta_0 + u_i + \beta_1 \text{Days}_{ij} + \epsilon_{ij}
+$$
+
+
+::: {.callout-tip}
+
+Un trucco per leggere le formule dei modelli con effetti random riguarda il guardare i subscript $i$, $j$, etc. Se $i$ sono i soggetti, ogni volta che vediamo $i$ significa che quel termine *varia* tra soggetti. Nel nostro caso $u_i$ significa che ogni soggetto può avere un $u$ diverso ovvero una deviazione rispetto la media generale.
+
+Allo stesso modo $ij$ significa che quel valore può variare per ogni combinazione di $i$ (soggetto) e $j$ giorno di deprivazione.
+
+Al contrario, per ora, $\beta_1$ non ha nessun subscript quindi il valore è fisso (effetto fisso) per ogni osservazione nel dataset.
+:::
+
+Se riguardiamo i grafici iniziali però ci accorgiamo che non solo i soggetti hanno il loro tempo di reazione medio ma anche l'impatto della deprivazione è diverso tra soggetti. Per modellare questo aspetto possiamo permettere al modello di mettere il subscript $i$ anche su $\beta_1$ e non solo su $\beta_0$.
+
+Vediamo anche qui prima in R e poi più formalmente. Per aggiungere la **random slope** per `Days` dobbiamo includere `Days` sia nella parte fissa (come ora) che in quella random:
+
+```{r}
+fit_days_slopes <- lmer(Reaction ~ 1 + Days + (1 + Days | Subject), data = dat)
+summary(fit_days_slopes, cor = FALSE)
+```
+
+Vediamo che la parte fissa è rimasta la stessa in termini di parametri stimati mentre quella random è diventata più complessa. Nella sezione random effects:
+
+- `(Intercept)`: è la varianza delle intercette (come nel modello precedente). Indica quanto la media dei soggetti varia attorno alla media generale.
+- `(Days)`: è la varianza delle slopes (questa è la novità). Indica quanto le slopes dei soggetti variano rispetto alla slope generale.
+
+La cosa migliore è vederlo subito graficamente e poi passiamo ai valori specifici:
+
+```{r}
+coef_lmer_days <- data.frame(coef(fit_days)$Subject)
+coef_lmer_days_slopes <- data.frame(coef(fit_days_slopes)$Subject)
+coef_lmer_days$model <- "(1 | Subject)"
+coef_lmer_days_slopes$model <- "(1 + Days|Subject)"
+coef_lmer_days$Subject <- rownames(coef_lmer_days)
+coef_lmer_days_slopes$Subject <- rownames(coef_lmer_days_slopes)
+coef_lmer_days <- rbind(coef_lmer_days, coef_lmer_days_slopes)
+names(coef_lmer_days) <- c("b0", "b1", "model", "subject")
+
+head(coef_lmer_days)
+
+coef_lmer_days |> 
+    expand_grid(Days = 0:9) |>
+    mutate(y = b0 + b1 * Days) |>  
+    ggplot(aes(x = Days, y = y, color = subject, group = subject)) +
+    facet_wrap(~model) +
+    geom_line()
+```
+
+Vediamo adesso che oltre all'intercetta, anche la pendenza adesso è soggetto-specifica. Questo si vede chiaramente estraendo i coefficienti:
+
+
+::: {.columns}
+
+::: {.column}
+
+```{r}
+# intercette random
+coef(fit_days)
+```
+
+:::
+
+::: {.column}
+
+```{r}
+# intercette e slope random
+coef(fit_days_slopes)
+```
+
+:::
+
+:::
+
+L'altra differenza importante riguarda sempre gli errori standard. Nel modello che ignora le random slopes, la precisione nella stima di $\beta_1$ è molto più elevata (artificiosamente):
+
+```{r}
+car::compareCoefs(fit_days, fit_days_slopes)
+```
+
+Un ultimo termine che compare nei parametri random stimati è la correlazione:
+
+```{r, lines = "^Random|^ Residual"}
+#| echo: false
+
+summary(fit_days_slopes, cor = FALSE)
+```
+
+Quel termine rappresenta la correlazione stimata tra intercette e slopes random. Con le formule sarà più chiaro ma in termini interpretativi rappresenta la tendenza di soggetti con tempi di reazione medi maggiori ad avere anche un effetto di `Days` maggiore (nel caso di correlazione positiva oppure l'inverso). In questo caso sembra che intercette e slopes non siano correlate.
+
+La parte random può essere complicata da stimare a volte e quindi è possibile porre dei vincoli. Nel nostro caso possiamo fissare la correlazione a zero (ovvero non farla stimare al modello):
+
+```{r}
+fit_days_slopes_0 <- lmer(Reaction ~ 1 + Days + (1 + Days || Subject), data = dat)
+summary(fit_days_slopes_0, cor = FALSE)
+```
+
+Essendo che viene stimata praticamente a zero, il fissarla a priori non fa cambiare molto. Possiamo anche formalmente comparare i modelli usando un likelihood-ratio test con la funzione `anova()`:
+
+```{r}
+anova(fit_days, fit_days_slopes_0, fit_days_slopes)
+```
+
+Il primo confronto valuta se l’aggiunta della random slope per Days migliora il modello rispetto al modello con sola intercetta random. Il secondo confronto valuta se, una volta inclusa la random slope, sia utile stimare anche la correlazione tra intercetta e slope random. In questo caso i modelli hanno la stessa parte fissa e differiscono solo nella struttura random.
+
+Essendo la correlazione praticamente a zero, il confronto tra modelli ci dice che il modello migliore è quello che include le random slopes ma esclude la correlazione tra intercette e slopes.
+
+Vediamo adesso formalmente il modello:
+
+$$
+y_{ij} = \beta_0 + u_i + (\beta_1 + b_i)\text{Days}_{ij} + \epsilon_{ij}
+$$
+
+$$
+u_i, b_i \sim \mathcal{N}(\mathbf{0}, \Sigma)
+$$
+
+$$
+\Sigma = 
+\begin{bmatrix}
+\sigma^2_{u_i} & \rho \sigma_{u_i} \sigma_{b_i}  \\
+\rho \sigma_{u_i} \sigma_{b_i} & \sigma^2_{b_i}
+\end{bmatrix}
+$$
+
+Quindi le intercette e slopes random vengono da una distribuzione normale multivariata con matrice di varianza-covarianza $\Sigma$.
+
+
+::: {.callout-note title="Distribuzione normale multivariata" collapse="true"}
+
+Se non siete familari con le distribuzioni normali multivariate e matrici di varianza-covarianza facciamo un piccolo approfondimento. La distribuzione normale è definita per media $\mu$ e varianza $\sigma^2$ ed è una distribuzione univariata.
+
+```{r}
+# normale con media 0 e sd 1
+x <- rnorm(10, mean = 0, sd = 1)
+x
+```
+
+Ora se utilizzo due distribuzioni normali con le rispettive medie e varianze sto, implicitamente, dicendo che le due normali sono indipendenti ovvero che la loro correlazione è zero.
+
+```{r}
+y <- rnorm(10, mean = 5, sd = 2)
+y
+
+cor(x, y)
+```
+
+Tuttavia potrei voler inserire una correlazione tra le due distribuzioni e quindi mettere oltre alle due medie e varianze anche la correlazione. Per questo caso possiamo definire una matrice di varianza covarianza $\Sigma$ che descrive le varianze delle due (o più) distribuzioni normali e la(e) loro correlazione(i).
+
+$$
+\Sigma =
+\begin{bmatrix}
+\sigma_x^2 & \rho \sigma_x \sigma_y \\
+\rho \sigma_x \sigma_y & \sigma_y^2
+\end{bmatrix}
+$$
+
+Dove $\rho$ è la correlazione e quindi $\rho \sigma_x \sigma_y$ è la covarianza.
+
+```{r}
+# deviazione standard di x e y
+s <- c(1, 2)
+# correlazione ipotetica
+r <- 0.5
+# matrice di correlazione
+R <- r + diag(1 - r, 2)
+R
+
+# matrice di varianza-covarianza
+S <- diag(s) %*% R %*% diag(s)
+S
+```
+
+Ora possiamo generare dati non con `rnorm` ma con `MASS::mvrnorm()` che gestisce il caso multivariato. L'unico ingrediente che manca sono le medie. Nel nostro caso, ogni normale ha la sua media che possiamo descrivere in modo compatto con un vettore.
+
+$$
+\mathbf{y} \sim \mathcal{N} \left(
+\begin{bmatrix}
+\mu_1 \\
+\mu_2
+\end{bmatrix},
+\Sigma
+\right)
+$$
+
+Quindi:
+
+```{r}
+# vettore di medie
+mu <- c(0, 0)
+
+# cosi generiamo due distribuzioni normali correlate
+MASS::mvrnorm(10, mu = mu, Sigma = S)
+```
+
+:::
+
+Quindi tramite la formula `(1|Subject)` possiamo rendere più o meno complessa la distribuzione normale multivariata che descrive gli effetti random. Ad esempio, facendo `(1|Subject)` stiamo sostanzialmente facendo:
+
+$$
+\Sigma = 
+\begin{bmatrix}
+\sigma^2_{u_i}
+\end{bmatrix}
+$$
+
+Ovvero una singola distribuzione normale. Mentre `(Days||Subject)` stiamo imponendo gli elementi off-diagonal (fuori dalla diagonale) ad essere zero:
+
+$$
+\Sigma = 
+\begin{bmatrix}
+\sigma^2_{u_i} & 0  \\
+0 & \sigma^2_{b_i}
+\end{bmatrix}
+$$
+
+Ora vediamo qualche modo di avere informazioni aggiuntive rispetto al modello stimato che vadano oltre quello che `summary()` riporta.
+
+Possiamo estrarre gli intervalli di confidenza con il comando `confint()`. La prima opzione è chiamata Wald confidence intervals. Questi non sono altro che dei semplici intervalli di confidenza basati sull'approssimazione normale della distrubuzione campionaria. In formula questo equivale a:
+
+$$
+95\% CI = \hat \beta \pm q \text{SE}_{\beta}
+$$
+
+Dove $q$ è il quantile critico al livello $\alpha$ per la distribuzione campionaria che si assume. Ad esempio, per la distribuzione normale con $\alpha = 0.05$ il quantile critico è $q \approx 1.96$. 
+
+```{r}
+# con la funzione
+confint(fit_days_slopes, method = "Wald", level = 0.95)
+
+# manualmente
+(q <- abs(qnorm(0.05/2)))
+# estraggo gli standard error
+b <- fixef(fit_days_slopes)
+se <- summary(fit_days_slopes)$coefficients[, "Std. Error"]
+
+# lower
+b - q * se
+
+# upper
+b + q * se
+```
+
+L'altra opzione che è anche il default riguarda l'utilizzo dei profile likelihood confidence intervals. Questo tipo di intervalli sono basati sulla likelihood della stima dei parametri:
+
+```{r}
+#| cache: true
+
+# estraggo prima le likelihood perchè ci mette molto, altrimenti direttamente con
+# confint(fit)
+pf <- profile(fit_days_slopes)
+confint(pf, method = "profile", level = 0.95)
+```
+
+Questo è il grafico delle profile likelihoo di ogni parametro. L'intervallo di confidenza in questo caso si calcola direttamente sulla profile likelihood e potrebbe essere diverso dalla versione Wald oltre a non essere necessariamente simmetrico.
+```{r}
+lattice::densityplot(pf)
+```
+
+Vediamo adesso come rappresentare graficamente gli effetti random:
+
+```{r}
+lattice::dotplot(ranef(fit_days_slopes))
+```
+
+Questi grafici sono molto utili per avere un'idea più concreta, ad intepretare le varianze stimate, rispetto a quanto variano i parametri tra soggetti. Ad esempio mentre chiaro che l'intercetta è molto diversa tra soggetti, la slope seppur con delle differenze sembrebbe essere più simile (a parte alcuni soggetti).
+
+Ora vediamo come rappresentare graficamente ed in formato tabella il nostro modello. Per gli effetti fissi possiamo usare il pacchetto `ggeffects()`:
+
+```{r}
+library(ggeffects)
+
+ggeffect(fit_days_slopes)
+```
+
+```{r}
+# restituisce un oggetto ggplot che si può customizzare
+# ulteriormente con + ...
+plot(ggeffect(fit_days_slopes))
+```
+
+In questo caso stiamo plottando l'effetto fisso di `Days` ed il suo intervallo di confidenza in un modello che però tiene conto delle differenze tra soggetti sia nella baseline che nell'effetto della deprivazione.
+
+Vediamo adesso nel modello completo l'effetto dello shrinkage per entrambi i parametri stimati. Il centro del grafico è la stima di `lme4` mentre i punti sono le stime con `lm` una per soggetto e le stime di `lme4` ricostruite unendo effetti random e fissi: 
+
+```{r}
+fitl <- lmList(Reaction ~ Days | Subject, data = dat)
+res_no_pool <- coef(fitl)
+res_p_pool <- data.frame(coef(fit_days_slopes)$Subject)
+names(res_no_pool) <- c("b0", "b1")
+names(res_p_pool) <- c("b0", "b1")
+res_no_pool$subject <- rownames(res_no_pool)
+res_p_pool$subject <- rownames(res_p_pool)
+res_no_pool$model <- "lm"
+res_p_pool$model <- "lmer"
+res <- rbind(res_no_pool, res_p_pool)
+
+ggplot(res, aes(x = b0, y = b1)) +
+  geom_line(aes(group = subject)) +
+  geom_point(x = fixef(fit_days_slopes)[1], y = fixef(fit_days_slopes)[2], size = 10) +
+    geom_point(aes(color = model), size = 3)
+```
+
+Come avevamo già visto, le stime di ogni soggetto vengono trascinate verso il centro di gravità ovvero i parametri stimati con `lme4`.
+
+Prima di passare a modelli più complessi vorrei fare un cenno rispetto l'interpretazione di effetti fissi e random. Se ci concentriamo nell'effetto `Days`, quindi $\beta_1$ lo intepretiamo come l'aumento dei tempi di reazione per ogni giorno che passa di deprivazione da sonno.
+
+Ora un punto importante riguarda la distinzione tra $\beta_1$ stimato con `lm` e $\beta_1$ stimato con `lme4`. Nel modello lineare classico noi stimiamo $\beta_1$ inteso come un valore fisso che, in base al numero di osservazioni, verra stimato con più o meno precisione. L'unica fonte di variabilità è $\epsilon$ che, idealmente, si può ridurre semplicemente aumentando la numerosità campionaria. Ogni soggetto ha lo stesso effetto di `Days`.
+
+Nel caso di `lme4`, $\beta_1$ è l'effetto medio di una distribuzione di effetti veri. Essendo la distribuzione assunta come normale possiamo anche visualizzarla:
+
+```{r}
+b <- fixef(fit_days_slopes)
+vv <- insight::get_variance(fit_days_slopes)
+
+sd_slope <- sqrt(vv$var.slope)
+
+ggplot() +
+  stat_function(
+    fun = dnorm,
+    args = list(mean = b["Days"], sd = sd_slope)
+  ) +
+  geom_vline(
+    xintercept = b["Days"],
+    linetype = "dashed"
+  ) +
+  xlim(
+    b["Days"] - 4 * sd_slope,
+    b["Days"] + 4 * sd_slope
+  ) +
+  labs(
+    x = "Slope soggetto-specifico per Days",
+    y = "Densità")
+```
+
+Quindi, la media dell'effetto vero di `Days` è $\beta_1$ (stimato con `lme4`) ma alcuni soggetti hanno $\beta_1 = 0$ mentre altri $\beta_1 = 20$. Questa è una distizione importante ma sottile, le caso di modelli multilivello gli effetti fissi sono la media di effetti veri la cui distrubuzione (in particolare la deviazione standard) viene stimata.
+
+Per la diagnostica valgono sostanzialmente gli stessi assunti del modello lineare classico e possiamo verificarli (graficamente) allo stesso modo. Il pacchetto `performance` ha diverse funzioni per la diagnostica dei modelli, tra cui anche `lme4`:
+
+```{r}
+performance::check_model(fit_days_slopes)
+```
+
+L'unica differenza importante può essere riguardo la diagnostica di outlier e punti influenti. Infatti mentre nel modello `lm` la singola osservazione (riga del dataset) veniva valutata, nel modello `lmer` abbiamo cluster di osservazioni. Possiamo usare il pacchetto `influence.ME` che calcola le comuni diagnostiche per outlier e punti influenti ma a livello del cluster. L'unica accortezza riguarda l'aspetto computazionale perchè è necessario fittare il modello togliendo un cluster/soggetto per volta.
+
+```{r}
+library(influence.ME)
+
+infl <- influence(fit_days_slopes, group = "Subject")
+head(cooks.distance(infl))
+head(dfbetas.estex(infl))
+
+plot(infl, which = "cook", sort = TRUE)
+plot(infl, which = "dfbetas")
+```

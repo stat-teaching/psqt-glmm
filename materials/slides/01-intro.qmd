@@ -2,7 +2,7 @@
 title: Introduzione al corso
 ---
 
-{{< include template/_common.qmd >}}
+{{< include ../template/_common.qmd >}}
 
 ## Contenuti
 
@@ -74,4 +74,41 @@ In un modello mixed-effects, la variabilità non spiegata dalla componente fissa
 
 ## Materiale
 
-Il materiale del corso può essere trovato al seguente link []
+Il materiale del corso (anche su Moodle) può essere trovato al seguente link [https://stat-teaching.github.io/psqt-glmm/](https://stat-teaching.github.io/psqt-glmm/). Nel sito potete trovare:
+
+- slide delle lezioni teoriche con codice R
+- esercizi e codici R
+- approfondimenti
+
+## Cosa serve
+
+- Computer con R/Rstudio installato
+- Installare i pacchetti che trovate a questa pagina [https://stat-teaching.github.io/psqt-glmm#getting-started.html](https://stat-teaching.github.io/psqt-glmm#getting-started.html).
+
+## Outline
+
+A grandi linee questi sono gli argomenti che vorrei affrontare:
+
+- Introduzione alla logica dei mixed-models (LMM) e dipendenza locale
+- Effetti fissi e random: intercette e slopes
+- Strutture degli effetti random: nested e crossed
+- Effetti a diversi livelli: contextual, between e within effects (con cenni a Simpson's paradox)
+- Diagnostica e problemi di convergenza
+- Modelli generalizzati con effetti random (GLMM)
+- Esempi, applicazioni pratiche e pacchetti R suggeriti
+- Simulazione dati con strutture nested e crossed
+
+## Regole del gioco
+
+In generale preferisco fare meno materiale ma assicurarmi che tutto quello fatto sia chiaro. Vi chiedo quindi di:
+
+- partecipare: fatemi domande per dubbi, chiarimenti o curiosità
+- chiedetemi per approfondimenti legati ad argomenti che vi interessano
+- partecipare agli esercizi o le domande proposte in classe
+
+
+::: {.callout-important}
+
+There are no stupid questions; if anything, there are stupid answers — sometimes from the teacher.
+
+:::

@@ -1,0 +1,124 @@
+---
+title: centering
+---
+
+```{r}
+dat <- readRDS(here::here("data/school.rds"))
+```
+
+# Il dataset
+
+In questa esercitazione utilizziamo un dataset simulato relativo al rendimento in matematica di studenti appartenenti a diverse scuole.
+
+Il contesto è quello di uno studio educativo in cui si vuole analizzare la relazione tra alcune caratteristiche degli studenti, alcune caratteristiche delle scuole e il rendimento scolastico. Ogni riga del dataset rappresenta uno studente. Gli studenti sono raggruppati in scuole, quindi le osservazioni non sono completamente indipendenti: studenti della stessa scuola condividono lo stesso contesto scolastico.
+
+Il dataset è pensato per introdurre in modo semplice l’analisi di dati con struttura gerarchica.
+
+## Struttura dei dati
+
+Il dataset contiene `r nrow(dat)` studenti appartenenti a `r length(unique(dat$school_id))` scuole.
+
+```{r}
+str(dat)
+```
+
+Le variabili disponibili sono:
+
+| Variabile | Livello | Descrizione |
+|---|---:|---|
+| `school_id` | Scuola | Codice identificativo della scuola |
+| `ses` | Scuola | Indicatore del contesto socio-economico medio della scuola, su scala da 1 a 10 |
+| `school_climate` | Scuola | Indicatore del clima scolastico medio, su scala da 1 a 10 |
+| `motivation` | Studente | Motivazione individuale allo studio, su scala da 1 a 10 |
+| `homework` | Studente | Ore settimanali dedicate ai compiti di matematica |
+| `math` | Studente | Punteggio in matematica |
+
+## Descrizione delle variabili
+
+### Scuola
+
+La variabile `school_id` identifica la scuola di appartenenza dello studente. Poiché più studenti appartengono alla stessa scuola, il dataset ha una struttura a due livelli:
+
+- studenti;
+- scuole.
+
+Questa struttura è importante perché studenti appartenenti alla stessa scuola possono essere più simili tra loro rispetto a studenti appartenenti a scuole diverse.
+
+### Contesto socio-economico della scuola
+
+La variabile `ses` misura il contesto socio-economico medio della scuola su una scala da 1 a 10:
+
+- valori bassi indicano un contesto più svantaggiato;
+- valori alti indicano un contesto più avvantaggiato.
+
+Questa è una variabile a livello di scuola: tutti gli studenti della stessa scuola hanno lo stesso valore di `ses`.
+
+### Clima scolastico
+
+La variabile `school_climate` misura il clima scolastico medio della scuola su una scala da 1 a 10. Valori più alti indicano un clima scolastico più positivo. Anche questa è una variabile a livello di scuola, quindi assume lo stesso valore per tutti gli studenti della stessa scuola.
+
+### Motivazione individuale
+
+La variabile `motivation` misura la motivazione individuale allo studio su una scala da 1 a 10. Valori più alti indicano una maggiore motivazione. A differenza di `ses` e `school_climate`, questa variabile varia tra studenti anche all’interno della stessa scuola.
+
+### Compiti di matematica
+
+La variabile `homework` indica il numero di ore settimanali dedicate ai compiti di matematica. Questa variabile è misurata a livello individuale: studenti della stessa scuola possono dedicare quantità diverse di tempo ai compiti.
+
+### Punteggio in matematica
+
+La variabile `math` è il punteggio ottenuto dagli studenti in matematica. In questa esercitazione viene trattata come variabile dipendente principale.
+
+## Prime righe del dataset
+
+```{r}
+head(dat)
+```
+
+## Obiettivo dell’analisi
+
+L’obiettivo generale è studiare la relazione tra rendimento in matematica e alcune variabili individuali e scolastiche.
+
+In particolare, possiamo porci domande come:
+
+- gli studenti più motivati ottengono punteggi più alti in matematica?
+- gli studenti che dedicano più tempo ai compiti ottengono punteggi più alti?
+- le scuole con contesto socio-economico più favorevole hanno punteggi medi più alti?
+- il clima scolastico è associato al rendimento medio degli studenti?
+- quanto varia il rendimento tra studenti della stessa scuola e tra scuole diverse?
+
+Queste domande richiedono attenzione alla struttura gerarchica del dataset, perché alcune variabili descrivono gli studenti, mentre altre descrivono le scuole.
+
+## Predittori a diversi livelli
+
+Una distinzione importante riguarda la tipologia di predittori. Avendo una struttura multilivello, in questo caso a due livelli (bambini nested nelle scuole) allora possiamo avere variabili a livello 1 (bambini) o a livello 2 (scuola).
+
+```{r}
+head(dat)
+```
+
+Ad esempio `age_months` è l'eta del bambino in mesi. Come vedete ogni bambino ha la sua età e quindi il valore varia riga per riga. La variabile età è una variabile a livello 1 (bambino) e quindi varia sia dentro la scuola che tra scuole ovviamente.
+
+Al contrario, `school_ses_z` è una variabile a livello 2 (scuola) perchè è misurata a livello della scuola. Tutte le osservazioni dentro le stessa scuola hanno quindi lo stesso valore e quindi non possiamo rilevare un impatto del ses dentro una stessa scuola ma tra scuole diverse.
+
+## Effetti di predittori a livelli diversi
+
+Ora immaginiamo di voler misurare l'impatto del carico di compiti `homework` nelle performance di matematica. Intuitivamente, all'aumentare del carico migliorano le performance. Proviamo a vedere graficamente:
+
+```{r}
+dat |> 
+    ggplot(aes(x = homework, y = math)) +
+    geom_point() +
+    # questa è una regressione con lm, solo grafica
+    geom_smooth(method = "lm", se = FALSE)
+```
+
+Sembra che l'associazione sia negativa, maggiore è il carico minore sono i punteggi. Magari c'è una spiegazione funzionale anche qui. Proviamo a vedere l'associazione per ogni cluster/scuola:
+
+```{r}
+dat |> 
+    ggplot(aes(x = homework, y = math)) +
+    geom_point() +
+    # questa è una regressione con lm, solo grafica
+    geom_smooth(aes(color = school_id), method = "lm", se = FALSE)
+```

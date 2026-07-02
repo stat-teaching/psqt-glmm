@@ -1,0 +1,501 @@
+---
+title: Introduzione ai Linear Mixed-Effects Models
+---
+
+{{< include template/_common.qmd >}}
+
+```{r}
+#| label: setup
+#| include: false
+
+options(digits = 3)
+filor::set_filter_output()
+```
+
+```{r}
+library(lme4)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(glmmTMB)
+library(kableExtra)
+library(lmerTest)
+library(ggeffects)
+library(modelsummary)
+```
+
+```{r}
+qtab <- function(data, digits = 3){
+    data |> 
+        kable(digits = digits, align = "c") |> 
+        kable_styling()
+}
+```
+
+
+Vediamo alcuni esempi di strutture random più complesse in particolare due tipologie:
+
+- effetti random di tipo **nested**
+- effetti random di tipo **crossed**
+
+L'esempio più classico di effetti random tipo nested riguarda la raccolta dati di osservazioni annidate in più livelli di nesting. Ad esempio bambini che appartengono ad una classe e la classe che appartiene ad una scuola. Qui vedete un esempio tipico di questo dataset.
+
+```{r}
+#| echo: false
+expand_grid(school = 1:10, class = 1:3, child = 1:2) |> 
+    head(n = 10) |> 
+    qtab()
+```
+
+Ovviamente è importante distinguere la classe 1 della scuola 1 dalla classe 1 della scuola 2. Nonostante abbiano lo stesso nome non condividono (almeno in questo esempio) delle caratteristiche.
+
+Supponiamo di aver condotto un esperimento su un campione di 20 membri del personale del Dipartimento di Psicologia. L’obiettivo era studiare gli effetti del consumo di CBD sui livelli di stress durante una settimana lavorativa.
+
+I partecipanti sono stati assegnati casualmente a una di due condizioni:
+
+- gruppo di controllo: i partecipanti hanno continuato la loro routine abituale;
+- gruppo CBD: i partecipanti hanno assunto una bevanda al CBD ogni giorno.
+
+Per 5 giorni lavorativi consecutivi, il livello di stress dei partecipanti è stato misurato tramite un questionario self-report.
+
+Supponiamo ora di non limitarci ai 20 membri del Dipartimento di Psicologia, ma di raccogliere dati da molte persone appartenenti a diversi dipartimenti dell’Università. Il dataset considerato include quindi non solo i 20 partecipanti di Psicologia, ma anche altri 220 partecipanti provenienti da dipartimenti come Storia, Filosofia, Arte e altri.
+
+In questo secondo caso, i dati hanno una struttura più complessa: le osservazioni sono ripetute nel tempo per ciascun partecipante, e i partecipanti sono a loro volta raggruppati all’interno dei diversi dipartimenti.
+
+Anche qui partiamo direttamente da un esempio e poi deriviamo gli aspetti più formali. Possiamo caricare il dataset `stress` (adattamento di un esempio da [https://uoepsy.github.io/lmm/07_ranef.html#example-2-three-level-nested](https://uoepsy.github.io/lmm/07_ranef.html#example-2-three-level-nested)).
+
+```{r}
+dat <- readRDS(here::here("data/stress.rds"))
+head(dat)
+```
+
+Iniziamo ad esplorare, nel grafico vediamo lo stress per ogni soggetto/giorno divisi per dipartimento e gruppo sperimentale. La linea tratteggiata è la media del dipartimento ed i punti neri sono la media di ogni giorno.
+
+```{r}
+dept_means <- dat |>
+    group_by(dept) |>
+    summarise(mean_stress = mean(stress, na.rm = TRUE), .groups = "drop")
+
+subj_means <- dat |> 
+    group_by(dept, pid, CBD) |>
+    summarise(mean_stress = mean(stress, na.rm = TRUE), .groups = "drop")
+
+ggplot(dat, aes(x = day, y = stress, col = CBD)) +
+    geom_point() +
+    geom_line(aes(group = pid), alpha = .3) +
+    facet_wrap(~ dept) +
+    stat_summary(
+        aes(group = day),
+        fun = mean,
+        geom = "point",
+        col = "black",
+        size = 3
+    ) +
+    geom_hline(
+        data = dept_means,
+        aes(yintercept = mean_stress),
+        inherit.aes = FALSE,
+        col = "black",
+        linetype = "dashed"
+    )
+```
+
+Vediamo alcune cose rilevanti:
+
+- la media di ogni dipartimento varia
+- ogni soggetto, dentro al dipartimento varia
+- sembra esserci anche una differenza, in media, tra i due gruppi sperimentali
+
+Vediamo meglio focalizzandoci su due dipartimenti. Qui ogni riga è la media di un soggetto.
+
+```{r}
+dat |> 
+  filter(dept %in% c("Art",  "Business")) |> 
+  ggplot(aes(x = day, y = stress, col = CBD)) +
+  geom_hline(data = filter(subj_means, dept %in% c("Art",  "Business")), 
+             aes(yintercept = mean_stress, col = CBD)) +
+  geom_point() +
+    geom_line(aes(group = pid), alpha = .3) +
+    facet_wrap(~ dept) +
+    stat_summary(
+        aes(group = day),
+        fun = mean,
+        geom = "point",
+        col = "black",
+        size = 3
+    )
+```
+
+La differenza rispetto al dataset sulla deprivazione da sonno è che abbiamo due livelli di *nesting*. Il dipartimento contiene i soggetti che a loro volta contengono le osservazioni dei giorni. Questo crea un ulteriore livello di dipendenza/correlazione:
+
+- soggetti nello stesso dipartimento potrebbero essere più simili rispetto a soggetti diversi
+- ogni soggetto ha il suo livello di stress medio e quindi le osservazioni di un soggetto sono più simili tra loro
+
+Vediamo qualche descrittiva rispetto al clustering:
+
+```{r}
+table(dat$dept)
+table(dat$dept, dat$day)
+```
+
+Quindi abbiamo 12 dipartimenti e 5 osservazioni per soggetto. Rispetto ai soggetti vediamo che ci sono alcuni nomi che si ripetono. Lo stesso nome puà comparire in più dipartimenti ma è fondamentale capire che non è la stessa persona, almeno in questo tipo di dataset. Quindi possiamo generare un id unico per ogni soggetto. Abbiamo quindi 240 soggetti unici.
+
+```{r}
+dat$id <- paste0(dat$dept, "_", dat$pid)
+length(unique(dat$id))
+```
+
+Proviamo a implementare il modello per come lo conosciamo ignorando per il momento il dipartimento:
+
+```{r}
+fit_subj <- lmer(stress ~ 1 + (1|id), data = dat)
+summary(fit_subj)
+performance::icc(fit_subj)
+```
+
+Vediamo che ICC è molto alto e quindi le osservazioni dentro i soggetti sono molto correlate o in altri termini c'è molta differenza tra le medie dei soggetti nei livelli di stress. Il dipartimento in questo modello non è considerato proprio come nel modello della deprivazione con `lm` non consideravamo i soggetti. In altri termini stiamo considerando i soggetti, in questo caso, come indipendenti ma realisticamente i livelli di stress medi variano da un dipartimento all'altro. Questa quota di variabilità e quindi di dipendenza tra soggetti la stiamo ignorando.
+
+Valgono quindi tutti gli stessi problemi che dicevamo nei termini di sovrastima del numero di osservazioni (soggetti in questo caso) e sottostima dell'errore standard. La scelta importante è ora come trattare il dipartimento. Mentre il soggetto è chiaramente un effetto random il dipartimento può essere meno immediato. Possiamo:
+
+- considerarlo come effetto random e quindi rendere più complessa la struttura random
+- considerarlo come effetto fisso e quindi applicare un no-pooling stimando un parametro fisso per ogni dipartimento
+
+Proviamo la seconda opzione per il momento:
+
+```{r}
+fit_dept <- lmer(stress ~ 0 + dept + (1|id), data = dat)
+summary(fit_dept, cor = FALSE)
+```
+
+In questo caso teniamo correttamente conto dei soggetti e delle osservazioni (Giorni) dentro i soggetti e stimiamo un parametro per dipartimento. Vediamo un grafico degli effetti fissi:
+
+```{r}
+plot(ggeffect(fit_dept))
+```
+
+Vediamo che c'è una variabilità enorme tra dipartimenti. Qui la stiamo considerando ma se il focus non è sul confronto tra dipartimenti forse è più ragionevole applicare il principio del partial-pooling anche in questo caso.
+
+Per farlo possiamo aggiungere un livello all'effetto random usando la scrittura `(1|dept/pid)`. Questo significa che il dipartimento è la struttura gerarchicamente più in alto che contiene i soggetti che a loro volta contengono le osservazioni che sono l'ultimo livello.
+
+Vediamolo in R e poi più formalmente:
+
+```{r}
+fit_dept_id <- lmer(stress ~ 1 + (1|dept/pid), data = dat)
+summary(fit_dept_id)
+```
+
+
+::: {.callout-note title="cosa significa (1|dept/id)" collapse="true"}
+
+La scrittura `(1|dept/pid)` è il modo di includere effetti random di tipo nested. Internamente `lme4` espande questa scrittura in `(1|dept) + (1|dept:pid)`.
+
+```{r}
+fit_dept_id <- lmer(stress ~ 1 + (1|dept/pid), data = dat)
+fit_dept_id2 <- lmer(stress ~ 1 + (1|dept) + (1|dept:pid), data = dat)
+
+summary(fit_dept_id)
+summary(fit_dept_id2)
+```
+
+L'idea è che il modello includa l'effetto random `(1|dept)` e poi includa un effetto random che è la combinazione `:` sta per interazione di `dept` e `pid`. Quindi crea internamente una variabile che è simile alla nostra `id` dove semplicemente si uniscono le etichette di `dept` e `pid`.
+
+Infatti se scriviamo il modello in questo modo:
+
+```{r}
+fit_dept_id3 <- lmer(stress ~ 1 + (1|dept) + (1|id), data = dat)
+summary(fit_dept_id3)
+```
+
+Otteniamo ancora lo stesso risultato.
+
+In generale, la scrittura `(1|dept/pid)` o `(1|dept) + (1|dept:pid)` è consigliata perchè lascia a `lme4` la gestione delle combinazioni invece che creare manualmente `id` e rende esplicito che siamo in un modello nested. Vedremo che la scrittura `(1|dept) + (1|id)` è più tipica dei modelli crossed.
+
+:::
+
+
+In questo modello non abbiamo più effetti fissi per dipartimento ma un'unico effetto random aggiuntivo. In pratica stiamo stimando, oltre alla variabilità tra soggetti, la variabilità tra dipartimenti.
+
+```{r, lines = "^Random|^ Residual"}
+#| echo: false
+
+summary(fit_dept_id)
+```
+
+- `dept`: è la variabilità tra le medie dei dipartimenti
+- `id:dept`: è la variabilità tra le medie dei soggetti dentro i dipartimenti
+- `Residual`: è la variabilità residua ovvero dentro i soggetti
+
+Vediamolo graficamente:
+
+```{r}
+dat |> 
+  summarise(stress = mean(stress), .by = c(dept, pid)) |> 
+  ggplot(aes(x = dept, y = stress)) +
+  geom_point(position = position_jitter(width = 0.1)) +
+  stat_summary(geom = "point", size = 5, col = "red")
+```
+
+Ogni punto è un soggetto (la sua media) e il punto rosso grande è la media del dipartimento. Quindi:
+
+- `id:dept`: è la stima della differenza tra i punti al netto di quella tra dipartimenti
+- `dept`: è la stima della differenza tra i dipartimenti
+
+Come viene definito qui l'ICC? é leggermente più complesso perchè abbiamo due livelli e ICC rappresenta la correlazione tra cluster. Quindi in questo caso possiamo calcolare due ICC:
+
+$$
+\sigma^2_{\text{tot}} =
+\sigma^2_{\text{dept}} +
+\sigma^2_{\text{id}} +
+\sigma^2_{\varepsilon}
+$$
+
+L’ICC a livello di dipartimento è:
+
+$$
+ICC_{\text{dept}} =
+\frac{\sigma^2_{\text{dept}}}
+{\sigma^2_{\text{tot}}}
+$$
+
+L’ICC a livello di individuo è:
+
+$$
+ICC_{\text{id}} =
+\frac{
+\sigma^2_{\text{id}}
+}
+{\sigma^2_{\text{tot}}}
+$$
+
+Queste due quantità indicano rispettivamente la percentuale di variabilità dovuta al dipartimento e al livello individuo (dentro il dipartimento).
+
+```{r}
+vv <- insight::get_variance(fit_dept_id)
+vv
+
+vtot <- vv$var.residual + sum(vv$var.intercept)
+icc <- vv$var.intercept / vtot
+icc
+
+# in alternativa
+# multilevel.icc(dat[, c("stress", "dept", "id")], cluster = c("dept", "id"))
+```
+
+Inoltre la somma di ICC ai due livelli ci da l'ICC globale:
+
+```{r}
+performance::icc(fit_dept_id)
+sum(icc)
+```
+
+Da notare che ci sono diversi modi di calcolarlo con significati diversi, qui trovate una spiegazione con le formule [https://www.rdocumentation.org/packages/misty/versions/0.7.6/topics/multilevel.icc](https://www.rdocumentation.org/packages/misty/versions/0.7.6/topics/multilevel.icc).
+
+Prima di includere degli effetti fissi vediamo cosa succede se mettiamo solo l'effetto random del dipartimento:
+
+```{r}
+fit_dept_only <- lmer(stress ~ 1 + (1|dept), data = dat)
+summary(fit_dept_only)
+```
+
+Cosa sta facendo questo modello? In generale ricordate che quando omettete qualcosa dal modello equivale a fissare a zero quella componente. Noi qui stiamo dicendo che ogni dipartimento ha la sua media MA i soggetti dentro i dipartimenti non variano. In altri termini stiamo dicendo che:
+
+```{r}
+dat_dept_only <- dat |> 
+  summarise(stress = mean(stress), .by = c(dept, pid)) |> 
+  mutate(
+    stress_dept = mean(stress),
+    .by = dept
+  )
+
+dat_dept_only |> 
+  ggplot(aes(x = dept)) +
+  geom_point(
+    aes(y = stress),
+    position = position_jitter(width = 0.1),
+    col = "black",
+    alpha = 0.4
+  ) +
+  geom_point(
+    aes(y = stress_dept),
+    position = position_jitter(width = 0.3),
+    col = "red",
+    size = 2
+  ) +
+  stat_summary(
+    aes(y = stress),
+    geom = "point",
+    col = "black",
+    size = 5
+  )
+```
+
+I punti rossi sono le medie dei soggetti che si aspetta il modello. Quelli neri in trasparenza sono le medie effettive dei soggetti. Tutta quella variabilità tra soggetti che ci sarebbe nei dati viene ignorata dal modello.
+
+Ora iniziamo ad aggiungere degli effetti fissi. Partiamo dall'effetto del consumo di `CBD`:
+
+```{r}
+dat_cbd <- summarise(dat, stress = mean(stress), .by = c(CBD))
+
+dat |> 
+  summarise(stress = mean(stress), .by = c(dept, pid, CBD)) |> 
+  ggplot(aes(x = dept, y = stress, color = CBD)) +
+  geom_point(position = position_jitter(width = 0.1), alpha = 0.5) +
+  stat_summary(geom = "point", position = position_dodge(width = 0.5), size = 6) +
+  geom_hline(data = dat_cbd, aes(yintercept = stress, color = CBD))
+```
+
+Vediamo che in media sembra esserci un effetto del consumo. Infatti parte della variabilità tra soggetti è dovuta all'effetto del consumo di CDB. Le linee orizzontali sono la media di stress per CBD complessivamente tra dipartimenti e soggetti.
+
+Semplicemente possiamo intanto introdurre `CBD` come effetto fisso per partire:
+
+```{r}
+fit_cbd <- lmer(stress ~ CBD + (1|dept/pid), data = dat)
+summary(fit_cbd)
+plot(ggeffect(fit_cbd))
+```
+
+```{r}
+#| code-fold: true
+x <- modelsummary(
+  list("~ 1" = fit_dept_id, "~ cbd" = fit_cbd),
+  gof_omit = "AIC|BIC|ICC|RMSE|R2"
+)
+x@data
+```
+
+Vediamo che in media il consumo di CBD sembra ridurre lo stress di circa 0.38 punti nella scala di stress. Vediamo inoltre altre cose:
+
+- la varianza tra soggetti dentro i dipartimenti si è ridotta `dept:pid`. Stiamo spiegando una quota di variabilità tra soggetti.
+- anche la variabilità tra dipartimenti si è ridotta `dept`. Stiamo spiegando una quota di variabilità tra dipartimenti.
+
+Quindi ci siamo? Non esattamente perchè stiamo ignorando una quota importante di variabilità. Stiamo assumendo l'effetto CBD come fisso e uguale tra soggetti e tra dipartimenti. Questo equivale ad assumere l'effetto di Days (nel precedente modello della deprivazione) come uguale tra soggetti.
+
+Possiamo quindi inserire la random slope di `CBD`:
+
+```{r}
+#| error: true
+#| warning: true
+
+fit_cbd_sl <- lmer(stress ~ CBD + (CBD|dept/pid), data = dat)
+summary(fit_cbd_sl)
+```
+
+Prima di intepretare, vediamo che c'è un warning rispetto alla convergenza del modello. Questo è uno scenario tipico con i mixed-models sopratutto quando si rende la struttura random più complessa. Purtroppo non ci sono soluzioni universali, dopo vediamo come si può risolvere.
+
+Vediamo una parte random decisamente più complessa del solito. Sostanzialmente abbiamo le intercette per dipartimento e soggetto (dentro il dipartimento) e anche la slope sia per dipartimento che per soggetto.
+
+C'è un problema importante. L'effetto di CBD non può variare dentro i soggetti. I soggetti sono in un gruppo specifico quindi non possiamo mettere CBD come slope random.
+
+Se volessimo omettere la slope a livello del soggetto dobbiamo espandere l'effetto random:
+
+```{r}
+fit_cbd_sl2 <- lmer(stress ~ CBD + (CBD|dept) + (1|dept:pid), data = dat)
+summary(fit_cbd_sl2)
+```
+
+In questo caso stiamo fissando le slope random per soggetto a zero (correttamente) e stiamo stimando solo quelle per dipartimento. Questa scrittura ci permette di distiguere quali effetti fissi vogliamo inserire come slope random ed a quale livello.
+
+```{r}
+lattice::dotplot(ranef(fit_cbd_sl2))[[1]]
+lattice::dotplot(ranef(fit_cbd_sl2))[[2]]
+```
+
+Proviamo ora a fare lo stesso ragionamento ma con `day`.
+
+```{r}
+dat$dayf <- factor(dat$day)
+fit_day <- lmer(stress ~ day + (1|dept) + (1|dept:pid), data = dat)
+summary(fit_day)
+plot(ggeffect(fit_day))
+```
+
+Vediamo se c'è un effetto tra soggetti e/o dipartimenti. Qui ha senso mettere entrambe le random slopes perchè ogni soggetto è sottoposto a più misurazioni.
+
+```{r}
+fit_day2 <- lmer(stress ~ day + (day|dept) + (day|dept:pid), data = dat)
+summary(fit_day2)
+lattice::dotplot(ranef(fit_day2))[[1]]
+lattice::dotplot(ranef(fit_day2))[[2]]
+```
+
+Anche qui la variabilità sembra essere principalmente tra soggetti. Un'ultima cosa che possiamo provare è l'interazione tra `day` e `CBD`. In altri termini possiamo vedere se c'è un effetto di riduzione/aumento dello stress in funzione della CBD ma che varia nel tempo.
+
+```{r}
+# solo effetti principali
+fit_day3 <- lmer(stress ~ day + CBD + (day + CBD|dept) + (day|dept:pid), data = dat)
+summary(fit_day3)
+
+# interazione
+fit_day4 <- lmer(stress ~ day * CBD + (day * CBD|dept) + (day|dept:pid), data = dat)
+summary(fit_day4)
+
+plot(ggeffect(fit_day4, terms = c("day", "CBD")))
+```
+
+Vediamo che, come previsto, per il gruppo con CBD lo stress si riduce nel tempo ovviamente essendo l'assunzione progressiva mentre nel gruppo sperimentale sembra aumentare. Possiamo scomporre gli effetti con `car::Anova()` oppure con `anova()` per il confronto tra modelli:
+
+```{r}
+car::Anova(fit_day4)
+anova(fit_day3, fit_day4)
+# oppure anche
+performance::test_performance(fit_day3, fit_day4)
+```
+
+Vediamo che abbiamo l'effetto principale di CBD e anche l'interazione. All'aumentare dei giorni diminuisce lo stress per il gruppo CBD. Attenzione che con `anova(fit_day3, fit_day4)` stiamo testando il termine di interazione ma anche una diversa struttura random.
+
+Vediamo quello che predice il nostro modello più complesso:
+
+```{r}
+newdat <- expand.grid(
+  day = sort(unique(dat$day)),
+  CBD = unique(dat$CBD),
+  dept = unique(dat$dept)
+)
+
+newdat$stress <- predict(
+  fit_day4,
+  newdata = newdat,
+  re.form = ~(day * CBD | dept)
+)
+
+ggplot(newdat, aes(x = day, y = stress, color = CBD)) +
+  geom_line() +
+  facet_wrap(~dept)
+```
+
+## Convergenza e problemi di fitting
+
+Con i mixed-models può diventare molto complesso gestire la convergenza del modello perchè ci sono diversi possibili problematiche:
+
+- `singular fit`: questo indica che una o più componenti random non sono stimate correttamente. Solitamente le varianze sono indicate con 0 e le correlazioni con +1 o -1. Questo non significa che la varianza sia 0 o la correlazione +-1 ma che il modello non è in grado di stimare un valore. Le cause solitamente sono:
+    - il valore è veramente 0: se il modello non ha effetto del cluster ad esempio o non ha una struttura multilivello allora singular fit indica che la varianza stimata è zero.
+    - la struttura random è troppo complessa per il dataset che abbiamo. In questo caso non si può intepretare come la varianza è 0 ma il modello non riesce a distinguere quel valore da zero.
+- problemi di convergenza: questo è più complesso e riguarda la procedura di ottimizzazione. Esplorare questo argomento va oltre l'obiettivo del corso ma la procedura di ottimizzazione può essere modificata:
+    - cambiando il tipo di algoritmo: si veda `?lme4::allFit()` che prova tutti gli algoritmi possibili
+    - aumentando il numero di iterazioni, la tolleranza per la convergenza, etc. Si veda `?lmerControl()` e `?lme4::convergence` 
+    - standardizzando i predittori. Questo alcune volte aiuta perchè scale diverse delle variabili (una in centimetri e l'altra in millisecondi) possono creare dei problemi non dovuti alla complessità del modello o problemi dei dati.
+    - semplificare la struttura random: questo spesso è l'unico modo per risolvere la convergenza ma ovviamente al costo di avere un modello meno complesso.
+
+Il pacchetto `performance` ma anche `lme4` contengono alcuni wrapper utili per vedere la convergenza:
+
+```{r}
+#| message: true
+#| warning: true
+performance::check_convergence(fit_day4)
+lme4::isSingular(fit_day4)
+```
+
+Qualche riferimento utile:
+
+- [https://rstudio-pubs-static.s3.amazonaws.com/33653_57fc7b8e5d484c909b615d8633c01d51.html](https://rstudio-pubs-static.s3.amazonaws.com/33653_57fc7b8e5d484c909b615d8633c01d51.html)
+- [https://rpubs.com/bbolker/lme4_convergence](https://rpubs.com/bbolker/lme4_convergence)
+- [https://easystats.github.io/performance/reference/check_convergence.html](https://easystats.github.io/performance/reference/check_convergence.html)
+
+Una cosa che ho notato, sopratutto per i generalized linear mixed-effects models è che il pacchetto `glmmTMB`, usando un metodo di stima diverso, ha dei risultati generalmente migliori in termini di convergenza. La sintassi è sostanzialmente la stessa come anche i risultati nella maggior parte delle volte.
+
+```{r}
+fit_day4_tmb <- glmmTMB(stress ~ day * CBD + (day * CBD|dept) + (day|dept:pid), data = dat)
+glmmTMB::diagnose(fit_day4_tmb)
+```
+
+In questo caso non siamo fortunati ma la funzione `diagnose()` fornisce diverse informazioni utili. Forse in questo caso il modello è troppo compless.

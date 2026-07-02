@@ -1,0 +1,1871 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.21">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Filippo Gambarota">
+
+<title>Introduzione ai Linear Mixed-Effects Models – PSQT-GLMM</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ea1d7ac60288e0f1efdbc993fd8432ae.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-45dd08599a1b1e22c1c6eae1dc94be9b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="../site_libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="../site_libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="../index.html" class="navbar-brand navbar-brand-logo">
+    </a>
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">PSQT-GLMM</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/stat-teaching/metasimulation"> <i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#convergenza-e-problemi-di-fitting" id="toc-convergenza-e-problemi-di-fitting" class="nav-link active" data-scroll-target="#convergenza-e-problemi-di-fitting">Convergenza e problemi di fitting</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Introduzione ai Linear Mixed-Effects Models</h1>
+</div>
+
+
+<div class="quarto-title-meta-author">
+  <div class="quarto-title-meta-heading">Author</div>
+  <div class="quarto-title-meta-heading">Affiliation</div>
+  
+    <div class="quarto-title-meta-contents">
+    <p class="author">Filippo Gambarota <a href="mailto:filippo.gambarota@unipd.it" class="quarto-title-author-email"><i class="bi bi-envelope"></i></a> <a href="https://orcid.org/0000-0002-6666-1747" class="quarto-title-author-orcid"> <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1N0NEMjA4MDI1MjA2ODExOTk0QzkzNTEzRjZEQTg1NyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDozM0NDOEJGNEZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDozM0NDOEJGM0ZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkZDN0YxMTc0MDcyMDY4MTE5NUZFRDc5MUM2MUUwNEREIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjU3Q0QyMDgwMjUyMDY4MTE5OTRDOTM1MTNGNkRBODU3Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+84NovQAAAR1JREFUeNpiZEADy85ZJgCpeCB2QJM6AMQLo4yOL0AWZETSqACk1gOxAQN+cAGIA4EGPQBxmJA0nwdpjjQ8xqArmczw5tMHXAaALDgP1QMxAGqzAAPxQACqh4ER6uf5MBlkm0X4EGayMfMw/Pr7Bd2gRBZogMFBrv01hisv5jLsv9nLAPIOMnjy8RDDyYctyAbFM2EJbRQw+aAWw/LzVgx7b+cwCHKqMhjJFCBLOzAR6+lXX84xnHjYyqAo5IUizkRCwIENQQckGSDGY4TVgAPEaraQr2a4/24bSuoExcJCfAEJihXkWDj3ZAKy9EJGaEo8T0QSxkjSwORsCAuDQCD+QILmD1A9kECEZgxDaEZhICIzGcIyEyOl2RkgwAAhkmC+eAm0TAAAAABJRU5ErkJggg=="></a></p>
+  </div>
+  <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            University of Padova
+          </p>
+      </div>
+  </div>
+
+<div class="quarto-title-meta">
+
+      
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lme4)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(glmmTMB)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(kableExtra)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lmerTest)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggeffects)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(modelsummary)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>qtab <span class="ot">&lt;-</span> <span class="cf">function</span>(data, <span class="at">digits =</span> <span class="dv">3</span>){</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    data <span class="sc">|&gt;</span> </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">kable</span>(<span class="at">digits =</span> digits, <span class="at">align =</span> <span class="st">"c"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>        <span class="fu">kable_styling</span>()</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Vediamo alcuni esempi di strutture random più complesse in particolare due tipologie:</p>
+<ul>
+<li>effetti random di tipo <strong>nested</strong></li>
+<li>effetti random di tipo <strong>crossed</strong></li>
+</ul>
+<p>L’esempio più classico di effetti random tipo nested riguarda la raccolta dati di osservazioni annidate in più livelli di nesting. Ad esempio bambini che appartengono ad una classe e la classe che appartiene ad una scuola. Qui vedete un esempio tipico di questo dataset.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<table class="table caption-top table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: center;" data-quarto-table-cell-role="th">school</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">class</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">child</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">2</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Ovviamente è importante distinguere la classe 1 della scuola 1 dalla classe 1 della scuola 2. Nonostante abbiano lo stesso nome non condividono (almeno in questo esempio) delle caratteristiche.</p>
+<p>Supponiamo di aver condotto un esperimento su un campione di 20 membri del personale del Dipartimento di Psicologia. L’obiettivo era studiare gli effetti del consumo di CBD sui livelli di stress durante una settimana lavorativa.</p>
+<p>I partecipanti sono stati assegnati casualmente a una di due condizioni:</p>
+<ul>
+<li>gruppo di controllo: i partecipanti hanno continuato la loro routine abituale;</li>
+<li>gruppo CBD: i partecipanti hanno assunto una bevanda al CBD ogni giorno.</li>
+</ul>
+<p>Per 5 giorni lavorativi consecutivi, il livello di stress dei partecipanti è stato misurato tramite un questionario self-report.</p>
+<p>Supponiamo ora di non limitarci ai 20 membri del Dipartimento di Psicologia, ma di raccogliere dati da molte persone appartenenti a diversi dipartimenti dell’Università. Il dataset considerato include quindi non solo i 20 partecipanti di Psicologia, ma anche altri 220 partecipanti provenienti da dipartimenti come Storia, Filosofia, Arte e altri.</p>
+<p>In questo secondo caso, i dati hanno una struttura più complessa: le osservazioni sono ripetute nel tempo per ciascun partecipante, e i partecipanti sono a loro volta raggruppati all’interno dei diversi dipartimenti.</p>
+<p>Anche qui partiamo direttamente da un esempio e poi deriviamo gli aspetti più formali. Possiamo caricare il dataset <code>stress</code> (adattamento di un esempio da <a href="https://uoepsy.github.io/lmm/07_ranef.html#example-2-three-level-nested">https://uoepsy.github.io/lmm/07_ranef.html#example-2-three-level-nested</a>).</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data/stress.rds"</span>))</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(dat)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  dept      pid CBD     measure day stress
+1 CMVM     Ryan   Y Self-report   0   6.93
+2 CMVM     Ryan   Y Self-report   1   7.00
+3 CMVM     Ryan   Y Self-report   2   6.41
+4 CMVM     Ryan   Y Self-report   3   6.58
+5 CMVM     Ryan   Y Self-report   4   6.44
+6 CMVM Nicholas   Y Self-report   0   6.14
+</code></pre>
+</div>
+</div>
+<p>Iniziamo ad esplorare, nel grafico vediamo lo stress per ogni soggetto/giorno divisi per dipartimento e gruppo sperimentale. La linea tratteggiata è la media del dipartimento ed i punti neri sono la media di ogni giorno.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>dept_means <span class="ot">&lt;-</span> dat <span class="sc">|&gt;</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(dept) <span class="sc">|&gt;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(<span class="at">mean_stress =</span> <span class="fu">mean</span>(stress, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="at">.groups =</span> <span class="st">"drop"</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>subj_means <span class="ot">&lt;-</span> dat <span class="sc">|&gt;</span> </span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(dept, pid, CBD) <span class="sc">|&gt;</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(<span class="at">mean_stress =</span> <span class="fu">mean</span>(stress, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="at">.groups =</span> <span class="st">"drop"</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(dat, <span class="fu">aes</span>(<span class="at">x =</span> day, <span class="at">y =</span> stress, <span class="at">col =</span> CBD)) <span class="sc">+</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">group =</span> pid), <span class="at">alpha =</span> .<span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">facet_wrap</span>(<span class="sc">~</span> dept) <span class="sc">+</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">stat_summary</span>(</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>        <span class="fu">aes</span>(<span class="at">group =</span> day),</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>        <span class="at">fun =</span> mean,</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>        <span class="at">geom =</span> <span class="st">"point"</span>,</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>        <span class="at">col =</span> <span class="st">"black"</span>,</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>        <span class="at">size =</span> <span class="dv">3</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_hline</span>(</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>        <span class="at">data =</span> dept_means,</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>        <span class="fu">aes</span>(<span class="at">yintercept =</span> mean_stress),</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>        <span class="at">inherit.aes =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>        <span class="at">col =</span> <span class="st">"black"</span>,</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>        <span class="at">linetype =</span> <span class="st">"dashed"</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="02-complex-random-structures_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Vediamo alcune cose rilevanti:</p>
+<ul>
+<li>la media di ogni dipartimento varia</li>
+<li>ogni soggetto, dentro al dipartimento varia</li>
+<li>sembra esserci anche una differenza, in media, tra i due gruppi sperimentali</li>
+</ul>
+<p>Vediamo meglio focalizzandoci su due dipartimenti. Qui ogni riga è la media di un soggetto.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>dat <span class="sc">|&gt;</span> </span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(dept <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Art"</span>,  <span class="st">"Business"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> day, <span class="at">y =</span> stress, <span class="at">col =</span> CBD)) <span class="sc">+</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">data =</span> <span class="fu">filter</span>(subj_means, dept <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Art"</span>,  <span class="st">"Business"</span>)), </span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>             <span class="fu">aes</span>(<span class="at">yintercept =</span> mean_stress, <span class="at">col =</span> CBD)) <span class="sc">+</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">group =</span> pid), <span class="at">alpha =</span> .<span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">facet_wrap</span>(<span class="sc">~</span> dept) <span class="sc">+</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">stat_summary</span>(</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>        <span class="fu">aes</span>(<span class="at">group =</span> day),</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">fun =</span> mean,</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>        <span class="at">geom =</span> <span class="st">"point"</span>,</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>        <span class="at">col =</span> <span class="st">"black"</span>,</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>        <span class="at">size =</span> <span class="dv">3</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="02-complex-random-structures_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>La differenza rispetto al dataset sulla deprivazione da sonno è che abbiamo due livelli di <em>nesting</em>. Il dipartimento contiene i soggetti che a loro volta contengono le osservazioni dei giorni. Questo crea un ulteriore livello di dipendenza/correlazione:</p>
+<ul>
+<li>soggetti nello stesso dipartimento potrebbero essere più simili rispetto a soggetti diversi</li>
+<li>ogni soggetto ha il suo livello di stress medio e quindi le osservazioni di un soggetto sono più simili tra loro</li>
+</ul>
+<p>Vediamo qualche descrittiva rispetto al clustering:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(dat<span class="sc">$</span>dept)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+                    Art                Business                    CMVM 
+                    100                     100                     100 
+Health &amp; Social Science                 History                     LEL 
+                    100                     100                     100 
+                   Math                    Phil                  PolSci 
+                    100                     100                     100 
+                  Psych               Sociology                Theology 
+                    100                     100                     100 
+</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(dat<span class="sc">$</span>dept, dat<span class="sc">$</span>day)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                         
+                           0  1  2  3  4
+  Art                     20 20 20 20 20
+  Business                20 20 20 20 20
+  CMVM                    20 20 20 20 20
+  Health &amp; Social Science 20 20 20 20 20
+  History                 20 20 20 20 20
+  LEL                     20 20 20 20 20
+  Math                    20 20 20 20 20
+  Phil                    20 20 20 20 20
+  PolSci                  20 20 20 20 20
+  Psych                   20 20 20 20 20
+  Sociology               20 20 20 20 20
+  Theology                20 20 20 20 20
+</code></pre>
+</div>
+</div>
+<p>Quindi abbiamo 12 dipartimenti e 5 osservazioni per soggetto. Rispetto ai soggetti vediamo che ci sono alcuni nomi che si ripetono. Lo stesso nome puà comparire in più dipartimenti ma è fondamentale capire che non è la stessa persona, almeno in questo tipo di dataset. Quindi possiamo generare un id unico per ogni soggetto. Abbiamo quindi 240 soggetti unici.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>dat<span class="sc">$</span>id <span class="ot">&lt;-</span> <span class="fu">paste0</span>(dat<span class="sc">$</span>dept, <span class="st">"_"</span>, dat<span class="sc">$</span>pid)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(<span class="fu">unique</span>(dat<span class="sc">$</span>id))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 240
+</code></pre>
+</div>
+</div>
+<p>Proviamo a implementare il modello per come lo conosciamo ignorando per il momento il dipartimento:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>fit_subj <span class="ot">&lt;-</span> <span class="fu">lmer</span>(stress <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>id), <span class="at">data =</span> dat)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_subj)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: stress ~ 1 + (1 | id)
+   Data: dat
+
+REML criterion at convergence: 2096
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-2.9379 -0.5702 -0.0045  0.5950  2.8131 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ id       (Intercept) 0.826    0.909   
+ Residual             0.177    0.421   
+Number of obs: 1200, groups:  id, 240
+
+Fixed effects:
+            Estimate Std. Error       df t value Pr(&gt;|t|)    
+(Intercept)   6.0000     0.0599 239.0000     100   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>performance<span class="sc">::</span><span class="fu">icc</span>(fit_subj)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># Intraclass Correlation Coefficient
+
+    Adjusted ICC: 0.824
+  Unadjusted ICC: 0.824
+</code></pre>
+</div>
+</div>
+<p>Vediamo che ICC è molto alto e quindi le osservazioni dentro i soggetti sono molto correlate o in altri termini c’è molta differenza tra le medie dei soggetti nei livelli di stress. Il dipartimento in questo modello non è considerato proprio come nel modello della deprivazione con <code>lm</code> non consideravamo i soggetti. In altri termini stiamo considerando i soggetti, in questo caso, come indipendenti ma realisticamente i livelli di stress medi variano da un dipartimento all’altro. Questa quota di variabilità e quindi di dipendenza tra soggetti la stiamo ignorando.</p>
+<p>Valgono quindi tutti gli stessi problemi che dicevamo nei termini di sovrastima del numero di osservazioni (soggetti in questo caso) e sottostima dell’errore standard. La scelta importante è ora come trattare il dipartimento. Mentre il soggetto è chiaramente un effetto random il dipartimento può essere meno immediato. Possiamo:</p>
+<ul>
+<li>considerarlo come effetto random e quindi rendere più complessa la struttura random</li>
+<li>considerarlo come effetto fisso e quindi applicare un no-pooling stimando un parametro fisso per ogni dipartimento</li>
+</ul>
+<p>Proviamo la seconda opzione per il momento:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>fit_dept <span class="ot">&lt;-</span> <span class="fu">lmer</span>(stress <span class="sc">~</span> <span class="dv">0</span> <span class="sc">+</span> dept <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>id), <span class="at">data =</span> dat)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_dept, <span class="at">cor =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: stress ~ 0 + dept + (1 | id)
+   Data: dat
+
+REML criterion at convergence: 1825
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-3.1416 -0.6030  0.0145  0.6013  2.7655 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ id       (Intercept) 0.226    0.475   
+ Residual             0.177    0.421   
+Number of obs: 1200, groups:  id, 240
+
+Fixed effects:
+                            Estimate Std. Error      df t value Pr(&gt;|t|)    
+deptArt                        5.023      0.114 228.000    44.0   &lt;2e-16 ***
+deptBusiness                   6.247      0.114 228.000    54.7   &lt;2e-16 ***
+deptCMVM                       6.749      0.114 228.000    59.1   &lt;2e-16 ***
+deptHealth &amp; Social Science    6.876      0.114 228.000    60.2   &lt;2e-16 ***
+deptHistory                    5.847      0.114 228.000    51.2   &lt;2e-16 ***
+deptLEL                        4.680      0.114 228.000    41.0   &lt;2e-16 ***
+deptMath                       5.642      0.114 228.000    49.4   &lt;2e-16 ***
+deptPhil                       6.187      0.114 228.000    54.2   &lt;2e-16 ***
+deptPolSci                     7.103      0.114 228.000    62.2   &lt;2e-16 ***
+deptPsych                      6.119      0.114 228.000    53.6   &lt;2e-16 ***
+deptSociology                  6.685      0.114 228.000    58.5   &lt;2e-16 ***
+deptTheology                   4.841      0.114 228.000    42.4   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+</code></pre>
+</div>
+</div>
+<p>In questo caso teniamo correttamente conto dei soggetti e delle osservazioni (Giorni) dentro i soggetti e stimiamo un parametro per dipartimento. Vediamo un grafico degli effetti fissi:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">ggeffect</span>(fit_dept))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="02-complex-random-structures_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Vediamo che c’è una variabilità enorme tra dipartimenti. Qui la stiamo considerando ma se il focus non è sul confronto tra dipartimenti forse è più ragionevole applicare il principio del partial-pooling anche in questo caso.</p>
+<p>Per farlo possiamo aggiungere un livello all’effetto random usando la scrittura <code>(1|dept/pid)</code>. Questo significa che il dipartimento è la struttura gerarchicamente più in alto che contiene i soggetti che a loro volta contengono le osservazioni che sono l’ultimo livello.</p>
+<p>Vediamolo in R e poi più formalmente:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>fit_dept_id <span class="ot">&lt;-</span> <span class="fu">lmer</span>(stress <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>dept<span class="sc">/</span>pid), <span class="at">data =</span> dat)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_dept_id)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: stress ~ 1 + (1 | dept/pid)
+   Data: dat
+
+REML criterion at convergence: 1854
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-3.1361 -0.6022  0.0169  0.6056  2.7699 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ pid:dept (Intercept) 0.226    0.475   
+ dept     (Intercept) 0.652    0.808   
+ Residual             0.177    0.421   
+Number of obs: 1200, groups:  pid:dept, 240; dept, 12
+
+Fixed effects:
+            Estimate Std. Error     df t value Pr(&gt;|t|)    
+(Intercept)    6.000      0.235 11.000    25.5  3.9e-11 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+</code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="cosa significa (1|dept/id)">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>cosa significa (1|dept/id)
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>La scrittura <code>(1|dept/pid)</code> è il modo di includere effetti random di tipo nested. Internamente <code>lme4</code> espande questa scrittura in <code>(1|dept) + (1|dept:pid)</code>.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>fit_dept_id <span class="ot">&lt;-</span> <span class="fu">lmer</span>(stress <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>dept<span class="sc">/</span>pid), <span class="at">data =</span> dat)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>fit_dept_id2 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(stress <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>dept) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>dept<span class="sc">:</span>pid), <span class="at">data =</span> dat)</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_dept_id)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: stress ~ 1 + (1 | dept/pid)
+   Data: dat
+
+REML criterion at convergence: 1854
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-3.1361 -0.6022  0.0169  0.6056  2.7699 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ pid:dept (Intercept) 0.226    0.475   
+ dept     (Intercept) 0.652    0.808   
+ Residual             0.177    0.421   
+Number of obs: 1200, groups:  pid:dept, 240; dept, 12
+
+Fixed effects:
+            Estimate Std. Error     df t value Pr(&gt;|t|)    
+(Intercept)    6.000      0.235 11.000    25.5  3.9e-11 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_dept_id2)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: stress ~ 1 + (1 | dept) + (1 | dept:pid)
+   Data: dat
+
+REML criterion at convergence: 1854
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-3.1361 -0.6022  0.0169  0.6056  2.7699 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ dept:pid (Intercept) 0.226    0.475   
+ dept     (Intercept) 0.652    0.808   
+ Residual             0.177    0.421   
+Number of obs: 1200, groups:  dept:pid, 240; dept, 12
+
+Fixed effects:
+            Estimate Std. Error     df t value Pr(&gt;|t|)    
+(Intercept)    6.000      0.235 11.000    25.5  3.9e-11 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+</code></pre>
+</div>
+</div>
+<p>L’idea è che il modello includa l’effetto random <code>(1|dept)</code> e poi includa un effetto random che è la combinazione <code>:</code> sta per interazione di <code>dept</code> e <code>pid</code>. Quindi crea internamente una variabile che è simile alla nostra <code>id</code> dove semplicemente si uniscono le etichette di <code>dept</code> e <code>pid</code>.</p>
+<p>Infatti se scriviamo il modello in questo modo:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>fit_dept_id3 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(stress <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>dept) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>id), <span class="at">data =</span> dat)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_dept_id3)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: stress ~ 1 + (1 | dept) + (1 | id)
+   Data: dat
+
+REML criterion at convergence: 1854
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-3.1361 -0.6022  0.0169  0.6056  2.7699 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ id       (Intercept) 0.226    0.475   
+ dept     (Intercept) 0.652    0.808   
+ Residual             0.177    0.421   
+Number of obs: 1200, groups:  id, 240; dept, 12
+
+Fixed effects:
+            Estimate Std. Error     df t value Pr(&gt;|t|)    
+(Intercept)    6.000      0.235 11.000    25.5  3.9e-11 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+</code></pre>
+</div>
+</div>
+<p>Otteniamo ancora lo stesso risultato.</p>
+<p>In generale, la scrittura <code>(1|dept/pid)</code> o <code>(1|dept) + (1|dept:pid)</code> è consigliata perchè lascia a <code>lme4</code> la gestione delle combinazioni invece che creare manualmente <code>id</code> e rende esplicito che siamo in un modello nested. Vedremo che la scrittura <code>(1|dept) + (1|id)</code> è più tipica dei modelli crossed.</p>
+</div>
+</div>
+</div>
+<p>In questo modello non abbiamo più effetti fissi per dipartimento ma un’unico effetto random aggiuntivo. In pratica stiamo stimando, oltre alla variabilità tra soggetti, la variabilità tra dipartimenti.</p>
+<div class="cell" data-layout-align="center" data-lines="^Random|^ Residual">
+<div class="cell-output cell-output-stdout">
+<pre><code>Random effects:
+ Groups   Name        Variance Std.Dev.
+ pid:dept (Intercept) 0.226    0.475   
+ dept     (Intercept) 0.652    0.808   
+ Residual             0.177    0.421   </code></pre>
+</div>
+</div>
+<ul>
+<li><code>dept</code>: è la variabilità tra le medie dei dipartimenti</li>
+<li><code>id:dept</code>: è la variabilità tra le medie dei soggetti dentro i dipartimenti</li>
+<li><code>Residual</code>: è la variabilità residua ovvero dentro i soggetti</li>
+</ul>
+<p>Vediamolo graficamente:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>dat <span class="sc">|&gt;</span> </span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">stress =</span> <span class="fu">mean</span>(stress), <span class="at">.by =</span> <span class="fu">c</span>(dept, pid)) <span class="sc">|&gt;</span> </span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> dept, <span class="at">y =</span> stress)) <span class="sc">+</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">position =</span> <span class="fu">position_jitter</span>(<span class="at">width =</span> <span class="fl">0.1</span>)) <span class="sc">+</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">geom =</span> <span class="st">"point"</span>, <span class="at">size =</span> <span class="dv">5</span>, <span class="at">col =</span> <span class="st">"red"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="02-complex-random-structures_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Ogni punto è un soggetto (la sua media) e il punto rosso grande è la media del dipartimento. Quindi:</p>
+<ul>
+<li><code>id:dept</code>: è la stima della differenza tra i punti al netto di quella tra dipartimenti</li>
+<li><code>dept</code>: è la stima della differenza tra i dipartimenti</li>
+</ul>
+<p>Come viene definito qui l’ICC? é leggermente più complesso perchè abbiamo due livelli e ICC rappresenta la correlazione tra cluster. Quindi in questo caso possiamo calcolare due ICC:</p>
+<p><span class="math display">\[
+\sigma^2_{\text{tot}} =
+\sigma^2_{\text{dept}} +
+\sigma^2_{\text{id}} +
+\sigma^2_{\varepsilon}
+\]</span></p>
+<p>L’ICC a livello di dipartimento è:</p>
+<p><span class="math display">\[
+ICC_{\text{dept}} =
+\frac{\sigma^2_{\text{dept}}}
+{\sigma^2_{\text{tot}}}
+\]</span></p>
+<p>L’ICC a livello di individuo è:</p>
+<p><span class="math display">\[
+ICC_{\text{id}} =
+\frac{
+\sigma^2_{\text{id}}
+}
+{\sigma^2_{\text{tot}}}
+\]</span></p>
+<p>Queste due quantità indicano rispettivamente la percentuale di variabilità dovuta al dipartimento e al livello individuo (dentro il dipartimento).</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>vv <span class="ot">&lt;-</span> insight<span class="sc">::</span><span class="fu">get_variance</span>(fit_dept_id)</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>vv</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$var.fixed
+[1] 0
+
+$var.random
+[1] 0.878
+
+$var.residual
+[1] 0.177
+
+$var.distribution
+[1] 0.177
+
+$var.dispersion
+[1] 0
+
+$var.intercept
+pid:dept     dept 
+   0.226    0.652 
+</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>vtot <span class="ot">&lt;-</span> vv<span class="sc">$</span>var.residual <span class="sc">+</span> <span class="fu">sum</span>(vv<span class="sc">$</span>var.intercept)</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>icc <span class="ot">&lt;-</span> vv<span class="sc">$</span>var.intercept <span class="sc">/</span> vtot</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>icc</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>pid:dept     dept 
+   0.214    0.618 
+</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># in alternativa</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="co"># multilevel.icc(dat[, c("stress", "dept", "id")], cluster = c("dept", "id"))</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Inoltre la somma di ICC ai due livelli ci da l’ICC globale:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>performance<span class="sc">::</span><span class="fu">icc</span>(fit_dept_id)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># Intraclass Correlation Coefficient
+
+    Adjusted ICC: 0.832
+  Unadjusted ICC: 0.832
+</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(icc)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.832
+</code></pre>
+</div>
+</div>
+<p>Da notare che ci sono diversi modi di calcolarlo con significati diversi, qui trovate una spiegazione con le formule <a href="https://www.rdocumentation.org/packages/misty/versions/0.7.6/topics/multilevel.icc">https://www.rdocumentation.org/packages/misty/versions/0.7.6/topics/multilevel.icc</a>.</p>
+<p>Prima di includere degli effetti fissi vediamo cosa succede se mettiamo solo l’effetto random del dipartimento:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>fit_dept_only <span class="ot">&lt;-</span> <span class="fu">lmer</span>(stress <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>dept), <span class="at">data =</span> dat)</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_dept_only)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: stress ~ 1 + (1 | dept)
+   Data: dat
+
+REML criterion at convergence: 2347
+
+Scaled residuals: 
+   Min     1Q Median     3Q    Max 
+-2.986 -0.670  0.011  0.642  3.344 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ dept     (Intercept) 0.661    0.813   
+ Residual             0.393    0.627   
+Number of obs: 1200, groups:  dept, 12
+
+Fixed effects:
+            Estimate Std. Error     df t value Pr(&gt;|t|)    
+(Intercept)    6.000      0.235 11.000    25.5  3.9e-11 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+</code></pre>
+</div>
+</div>
+<p>Cosa sta facendo questo modello? In generale ricordate che quando omettete qualcosa dal modello equivale a fissare a zero quella componente. Noi qui stiamo dicendo che ogni dipartimento ha la sua media MA i soggetti dentro i dipartimenti non variano. In altri termini stiamo dicendo che:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>dat_dept_only <span class="ot">&lt;-</span> dat <span class="sc">|&gt;</span> </span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">stress =</span> <span class="fu">mean</span>(stress), <span class="at">.by =</span> <span class="fu">c</span>(dept, pid)) <span class="sc">|&gt;</span> </span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">stress_dept =</span> <span class="fu">mean</span>(stress),</span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">.by =</span> dept</span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a>dat_dept_only <span class="sc">|&gt;</span> </span>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> dept)) <span class="sc">+</span></span>
+<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(</span>
+<span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">y =</span> stress),</span>
+<span id="cb41-12"><a href="#cb41-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">position =</span> <span class="fu">position_jitter</span>(<span class="at">width =</span> <span class="fl">0.1</span>),</span>
+<span id="cb41-13"><a href="#cb41-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">col =</span> <span class="st">"black"</span>,</span>
+<span id="cb41-14"><a href="#cb41-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.4</span></span>
+<span id="cb41-15"><a href="#cb41-15" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb41-16"><a href="#cb41-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(</span>
+<span id="cb41-17"><a href="#cb41-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">y =</span> stress_dept),</span>
+<span id="cb41-18"><a href="#cb41-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">position =</span> <span class="fu">position_jitter</span>(<span class="at">width =</span> <span class="fl">0.3</span>),</span>
+<span id="cb41-19"><a href="#cb41-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">col =</span> <span class="st">"red"</span>,</span>
+<span id="cb41-20"><a href="#cb41-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="dv">2</span></span>
+<span id="cb41-21"><a href="#cb41-21" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb41-22"><a href="#cb41-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(</span>
+<span id="cb41-23"><a href="#cb41-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">y =</span> stress),</span>
+<span id="cb41-24"><a href="#cb41-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">geom =</span> <span class="st">"point"</span>,</span>
+<span id="cb41-25"><a href="#cb41-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">col =</span> <span class="st">"black"</span>,</span>
+<span id="cb41-26"><a href="#cb41-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="dv">5</span></span>
+<span id="cb41-27"><a href="#cb41-27" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="02-complex-random-structures_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>I punti rossi sono le medie dei soggetti che si aspetta il modello. Quelli neri in trasparenza sono le medie effettive dei soggetti. Tutta quella variabilità tra soggetti che ci sarebbe nei dati viene ignorata dal modello.</p>
+<p>Ora iniziamo ad aggiungere degli effetti fissi. Partiamo dall’effetto del consumo di <code>CBD</code>:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>dat_cbd <span class="ot">&lt;-</span> <span class="fu">summarise</span>(dat, <span class="at">stress =</span> <span class="fu">mean</span>(stress), <span class="at">.by =</span> <span class="fu">c</span>(CBD))</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>dat <span class="sc">|&gt;</span> </span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">stress =</span> <span class="fu">mean</span>(stress), <span class="at">.by =</span> <span class="fu">c</span>(dept, pid, CBD)) <span class="sc">|&gt;</span> </span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> dept, <span class="at">y =</span> stress, <span class="at">color =</span> CBD)) <span class="sc">+</span></span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">position =</span> <span class="fu">position_jitter</span>(<span class="at">width =</span> <span class="fl">0.1</span>), <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">geom =</span> <span class="st">"point"</span>, <span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="at">width =</span> <span class="fl">0.5</span>), <span class="at">size =</span> <span class="dv">6</span>) <span class="sc">+</span></span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">data =</span> dat_cbd, <span class="fu">aes</span>(<span class="at">yintercept =</span> stress, <span class="at">color =</span> CBD))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="02-complex-random-structures_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Vediamo che in media sembra esserci un effetto del consumo. Infatti parte della variabilità tra soggetti è dovuta all’effetto del consumo di CDB. Le linee orizzontali sono la media di stress per CBD complessivamente tra dipartimenti e soggetti.</p>
+<p>Semplicemente possiamo intanto introdurre <code>CBD</code> come effetto fisso per partire:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>fit_cbd <span class="ot">&lt;-</span> <span class="fu">lmer</span>(stress <span class="sc">~</span> CBD <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>dept<span class="sc">/</span>pid), <span class="at">data =</span> dat)</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_cbd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: stress ~ CBD + (1 | dept/pid)
+   Data: dat
+
+REML criterion at convergence: 1825
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-3.1193 -0.6098  0.0144  0.6069  2.7170 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ pid:dept (Intercept) 0.191    0.438   
+ dept     (Intercept) 0.707    0.841   
+ Residual             0.177    0.421   
+Number of obs: 1200, groups:  pid:dept, 240; dept, 12
+
+Fixed effects:
+            Estimate Std. Error       df t value Pr(&gt;|t|)    
+(Intercept)   6.2061     0.2471  11.4454   25.11  2.3e-11 ***
+CBDY         -0.3805     0.0648 227.7365   -5.87  1.5e-08 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Correlation of Fixed Effects:
+     (Intr)
+CBDY -0.142
+</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">ggeffect</span>(fit_cbd))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="02-complex-random-structures_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">modelsummary</span>(</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="st">"~ 1"</span> <span class="ot">=</span> fit_dept_id, <span class="st">"~ cbd"</span> <span class="ot">=</span> fit_cbd),</span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">gof_omit =</span> <span class="st">"AIC|BIC|ICC|RMSE|R2"</span></span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>x<span class="sc">@</span>data</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>                              ~ 1   ~ cbd
+1             (Intercept)   6.000   6.206
+2                         (0.235) (0.247)
+6                    CBDY          -0.380
+7                                 (0.065)
+3  SD (Intercept piddept)   0.475   0.438
+4     SD (Intercept dept)   0.808   0.841
+5       SD (Observations)   0.421   0.421
+71               Num.Obs.    1200    1200
+</code></pre>
+</div>
+</div>
+<p>Vediamo che in media il consumo di CBD sembra ridurre lo stress di circa 0.38 punti nella scala di stress. Vediamo inoltre altre cose:</p>
+<ul>
+<li>la varianza tra soggetti dentro i dipartimenti si è ridotta <code>dept:pid</code>. Stiamo spiegando una quota di variabilità tra soggetti.</li>
+<li>anche la variabilità tra dipartimenti si è ridotta <code>dept</code>. Stiamo spiegando una quota di variabilità tra dipartimenti.</li>
+</ul>
+<p>Quindi ci siamo? Non esattamente perchè stiamo ignorando una quota importante di variabilità. Stiamo assumendo l’effetto CBD come fisso e uguale tra soggetti e tra dipartimenti. Questo equivale ad assumere l’effetto di Days (nel precedente modello della deprivazione) come uguale tra soggetti.</p>
+<p>Possiamo quindi inserire la random slope di <code>CBD</code>:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>fit_cbd_sl <span class="ot">&lt;-</span> <span class="fu">lmer</span>(stress <span class="sc">~</span> CBD <span class="sc">+</span> (CBD<span class="sc">|</span>dept<span class="sc">/</span>pid), <span class="at">data =</span> dat)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in checkConv(attr(opt, "derivs"), opt$par, ctrl = control$checkConv, : Model failed to converge with max|grad| = 0.00303623 (tol = 0.002, component 1)
+  See ?lme4::convergence and ?lme4::troubleshooting.</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_cbd_sl)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: stress ~ CBD + (CBD | dept/pid)
+   Data: dat
+
+REML criterion at convergence: 1821
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-3.1446 -0.5918  0.0128  0.6071  2.7168 
+
+Random effects:
+ Groups   Name        Variance Std.Dev. Corr  
+ pid:dept (Intercept) 0.2028   0.450          
+          CBDY        0.2545   0.504    -0.65 
+ dept     (Intercept) 0.6417   0.801          
+          CBDY        0.0446   0.211    0.36  
+ Residual             0.1769   0.421          
+Number of obs: 1200, groups:  pid:dept, 240; dept, 12
+
+Fixed effects:
+            Estimate Std. Error      df t value Pr(&gt;|t|)    
+(Intercept)   6.1928     0.2363 10.9332   26.21  3.2e-11 ***
+CBDY         -0.3827     0.0885 10.7399   -4.33   0.0013 ** 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Correlation of Fixed Effects:
+     (Intr)
+CBDY 0.129 
+optimizer (nloptwrap) convergence code: 0 (OK)
+Model failed to converge with max|grad| = 0.00303623 (tol = 0.002, component 1)
+  See ?lme4::convergence and ?lme4::troubleshooting.
+</code></pre>
+</div>
+</div>
+<p>Prima di intepretare, vediamo che c’è un warning rispetto alla convergenza del modello. Questo è uno scenario tipico con i mixed-models sopratutto quando si rende la struttura random più complessa. Purtroppo non ci sono soluzioni universali, dopo vediamo come si può risolvere.</p>
+<p>Vediamo una parte random decisamente più complessa del solito. Sostanzialmente abbiamo le intercette per dipartimento e soggetto (dentro il dipartimento) e anche la slope sia per dipartimento che per soggetto.</p>
+<p>C’è un problema importante. L’effetto di CBD non può variare dentro i soggetti. I soggetti sono in un gruppo specifico quindi non possiamo mettere CBD come slope random.</p>
+<p>Se volessimo omettere la slope a livello del soggetto dobbiamo espandere l’effetto random:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>fit_cbd_sl2 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(stress <span class="sc">~</span> CBD <span class="sc">+</span> (CBD<span class="sc">|</span>dept) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>dept<span class="sc">:</span>pid), <span class="at">data =</span> dat)</span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_cbd_sl2)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: stress ~ CBD + (CBD | dept) + (1 | dept:pid)
+   Data: dat
+
+REML criterion at convergence: 1822
+
+Scaled residuals: 
+   Min     1Q Median     3Q    Max 
+-3.131 -0.603  0.014  0.616  2.712 
+
+Random effects:
+ Groups   Name        Variance Std.Dev. Corr 
+ dept:pid (Intercept) 0.1818   0.426         
+ dept     (Intercept) 0.6458   0.804         
+          CBDY        0.0444   0.211    0.34 
+ Residual             0.1769   0.421         
+Number of obs: 1200, groups:  dept:pid, 240; dept, 12
+
+Fixed effects:
+            Estimate Std. Error      df t value Pr(&gt;|t|)    
+(Intercept)   6.1924     0.2366 10.9379   26.17  3.2e-11 ***
+CBDY         -0.3814     0.0881 10.6685   -4.33   0.0013 ** 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Correlation of Fixed Effects:
+     (Intr)
+CBDY 0.124 
+</code></pre>
+</div>
+</div>
+<p>In questo caso stiamo fissando le slope random per soggetto a zero (correttamente) e stiamo stimando solo quelle per dipartimento. Questa scrittura ci permette di distiguere quali effetti fissi vogliamo inserire come slope random ed a quale livello.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>lattice<span class="sc">::</span><span class="fu">dotplot</span>(<span class="fu">ranef</span>(fit_cbd_sl2))[[<span class="dv">1</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="02-complex-random-structures_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>lattice<span class="sc">::</span><span class="fu">dotplot</span>(<span class="fu">ranef</span>(fit_cbd_sl2))[[<span class="dv">2</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="02-complex-random-structures_files/figure-html/unnamed-chunk-27-2.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Proviamo ora a fare lo stesso ragionamento ma con <code>day</code>.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>dat<span class="sc">$</span>dayf <span class="ot">&lt;-</span> <span class="fu">factor</span>(dat<span class="sc">$</span>day)</span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>fit_day <span class="ot">&lt;-</span> <span class="fu">lmer</span>(stress <span class="sc">~</span> day <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>dept) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>dept<span class="sc">:</span>pid), <span class="at">data =</span> dat)</span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_day)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: stress ~ day + (1 | dept) + (1 | dept:pid)
+   Data: dat
+
+REML criterion at convergence: 1862
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-3.1404 -0.6006  0.0193  0.6048  2.7627 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ dept:pid (Intercept) 0.225    0.475   
+ dept     (Intercept) 0.652    0.808   
+ Residual             0.177    0.421   
+Number of obs: 1200, groups:  dept:pid, 240; dept, 12
+
+Fixed effects:
+            Estimate Std. Error       df t value Pr(&gt;|t|)    
+(Intercept) 6.00e+00   2.36e-01 1.11e+01   25.41  3.4e-11 ***
+day         1.22e-03   8.59e-03 9.59e+02    0.14     0.89    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Correlation of Fixed Effects:
+    (Intr)
+day -0.073
+</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">ggeffect</span>(fit_day))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="02-complex-random-structures_files/figure-html/unnamed-chunk-28-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Vediamo se c’è un effetto tra soggetti e/o dipartimenti. Qui ha senso mettere entrambe le random slopes perchè ogni soggetto è sottoposto a più misurazioni.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>fit_day2 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(stress <span class="sc">~</span> day <span class="sc">+</span> (day<span class="sc">|</span>dept) <span class="sc">+</span> (day<span class="sc">|</span>dept<span class="sc">:</span>pid), <span class="at">data =</span> dat)</span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_day2)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: stress ~ day + (day | dept) + (day | dept:pid)
+   Data: dat
+
+REML criterion at convergence: 1732
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-3.0089 -0.5831 -0.0049  0.5933  2.7424 
+
+Random effects:
+ Groups   Name        Variance Std.Dev. Corr  
+ dept:pid (Intercept) 0.1633   0.404          
+          day         0.0165   0.129    0.03  
+ dept     (Intercept) 0.7125   0.844          
+          day         0.0027   0.052    -0.41 
+ Residual             0.1298   0.360          
+Number of obs: 1200, groups:  dept:pid, 240; dept, 12
+
+Fixed effects:
+            Estimate Std. Error       df t value Pr(&gt;|t|)    
+(Intercept)  5.99757    0.24572 11.00186   24.41  6.2e-11 ***
+day          0.00122    0.01865 11.00046    0.07     0.95    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Correlation of Fixed Effects:
+    (Intr)
+day -0.346
+</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a>lattice<span class="sc">::</span><span class="fu">dotplot</span>(<span class="fu">ranef</span>(fit_day2))[[<span class="dv">1</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="02-complex-random-structures_files/figure-html/unnamed-chunk-29-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>lattice<span class="sc">::</span><span class="fu">dotplot</span>(<span class="fu">ranef</span>(fit_day2))[[<span class="dv">2</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="02-complex-random-structures_files/figure-html/unnamed-chunk-29-2.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Anche qui la variabilità sembra essere principalmente tra soggetti. Un’ultima cosa che possiamo provare è l’interazione tra <code>day</code> e <code>CBD</code>. In altri termini possiamo vedere se c’è un effetto di riduzione/aumento dello stress in funzione della CBD ma che varia nel tempo.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="co"># solo effetti principali</span></span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a>fit_day3 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(stress <span class="sc">~</span> day <span class="sc">+</span> CBD <span class="sc">+</span> (day <span class="sc">+</span> CBD<span class="sc">|</span>dept) <span class="sc">+</span> (day<span class="sc">|</span>dept<span class="sc">:</span>pid), <span class="at">data =</span> dat)</span>
+<span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_day3)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: stress ~ day + CBD + (day + CBD | dept) + (day | dept:pid)
+   Data: dat
+
+REML criterion at convergence: 1715
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-2.9987 -0.5880 -0.0099  0.5770  2.7626 
+
+Random effects:
+ Groups   Name        Variance Std.Dev. Corr        
+ dept:pid (Intercept) 0.1528   0.391                
+          day         0.0165   0.129    -0.12       
+ dept     (Intercept) 0.6647   0.815                
+          day         0.0027   0.052    -0.38       
+          CBDY        0.0552   0.235     0.42 -0.47 
+ Residual             0.1298   0.360                
+Number of obs: 1200, groups:  dept:pid, 240; dept, 12
+
+Fixed effects:
+            Estimate Std. Error       df t value Pr(&gt;|t|)    
+(Intercept)  6.11908    0.23976 10.85285   25.52  4.9e-11 ***
+day          0.00122    0.01865 10.99935    0.07    0.949    
+CBDY        -0.25651    0.09087 10.60848   -2.82    0.017 *  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Correlation of Fixed Effects:
+     (Intr) day   
+day  -0.329       
+CBDY  0.218 -0.281
+</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="co"># interazione</span></span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a>fit_day4 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(stress <span class="sc">~</span> day <span class="sc">*</span> CBD <span class="sc">+</span> (day <span class="sc">*</span> CBD<span class="sc">|</span>dept) <span class="sc">+</span> (day<span class="sc">|</span>dept<span class="sc">:</span>pid), <span class="at">data =</span> dat)</span>
+<span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_day4)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: stress ~ day * CBD + (day * CBD | dept) + (day | dept:pid)
+   Data: dat
+
+REML criterion at convergence: 1680
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-2.9965 -0.5860 -0.0054  0.5702  2.7645 
+
+Random effects:
+ Groups   Name        Variance Std.Dev. Corr              
+ dept:pid (Intercept) 0.147401 0.3839                     
+          day         0.012004 0.1096   -0.03             
+ dept     (Intercept) 0.618552 0.7865                     
+          day         0.001662 0.0408    0.22             
+          CBDY        0.066344 0.2576    0.50 -0.06       
+          day:CBDY    0.000941 0.0307   -0.97 -0.06 -0.68 
+ Residual             0.129763 0.3602                     
+Number of obs: 1200, groups:  dept:pid, 240; dept, 12
+
+Fixed effects:
+            Estimate Std. Error      df t value Pr(&gt;|t|)    
+(Intercept)   6.0349     0.2319 10.8284   26.03  4.1e-11 ***
+day           0.0798     0.0193 14.0655    4.14  0.00099 ***
+CBDY         -0.1040     0.0985 10.7749   -1.06  0.31407    
+day:CBDY     -0.1403     0.0228 32.8215   -6.14  6.5e-07 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Correlation of Fixed Effects:
+         (Intr) day    CBDY  
+day       0.076              
+CBDY      0.268  0.108       
+day:CBDY -0.319 -0.557 -0.411
+optimizer (nloptwrap) convergence code: 0 (OK)
+boundary (singular) fit: see help('isSingular')
+</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">ggeffect</span>(fit_day4, <span class="at">terms =</span> <span class="fu">c</span>(<span class="st">"day"</span>, <span class="st">"CBD"</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="02-complex-random-structures_files/figure-html/unnamed-chunk-30-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Vediamo che, come previsto, per il gruppo con CBD lo stress si riduce nel tempo ovviamente essendo l’assunzione progressiva mentre nel gruppo sperimentale sembra aumentare. Possiamo scomporre gli effetti con <code>car::Anova()</code> oppure con <code>anova()</code> per il confronto tra modelli:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>car<span class="sc">::</span><span class="fu">Anova</span>(fit_day4)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Analysis of Deviance Table (Type II Wald chisquare tests)
+
+Response: stress
+        Chisq Df Pr(&gt;Chisq)    
+day      0.75  1       0.39    
+CBD     15.41  1    8.7e-05 ***
+day:CBD 37.72  1    8.2e-10 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(fit_day3, fit_day4)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Data: dat
+Models:
+fit_day3: stress ~ day + CBD + (day + CBD | dept) + (day | dept:pid)
+fit_day4: stress ~ day * CBD + (day * CBD | dept) + (day | dept:pid)
+         npar  AIC  BIC logLik -2*log(L) Chisq Df Pr(&gt;Chisq)    
+fit_day3   13 1731 1797   -852      1705                        
+fit_day4   18 1699 1791   -832      1663  41.2  5    8.4e-08 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="co"># oppure anche</span></span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a>performance<span class="sc">::</span><span class="fu">test_performance</span>(fit_day3, fit_day4)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Name     |           Model |    BF | df | df_diff |  Chi2 |      p
+------------------------------------------------------------------
+fit_day3 | lmerModLmerTest |       | 13 |         |       |       
+fit_day4 | lmerModLmerTest | 17.97 | 18 |       5 | 41.23 | &lt; .001
+Models were detected as nested (in terms of fixed parameters) and are compared in sequential order.
+</code></pre>
+</div>
+</div>
+<p>Vediamo che abbiamo l’effetto principale di CBD e anche l’interazione. All’aumentare dei giorni diminuisce lo stress per il gruppo CBD. Attenzione che con <code>anova(fit_day3, fit_day4)</code> stiamo testando il termine di interazione ma anche una diversa struttura random.</p>
+<p>Vediamo quello che predice il nostro modello più complesso:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a>newdat <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(</span>
+<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">day =</span> <span class="fu">sort</span>(<span class="fu">unique</span>(dat<span class="sc">$</span>day)),</span>
+<span id="cb74-3"><a href="#cb74-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">CBD =</span> <span class="fu">unique</span>(dat<span class="sc">$</span>CBD),</span>
+<span id="cb74-4"><a href="#cb74-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">dept =</span> <span class="fu">unique</span>(dat<span class="sc">$</span>dept)</span>
+<span id="cb74-5"><a href="#cb74-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb74-6"><a href="#cb74-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb74-7"><a href="#cb74-7" aria-hidden="true" tabindex="-1"></a>newdat<span class="sc">$</span>stress <span class="ot">&lt;-</span> <span class="fu">predict</span>(</span>
+<span id="cb74-8"><a href="#cb74-8" aria-hidden="true" tabindex="-1"></a>  fit_day4,</span>
+<span id="cb74-9"><a href="#cb74-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">newdata =</span> newdat,</span>
+<span id="cb74-10"><a href="#cb74-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">re.form =</span> <span class="sc">~</span>(day <span class="sc">*</span> CBD <span class="sc">|</span> dept)</span>
+<span id="cb74-11"><a href="#cb74-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb74-12"><a href="#cb74-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb74-13"><a href="#cb74-13" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(newdat, <span class="fu">aes</span>(<span class="at">x =</span> day, <span class="at">y =</span> stress, <span class="at">color =</span> CBD)) <span class="sc">+</span></span>
+<span id="cb74-14"><a href="#cb74-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb74-15"><a href="#cb74-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>dept)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="02-complex-random-structures_files/figure-html/unnamed-chunk-32-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<section id="convergenza-e-problemi-di-fitting" class="level2">
+<h2 class="anchored" data-anchor-id="convergenza-e-problemi-di-fitting">Convergenza e problemi di fitting</h2>
+<p>Con i mixed-models può diventare molto complesso gestire la convergenza del modello perchè ci sono diversi possibili problematiche:</p>
+<ul>
+<li><code>singular fit</code>: questo indica che una o più componenti random non sono stimate correttamente. Solitamente le varianze sono indicate con 0 e le correlazioni con +1 o -1. Questo non significa che la varianza sia 0 o la correlazione +-1 ma che il modello non è in grado di stimare un valore. Le cause solitamente sono:
+<ul>
+<li>il valore è veramente 0: se il modello non ha effetto del cluster ad esempio o non ha una struttura multilivello allora singular fit indica che la varianza stimata è zero.</li>
+<li>la struttura random è troppo complessa per il dataset che abbiamo. In questo caso non si può intepretare come la varianza è 0 ma il modello non riesce a distinguere quel valore da zero.</li>
+</ul></li>
+<li>problemi di convergenza: questo è più complesso e riguarda la procedura di ottimizzazione. Esplorare questo argomento va oltre l’obiettivo del corso ma la procedura di ottimizzazione può essere modificata:
+<ul>
+<li>cambiando il tipo di algoritmo: si veda <code>?lme4::allFit()</code> che prova tutti gli algoritmi possibili</li>
+<li>aumentando il numero di iterazioni, la tolleranza per la convergenza, etc. Si veda <code>?lmerControl()</code> e <code>?lme4::convergence</code></li>
+<li>standardizzando i predittori. Questo alcune volte aiuta perchè scale diverse delle variabili (una in centimetri e l’altra in millisecondi) possono creare dei problemi non dovuti alla complessità del modello o problemi dei dati.</li>
+<li>semplificare la struttura random: questo spesso è l’unico modo per risolvere la convergenza ma ovviamente al costo di avere un modello meno complesso.</li>
+</ul></li>
+</ul>
+<p>Il pacchetto <code>performance</code> ma anche <code>lme4</code> contengono alcuni wrapper utili per vedere la convergenza:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a>performance<span class="sc">::</span><span class="fu">check_convergence</span>(fit_day4)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] TRUE
+attr(,"gradient")
+[1] NA
+</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb77"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a>lme4<span class="sc">::</span><span class="fu">isSingular</span>(fit_day4)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] TRUE
+</code></pre>
+</div>
+</div>
+<p>Qualche riferimento utile:</p>
+<ul>
+<li><a href="https://rstudio-pubs-static.s3.amazonaws.com/33653_57fc7b8e5d484c909b615d8633c01d51.html">https://rstudio-pubs-static.s3.amazonaws.com/33653_57fc7b8e5d484c909b615d8633c01d51.html</a></li>
+<li><a href="https://rpubs.com/bbolker/lme4_convergence">https://rpubs.com/bbolker/lme4_convergence</a></li>
+<li><a href="https://easystats.github.io/performance/reference/check_convergence.html">https://easystats.github.io/performance/reference/check_convergence.html</a></li>
+</ul>
+<p>Una cosa che ho notato, sopratutto per i generalized linear mixed-effects models è che il pacchetto <code>glmmTMB</code>, usando un metodo di stima diverso, ha dei risultati generalmente migliori in termini di convergenza. La sintassi è sostanzialmente la stessa come anche i risultati nella maggior parte delle volte.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb79"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a>fit_day4_tmb <span class="ot">&lt;-</span> <span class="fu">glmmTMB</span>(stress <span class="sc">~</span> day <span class="sc">*</span> CBD <span class="sc">+</span> (day <span class="sc">*</span> CBD<span class="sc">|</span>dept) <span class="sc">+</span> (day<span class="sc">|</span>dept<span class="sc">:</span>pid), <span class="at">data =</span> dat)</span>
+<span id="cb79-2"><a href="#cb79-2" aria-hidden="true" tabindex="-1"></a>glmmTMB<span class="sc">::</span><span class="fu">diagnose</span>(fit_day4_tmb)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Unusually large coefficients (|x|&gt;10):
+
+ theta_day*CBD|dept.8  theta_day*CBD|dept.9 theta_day*CBD|dept.10 
+                -2015                   197                  -482 
+
+Large negative coefficients in zi (log-odds of zero-inflation),
+dispersion, or random effects (log-standard deviations) suggest
+unnecessary components (converging to zero on the constrained scale);
+large negative and/or positive components in binomial or Poisson
+conditional parameters suggest (quasi-)complete separation. Large
+values of nbinom2 dispersion suggest that you should use a Poisson
+model instead.
+
+
+Unusually large Z-statistics (|x|&gt;5):
+
+         (Intercept)             day:CBDY     disp~(Intercept) 
+               27.24                -6.17               -38.75 
+theta_day*CBD|dept.2 theta_day|dept:pid.1 theta_day|dept:pid.2 
+               -8.77               -12.85               -21.72 
+
+Large Z-statistics (estimate/std err) suggest a *possible* failure of
+the Wald approximation - often also associated with parameters that are
+at or near the edge of their range (e.g. random-effects standard
+deviations approaching 0).  (Alternately, they may simply represent
+very well-estimated parameters; intercepts of non-centered models may
+fall in this category.) While the Wald p-values and standard errors
+listed in summary() may be unreliable, profile confidence intervals
+(see ?confint.glmmTMB) and likelihood ratio test p-values derived by
+comparing models (e.g. ?drop1) are probably still OK.  (Note that the
+LRT is conservative when the null value is on the boundary, e.g. a
+variance or zero-inflation value of 0 (Self and Liang 1987; Stram and
+Lee 1994; Goldman and Whelan 2000); in simple cases these p-values are
+approximately twice as large as they should be.)
+
+
+Non-positive definite (NPD) Hessian
+
+The Hessian matrix represents the curvature of the log-likelihood
+surface at the maximum likelihood estimate (MLE) of the parameters (its
+inverse is the estimate of the parameter covariance matrix).  A
+non-positive-definite Hessian means that the likelihood surface is
+approximately flat (or upward-curving) at the MLE, which means the
+model is overfitted or poorly posed in some way. NPD Hessians are often
+associated with extreme parameter estimates.
+
+
+parameters with non-finite standard deviations:
+theta_day*CBD|dept.7, theta_day*CBD|dept.8, theta_day*CBD|dept.9,
+theta_day*CBD|dept.10
+
+
+
+recomputing Hessian via Richardson extrapolation. If this is too slow, consider setting check_hessian = FALSE 
+
+The next set of diagnostics attempts to determine which elements of the
+Hessian are causing the non-positive-definiteness.  Components with
+very small eigenvalues represent 'flat' directions, i.e., combinations
+of parameters for which the data may contain very little information.
+So-called 'bad elements' represent the dominant components (absolute
+values &gt;0.01) of the eigenvectors corresponding to the 'flat'
+directions
+
+
+maximum Hessian eigenvalue = 6.65e+03 
+Hessian eigenvalue 4 = -880 (relative val = -0.132) 
+   bad elements: theta_day*CBD|dept.5 theta_day*CBD|dept.6 theta_day*CBD|dept.7 
+Hessian eigenvalue 7 = -128 (relative val = -0.0192) 
+   bad elements: theta_day*CBD|dept.5 theta_day*CBD|dept.6 theta_day*CBD|dept.7 
+Hessian eigenvalue 9 = -66.4 (relative val = -0.00998) 
+   bad elements: theta_day*CBD|dept.4 theta_day*CBD|dept.5 theta_day*CBD|dept.6 theta_day*CBD|dept.7 
+Hessian eigenvalue 16 = -1.2e-05 (relative val = -1.81e-09) 
+   bad elements: theta_day*CBD|dept.8 theta_day*CBD|dept.9 theta_day*CBD|dept.10 
+Hessian eigenvalue 17 = 7.45e-06 (relative val = 1.12e-09) 
+   bad elements: theta_day*CBD|dept.8 theta_day*CBD|dept.9 theta_day*CBD|dept.10 
+Hessian eigenvalue 18 = -4.32e-10 (relative val = -6.5e-14) 
+   bad elements: theta_day*CBD|dept.8 theta_day*CBD|dept.9 theta_day*CBD|dept.10 
+</code></pre>
+</div>
+</div>
+<p>In questo caso non siamo fortunati ma la funzione <code>diagnose()</code> fornisce diverse informazioni utili. Forse in questo caso il modello è troppo compless.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>Master PSQT - Quantitative Psychology</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
