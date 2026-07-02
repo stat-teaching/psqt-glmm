@@ -1,0 +1,120 @@
+---
+title: Introduzione al corso
+format:
+  #minimal-revealjs: default
+  minimal-beamer: default
+date: last-modified
+date-format: "[\\@PSQT - Quantitative Psychology] YYYY"
+subtitle: Generalized Linear Mixed-Effects Models
+---
+
+{{< include template/_common.qmd >}}
+
+## Contenuti
+
+Questo corso ha l'obiettivo di espandere i modelli lineari e generalizzati che avete già affrontato introducendo la distinzione tra **effetti fissi** ed **effetti random**. Questo ha diversi vantaggi, tra cui:
+
+- gestire strutture dati complesse con dipendenza/correlazione tra osservazioni
+- distinguere chiaramente diversi livelli di nidificazione (*nesting*) tipici delle strutture dati multilivello
+- includere predittori specifici per ogni livello
+- Robustezza delle stime: controllo dell'infuenza degli outlier (*shrinkage*)
+
+## Terminologia
+
+In generale, la terminologia in statistica può essere complessa e confondente. Potreste aver sentito:
+
+
+::: {.callout}
+
+Variance component models, Random intercept and slope models. Random effects models, Random coefficient models, Varying coefficient models, Intercepts and/or slopes-as-outcomes models, Hierarchical linear models Multilevel models, Growth curve models, etc.
+
+:::
+
+Tutti questi sono, più o meno, sinonimi o casi particolari della generica famiglia dei **mixed-effects models**.
+
+Un mixed-effect model1 può essere visto come una estensione di un un modello di regressione lineare.
+
+In particolare, vengono considerati dei termini di varianza e covarianza aggiuntivi che tengono conto delle gerarchie (o dipendenze locali) presenti nei dati
+
+Esempi di dati in forma gerarchica:
+
+- studenti -> classi -> scuole (studio osservazionale)
+- osservazioni/trial -> soggetti (esperimento a misure ripetute)
+- osservazioni -> soggetti e items (esperimenti con ripetizioni per soggetti e stimoli)
+
+## Effetti fissi e random
+
+Un mixed-effects model è un modello che contiene sia effetti fissi (*fixed*) che effetti casuali (*random*). Una possibile distinzione^[Questa è una delle possibili definizioni di effetti fissi e random. Certe volte è chiaro se un possibile effetto sia fisso o meno, altre volte è più sottile il confine.]:
+
+- **Effetto fisso**: effetto i cui livelli sono presenti in modo esaustivo (ad es., genere) e sono controllati dallo sperimentatore (ad. es., le condizioni sperimentali)
+- **Effetto random**: effetto i cui livelli sono selezionati casualmente da una popolazione (ad es., i soggetti o i singoli stimoli di un esperimento)
+
+## Qualche esempio (1)
+
+Faccio uno studio sulla percezione dei volti. Utilizzo volti di etnie e sesso diverso. I volti sono stati presi da un database di 2000 diverse identità e, per l'esperimento utilizzo solo 50 di queste.
+
+- **Etnia e sesso del volto** sono dei possibili *effetti fissi*. I livelli sono chiaramente distinti ed esaustivi.
+- L'**identità del volto/stimolo** è un possibile *effetto random*. L'identità è campionata da una popolazione di possibili volti.
+
+## Qualche esempio (2)
+
+Faccio uno studio osservazionale sul benessere psicologico degli studenti universitari. Raccolgo dati da studenti di diversi corsi di laurea e voglio prevedere il livello di stress percepito.
+
+- **Genere dello studente**, **anno di corso** e **condizione lavorativa** sono possibili *effetti fissi*.  
+  I livelli sono definiti e interpretabili: per esempio, lavoratore/non lavoratore, primo/secondo/terzo anno, ecc.
+- L’**università** o il **corso di laurea** possono essere possibili *effetti random*.  
+  Gli studenti osservati provengono da alcune università o corsi specifici, ma queste possono essere considerate un campione da una popolazione più ampia di università o corsi possibili.
+- Anche il **partecipante** può essere un *effetto random* se lo stesso studente viene misurato più volte, per esempio in più momenti dell’anno accademico.
+
+## Scomposizione della varianza
+
+In un modello di regressione classico abbiamo:
+
+$$
+y_i = \beta_0 + \beta_1 x_i + \varepsilon_i
+$$
+
+Dove $\text{V}(\varepsilon) = \sigma^2_{\varepsilon}$ ovvero la varianza dei residui. Quindi tutto ciò che non è spiegato dalla componente sistematica (*fissa*) $\beta_0 + \beta_1 x_i$ diventa parte residua.
+
+In un modello mixed-effects, la variabilità non spiegata dalla componente fissa può essere ulteriormente scomposta. Una parte può essere attribuita a differenze tra unità raggruppanti, come partecipanti, scuole, classi o item, attraverso gli effetti random; la parte restante rimane nella componente residua.
+
+## Materiale
+
+Il materiale del corso (anche su Moodle) può essere trovato al seguente link [https://stat-teaching.github.io/psqt-glmm/](https://stat-teaching.github.io/psqt-glmm/). Nel sito potete trovare:
+
+- slide delle lezioni teoriche con codice R
+- esercizi e codici R
+- approfondimenti
+
+## Cosa serve
+
+- Computer con R/Rstudio installato
+- Installare i pacchetti che trovate a questa pagina [https://stat-teaching.github.io/psqt-glmm#getting-started.html](https://stat-teaching.github.io/psqt-glmm#getting-started.html).
+
+## Outline
+
+A grandi linee questi sono gli argomenti che vorrei affrontare:
+
+- Introduzione alla logica dei mixed-models (LMM) e dipendenza locale
+- Effetti fissi e random: intercette e slopes
+- Strutture degli effetti random: nested e crossed
+- Effetti a diversi livelli: contextual, between e within effects (con cenni a Simpson's paradox)
+- Diagnostica e problemi di convergenza
+- Modelli generalizzati con effetti random (GLMM)
+- Esempi, applicazioni pratiche e pacchetti R suggeriti
+- Simulazione dati con strutture nested e crossed
+
+## Regole del gioco
+
+In generale preferisco fare meno materiale ma assicurarmi che tutto quello fatto sia chiaro. Vi chiedo quindi di:
+
+- partecipare: fatemi domande per dubbi, chiarimenti o curiosità
+- chiedetemi per approfondimenti legati ad argomenti che vi interessano
+- partecipare agli esercizi o le domande proposte in classe
+
+
+::: {.callout-important}
+
+There are no stupid questions; if anything, there are stupid answers — sometimes from the teacher.
+
+:::

@@ -9,6 +9,7 @@ ggplot2::theme_set(mtheme())
 knitr::opts_chunk$set(
     echo = TRUE,
     fig.align = "center",
+    dev = "svg",
     message = FALSE,
     warning = FALSE
 )

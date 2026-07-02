@@ -1,24 +1,58 @@
 ---
-title: centering
+title: Predittori a vari livelli
+nocite: |
+  @Enders2007-dk
 ---
 
+{{< include template/_common.qmd >}}
+
 ```{r}
+#| label: setup
+#| include: false
+
+options(digits = 3)
+filor::set_filter_output()
+knitr::opts_chunk$set(
+  fig.width = 10,
+  fig.asp = 0.618
+)
+```
+
+```{r}
+#| label: carica-pacchetti
+
+library(lme4)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(glmmTMB)
+library(kableExtra)
+library(lmerTest)
+library(ggeffects)
+library(modelsummary)
+```
+
+```{r}
+#| label: carica-dati
+
 dat <- readRDS(here::here("data/school.rds"))
 ```
 
 # Il dataset
 
-In questa esercitazione utilizziamo un dataset simulato relativo al rendimento in matematica di studenti appartenenti a diverse scuole.
+In questa esercitazione utilizziamo un dataset relativo al rendimento in matematica di studenti appartenenti a diverse scuole.
 
-Il contesto è quello di uno studio educativo in cui si vuole analizzare la relazione tra alcune caratteristiche degli studenti, alcune caratteristiche delle scuole e il rendimento scolastico. Ogni riga del dataset rappresenta uno studente. Gli studenti sono raggruppati in scuole, quindi le osservazioni non sono completamente indipendenti: studenti della stessa scuola condividono lo stesso contesto scolastico.
+Il contesto è quello di uno studio educativo in cui si vuole analizzare la relazione tra alcune caratteristiche degli studenti, alcune caratteristiche delle scuole e il rendimento scolastico. Ogni riga del dataset rappresenta uno studente. Gli studenti sono raggruppati in scuole; quindi le osservazioni non sono completamente indipendenti, perché studenti della stessa scuola condividono lo stesso contesto scolastico.
 
-Il dataset è pensato per introdurre in modo semplice l’analisi di dati con struttura gerarchica.
+Il dataset è pensato per introdurre in modo semplice l'analisi di dati con struttura gerarchica.
 
 ## Struttura dei dati
 
 Il dataset contiene `r nrow(dat)` studenti appartenenti a `r length(unique(dat$school_id))` scuole.
 
 ```{r}
+#| label: struttura-dati
+
 str(dat)
 ```
 
@@ -59,7 +93,7 @@ La variabile `school_climate` misura il clima scolastico medio della scuola su u
 
 ### Motivazione individuale
 
-La variabile `motivation` misura la motivazione individuale allo studio su una scala da 1 a 10. Valori più alti indicano una maggiore motivazione. A differenza di `ses` e `school_climate`, questa variabile varia tra studenti anche all’interno della stessa scuola.
+La variabile `motivation` misura la motivazione individuale allo studio su una scala da 1 a 10. Valori più alti indicano una maggiore motivazione. A differenza di `ses` e `school_climate`, questa variabile varia tra studenti anche all'interno della stessa scuola.
 
 ### Compiti di matematica
 
@@ -72,12 +106,14 @@ La variabile `math` è il punteggio ottenuto dagli studenti in matematica. In qu
 ## Prime righe del dataset
 
 ```{r}
+#| label: prime-righe
+
 head(dat)
 ```
 
-## Obiettivo dell’analisi
+## Obiettivo dell'analisi
 
-L’obiettivo generale è studiare la relazione tra rendimento in matematica e alcune variabili individuali e scolastiche.
+L'obiettivo generale è studiare la relazione tra rendimento in matematica e alcune variabili individuali e scolastiche.
 
 In particolare, possiamo porci domande come:
 
@@ -89,23 +125,23 @@ In particolare, possiamo porci domande come:
 
 Queste domande richiedono attenzione alla struttura gerarchica del dataset, perché alcune variabili descrivono gli studenti, mentre altre descrivono le scuole.
 
-## Predittori a diversi livelli
+# Predittori a diversi livelli
 
-Una distinzione importante riguarda la tipologia di predittori. Avendo una struttura multilivello, in questo caso a due livelli (bambini nested nelle scuole) allora possiamo avere variabili a livello 1 (bambini) o a livello 2 (scuola).
+Una distinzione importante riguarda la tipologia di predittori. Con una struttura multilivello a due livelli, come in questo caso, possiamo avere variabili a livello 1, cioè a livello dello studente, e variabili a livello 2, cioè a livello della scuola.
 
 ```{r}
+#| label: esempio-dati-livelli
+
 head(dat)
 ```
 
-Ad esempio `age_months` è l'eta del bambino in mesi. Come vedete ogni bambino ha la sua età e quindi il valore varia riga per riga. La variabile età è una variabile a livello 1 (bambino) e quindi varia sia dentro la scuola che tra scuole ovviamente.
-
-Al contrario, `school_ses_z` è una variabile a livello 2 (scuola) perchè è misurata a livello della scuola. Tutte le osservazioni dentro le stessa scuola hanno quindi lo stesso valore e quindi non possiamo rilevare un impatto del ses dentro una stessa scuola ma tra scuole diverse.
-
 ## Effetti di predittori a livelli diversi
 
-Ora immaginiamo di voler misurare l'impatto del carico di compiti `homework` nelle performance di matematica. Intuitivamente, all'aumentare del carico migliorano le performance. Proviamo a vedere graficamente:
+Immaginiamo di voler misurare l'impatto del carico di compiti, `homework`, sulla performance in matematica. Intuitivamente, ci si potrebbe aspettare che, all'aumentare del carico di compiti, migliori la performance. Proviamo a vedere graficamente questa relazione:
 
 ```{r}
+#| label: fig-homework-math-marginale
+
 dat |> 
     ggplot(aes(x = homework, y = math)) +
     geom_point() +
@@ -113,12 +149,200 @@ dat |>
     geom_smooth(method = "lm", se = FALSE)
 ```
 
-Sembra che l'associazione sia negativa, maggiore è il carico minore sono i punteggi. Magari c'è una spiegazione funzionale anche qui. Proviamo a vedere l'associazione per ogni cluster/scuola:
+L'associazione sembra negativa: maggiore è il carico di compiti, minori sono i punteggi. Potrebbe esserci una spiegazione funzionale anche per questo risultato, ma prima conviene osservare l'associazione separatamente per ogni cluster, cioè per ogni scuola:
 
 ```{r}
+#| label: fig-homework-math-per-scuola
+
 dat |> 
     ggplot(aes(x = homework, y = math)) +
     geom_point() +
     # questa è una regressione con lm, solo grafica
     geom_smooth(aes(color = school_id), method = "lm", se = FALSE)
 ```
+
+La relazione cambia completamente. Dentro ogni scuola sembra esserci un effetto positivo del carico di compiti, mentre complessivamente sembra esserci un effetto negativo. Questo pattern è noto come **paradosso di Simpson** e mostra la complessità che possono assumere i dati organizzati su più livelli.
+
+Immaginiamo ora di analizzare superficialmente questi dati aggregandoli per scuola. Calcoliamo quindi la media del carico di compiti e del punteggio in matematica per ogni scuola e poi osserviamo la relazione tra queste due quantità.
+
+```{r}
+#| label: fig-homework-math-aggregato-scuola
+
+dat |> 
+    summarise(
+        math = mean(math),
+        homework = mean(homework),
+        .by = c(school_id)
+    ) |> 
+    ggplot(aes(x = homework, y = math)) +
+    geom_point() +
+    geom_smooth(method = "lm", se = FALSE)
+```
+
+Guardando solo il pattern aggregato, concluderemmo che la relazione è negativa: all'aumentare dei compiti assegnati diminuiscono le performance in matematica.
+
+Cosa sta succedendo? Sostanzialmente questo è un caso in cui l'effetto **tra cluster** è diverso dall'effetto **dentro i cluster**. In ogni scuola, all'aumentare dei compiti, almeno graficamente, la performance migliora. Invece, tra scuole, maggiori quantità medie di compiti sono associate a performance medie inferiori.
+
+# Within e between effects
+
+Possiamo chiamare effetto **within** l'effetto dentro ogni cluster. In questo caso, l'effetto within descrive come varia la performance in matematica degli studenti al netto delle differenze tra scuole.
+
+Possiamo invece chiamare effetto **between** l'effetto tra cluster. In questo caso, l'effetto between descrive come varia la performance media in matematica tra scuole diverse.
+
+In termini di modello, è importante riuscire a separare questi due effetti. Per farlo è sufficiente trasformare la variabile `homework` con diverse forme di centramento.
+
+::: {.callout-note title="Centramento di una variabile"}
+Centrare una variabile significa sottrarre una costante. Solitamente si centra sulla media o su un altro valore significativo. Se sottraiamo a tutti i valori una costante, quella costante diventa il nuovo zero e i valori vengono espressi come deviazioni positive o negative rispetto a quello zero.
+
+Il centramento non cambia la variabilità né la forma della distribuzione della variabile: produce semplicemente uno spostamento dei valori.
+
+```{r}
+#| label: fig-esempio-centramento
+
+par(mfrow = c(1, 2))
+x <- rnorm(1e3, 100, 50)
+hist(x, breaks = 30, main = "x")
+hist(x - mean(x), breaks = 30, main = "x - mean(x)")
+```
+
+Nella nuova variabile, un valore pari a 50 significa che quell'osservazione è 50 unità sopra la media; un valore pari a -20 significa che è 20 unità sotto la media.
+:::
+
+## Cluster mean centering
+
+Per isolare l'effetto *within* dobbiamo rimuovere l'effetto *between*. In altri termini, dobbiamo rimuovere dai dati il fatto che scuole diverse possono avere carichi medi di compiti diversi.
+
+La modalità più utile è centrare ogni valore rispetto alla media del suo cluster di riferimento: questa operazione viene chiamata *cluster mean centering* (CMC). Indicando con $h_{ij}$ il valore di `homework` dello studente $i$ nella scuola $j$, e con $\bar{h}_{.j}$ la media di `homework` nella scuola $j$, definiamo:
+
+$$
+h^{\text{CMC}}_{ij} = h_{ij} - \bar{h}_{.j}
+$$
+
+Vediamo graficamente cosa succede:
+
+```{r}
+#| label: crea-homework-cmc
+
+dat <- dat |>
+    # calcolo la media di ogni cluster
+    mutate(homework_cm = mean(homework), .by = c(school_id)) |> 
+    mutate(homework_cmc = homework - homework_cm)
+
+```
+
+```{r}
+#| label: fig-homework-cmc-punti
+
+dat |> 
+    ggplot(aes(x = homework_cmc, y = math, color = school_id)) +
+    geom_point()
+```
+
+In questo modo abbiamo rimosso le differenze sistematiche tra scuole. Guardate cosa succede se stimiamo la relazione complessiva tra `homework_cmc` e `math`:
+
+```{r}
+#| label: fig-homework-cmc-within
+
+dat |> 
+    ggplot(aes(x = homework_cmc, y = math)) +
+    geom_point(aes(color = school_id)) +
+    geom_smooth(method = "lm", se = FALSE, lwd = 2) +
+    geom_smooth(aes(color = school_id), method = "lm", se = FALSE)
+```
+
+Ora la relazione complessiva, cioè la linea blu spessa, è positiva e completamente diversa rispetto a prima. Questo è ciò che intendiamo con effetto within.
+
+Per inserire questa distinzione nel modello possiamo creare due versioni della variabile `homework`: una che rappresenta la media del cluster e una che rappresenta il valore centrato sulla media del cluster. Sono le variabili `homework_cm` e `homework_cmc` create prima.
+
+```{r}
+#| label: mostra-homework-cm-cmc
+
+head(dat[, c("school_id", "homework", "homework_cm", "homework_cmc")])
+```
+
+Prendiamo, ad esempio, l'osservazione 5 e l'osservazione 520:
+
+```{r}
+#| label: esempio-osservazioni-cmc
+
+dat[c(5, 520), c("school_id", "homework", "homework_cm", "homework_cmc")]
+```
+
+Questi studenti appartengono alle scuole 1 e 15, hanno un carico di compiti di circa 7 e 3 ore, e questo corrisponde in entrambi i casi a circa 1 ora in meno rispetto alla media del loro cluster. Quindi questi due studenti hanno un carico assoluto di studio diverso, ma sono alla stessa distanza rispetto alla media della propria scuola.
+
+# Modelli con predittori centrati
+
+Possiamo usare la variabile `homework_cmc` nel modello per stimare la retta blu del grafico precedente, cioè l'effetto dell'incremento nello studio al netto delle differenze medie di studio tra scuole.
+
+```{r}
+#| label: fit-homework-senza-con-centering
+
+# modello senza centering
+fit1 <- lmer(math ~ homework + (1 | school_id), data = dat)
+
+# modello con centering dentro il cluster
+fit2 <- lmer(math ~ homework_cmc + (1 | school_id), data = dat)
+
+summary(fit1)
+summary(fit2)
+
+plot(ggeffect(fit2))
+```
+
+Poiché in entrambi i modelli teniamo conto delle differenze tra scuole tramite l'intercetta random, viene stimata una relazione positiva, anche se leggermente diversa. Vediamo invece cosa accade con `lm`, che ignora il clustering: la relazione è negativa, come avevamo visto nel grafico marginale.
+
+```{r}
+#| label: fit-homework-lm-marginale
+
+fit3 <- lm(math ~ homework, data = dat)
+summary(fit3)
+```
+
+Quindi `fit2` rappresenta una stima dell'effetto within. Al netto del cluster, all'aumentare di un'ora di studio la performance in matematica aumenta. Questo succede in media, ma, come abbiamo visto nel grafico, il pattern è abbastanza consistente tra scuole.
+
+## Separare effetto within ed effetto between
+
+Possiamo anche includere l'effetto between nel modello, separando chiaramente i due aspetti di `homework`. Per farlo dobbiamo inserire come predittore `homework_cm`, cioè la variabile che contiene la media di `homework` in ogni scuola. Questa variabile è rilevante solo a livello 2, cioè a livello della scuola.
+
+Il modello può essere scritto in forma semplificata come:
+
+$$
+\text{math}_{ij} = \beta_0 + \beta_W h^{\text{CMC}}_{ij} + \beta_B \bar{h}_{.j} + u_{0j} + \varepsilon_{ij}
+$$
+
+dove:
+
+- $\beta_W$ è l'effetto within;
+- $\beta_B$ è l'effetto between;
+- $u_{0j}$ è l'intercetta random della scuola $j$;
+- $\varepsilon_{ij}$ è il residuo individuale.
+
+```{r}
+#| label: fit-within-between-homework
+
+fit4 <- lmer(math ~ homework_cmc + homework_cm + (1 | school_id), data = dat)
+summary(fit4)
+plot(ggeffect(fit4))
+```
+
+In questo modello abbiamo stimato chiaramente i due pattern. All'aumentare delle ore di studio aumentano le performance individuali al netto delle differenze tra scuole. Tra scuole, invece, le performance medie sono inferiori all'aumentare delle ore medie di studio.
+
+Possiamo infine stimare anche la variabilità dell'effetto within. Dal grafico abbiamo visto che la relazione, seppure simile, cambia tra scuole. Possiamo quindi inserire l'effetto within come random slope.
+
+```{r}
+#| label: fit-random-slope-homework-cmc
+
+fit5 <- lmer(math ~ homework_cmc + homework_cm + (homework_cmc | school_id), data = dat)
+summary(fit5)
+```
+
+In questo caso, probabilmente la variabilità della slope è molto piccola e il modello fatica a stimarla.
+
+# Esercizio
+
+Provate, esplorando il dataset, a capire perché emerge questa relazione inversa tra scuole e dentro le scuole. C'è una variabile nel dataset che lo spiega chiaramente.
+
+# Bibliografia
+
+::: {#refs}
+:::

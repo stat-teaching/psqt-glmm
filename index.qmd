@@ -1,21 +1,36 @@
 ---
 title: "Generalized Linear Mixed-Effects Models"
+subtitle: PSQT
 listing: 
   - id: materials
     contents: "materials"
     type: table
+    sort: "filename"
+    fields: 
+      - file-modified
+      - title
+    date-format: "YYYY-MM-DD"
 ---
 
-This is a Quarto website.
+Questo sito contiene il materiale per il corso Estensione dei modelli lineari generalizzati al caso dei modelli con effetti misti (con effetti fissi e random) del master PSQT.
 
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
-
-## Slides
+## Materiali
 
 :::{#materials}
 :::
 
-## Getting started
+## Altro materiale
 
+- Il corso precedente era tenuto dal prof. Gianmarco ALtoè che ha una repository con del materiale ottimo e diversi dati ed esempi che useremo. Trovate il materiale qui [https://osf.io/b7tkp/files/osfstorage](https://osf.io/b7tkp/files/osfstorage).
+- Materiale in inglese sui GLMM [https://stat-teaching.github.io/psychometrics4neuroscience/materials/glmer/glmer.html](https://stat-teaching.github.io/psychometrics4neuroscience/materials/glmer/glmer.html)
+- Signal Detection Theory come GLMM [https://stat-teaching.github.io/psychometrics4neuroscience/materials/signal-detection-theory.html](https://stat-teaching.github.io/psychometrics4neuroscience/materials/signal-detection-theory.html)
 
+## Esercizi
 
+Questo sito contiene diversi dataset per esercitarsi con i mixed-models [https://uoepsy.github.io/lmm/00_datasets.html](https://uoepsy.github.io/lmm/00_datasets.html)
+
+## Dati
+
+- [stress.rds](data/stress.rds)
+- [heck2011.csv](data/heck2011.csv)
+- [school.rds](data/school.rds)

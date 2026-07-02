@@ -1,7 +1,0 @@
-format:
-  #minimal-revealjs: default
-  minimal-beamer: default
-
-date: last-modified
-date-format: "[\\@PSQT - Quantitative Psychology] YYYY"
-subtitle: Generalized Linear Mixed-Effects Models

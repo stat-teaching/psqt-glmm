@@ -2,13 +2,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.21">
+<meta name="generator" content="quarto-1.8.26">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Filippo Gambarota">
 
-<title>centering – PSQT-GLMM</title>
+<title>Predittori a vari livelli – PSQT-GLMM</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -56,7 +56,27 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="../site_libs/quarto-nav/quarto-nav.js"></script>
@@ -73,10 +93,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ea1d7ac60288e0f1efdbc993fd8432ae.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-45dd08599a1b1e22c1c6eae1dc94be9b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-f245066ca199b7326ac6b360085ddf3a.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -105,6 +125,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../styles.css">
 </head>
@@ -116,8 +165,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a href="../index.html" class="navbar-brand navbar-brand-logo">
-    </a>
     <a class="navbar-brand" href="../index.html">
     <span class="navbar-title">PSQT-GLMM</span>
     </a>
@@ -170,6 +217,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#prime-righe-del-dataset" id="toc-prime-righe-del-dataset" class="nav-link" data-scroll-target="#prime-righe-del-dataset">Prime righe del dataset</a></li>
   <li><a href="#obiettivo-dellanalisi" id="toc-obiettivo-dellanalisi" class="nav-link" data-scroll-target="#obiettivo-dellanalisi">Obiettivo dell’analisi</a></li>
   </ul></li>
+  <li><a href="#predittori-a-diversi-livelli" id="toc-predittori-a-diversi-livelli" class="nav-link" data-scroll-target="#predittori-a-diversi-livelli">Predittori a diversi livelli</a>
+  <ul class="collapse">
+  <li><a href="#effetti-di-predittori-a-livelli-diversi" id="toc-effetti-di-predittori-a-livelli-diversi" class="nav-link" data-scroll-target="#effetti-di-predittori-a-livelli-diversi">Effetti di predittori a livelli diversi</a></li>
+  </ul></li>
+  <li><a href="#within-e-between-effects" id="toc-within-e-between-effects" class="nav-link" data-scroll-target="#within-e-between-effects">Within e between effects</a>
+  <ul class="collapse">
+  <li><a href="#cluster-mean-centering" id="toc-cluster-mean-centering" class="nav-link" data-scroll-target="#cluster-mean-centering">Cluster mean centering</a></li>
+  </ul></li>
+  <li><a href="#modelli-con-predittori-centrati" id="toc-modelli-con-predittori-centrati" class="nav-link" data-scroll-target="#modelli-con-predittori-centrati">Modelli con predittori centrati</a>
+  <ul class="collapse">
+  <li><a href="#separare-effetto-within-ed-effetto-between" id="toc-separare-effetto-within-ed-effetto-between" class="nav-link" data-scroll-target="#separare-effetto-within-ed-effetto-between">Separare effetto within ed effetto between</a></li>
+  </ul></li>
+  <li><a href="#esercizio" id="toc-esercizio" class="nav-link" data-scroll-target="#esercizio">Esercizio</a></li>
+  <li><a href="#bibliografia" id="toc-bibliografia" class="nav-link" data-scroll-target="#bibliografia">Bibliografia</a></li>
   </ul>
 </nav>
     </div>
@@ -178,7 +239,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">centering</h1>
+<h1 class="title">Predittori a vari livelli</h1>
 </div>
 
 
@@ -208,27 +269,39 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data/school.rds"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lme4)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(glmmTMB)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(kableExtra)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lmerTest)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggeffects)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(modelsummary)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data/school.rds"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <section id="il-dataset" class="level1">
 <h1>Il dataset</h1>
-<p>In questa esercitazione utilizziamo un dataset simulato relativo al rendimento in matematica di studenti appartenenti a diverse scuole.</p>
-<p>Il contesto è quello di uno studio educativo in cui si vuole analizzare la relazione tra alcune caratteristiche degli studenti, alcune caratteristiche delle scuole e il rendimento scolastico. Ogni riga del dataset rappresenta uno studente. Gli studenti sono raggruppati in scuole, quindi le osservazioni non sono completamente indipendenti: studenti della stessa scuola condividono lo stesso contesto scolastico.</p>
+<p>In questa esercitazione utilizziamo un dataset relativo al rendimento in matematica di studenti appartenenti a diverse scuole.</p>
+<p>Il contesto è quello di uno studio educativo in cui si vuole analizzare la relazione tra alcune caratteristiche degli studenti, alcune caratteristiche delle scuole e il rendimento scolastico. Ogni riga del dataset rappresenta uno studente. Gli studenti sono raggruppati in scuole; quindi le osservazioni non sono completamente indipendenti, perché studenti della stessa scuola condividono lo stesso contesto scolastico.</p>
 <p>Il dataset è pensato per introdurre in modo semplice l’analisi di dati con struttura gerarchica.</p>
 <section id="struttura-dei-dati" class="level2">
 <h2 class="anchored" data-anchor-id="struttura-dei-dati">Struttura dei dati</h2>
 <p>Il dataset contiene 525 studenti appartenenti a 15 scuole.</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(dat)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(dat)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Classes 'tbl_df', 'tbl' and 'data.frame':   525 obs. of  6 variables:
+<pre><code>tibble [525 × 6] (S3: tbl_df/tbl/data.frame)
  $ school_id     : Factor w/ 15 levels "1","2","3","4",..: 1 1 1 1 1 1 1 1 1 1 ...
- $ ses           : num  2 2 2 2 2 2 2 2 2 2 ...
- $ school_climate: num  5.6 5.6 5.6 5.6 5.6 5.6 5.6 5.6 5.6 5.6 ...
- $ motivation    : num  7.8 6.9 6.5 5.2 7 5.8 6 4.5 8 6.2 ...
- $ homework      : num  7.71 7.91 7.94 7.76 6.59 7.13 7.45 7.08 7.61 6.88 ...
- $ math          : num  72.5 76 71.7 71.3 70.5 72.3 69.2 70.8 79.5 69.4 ...</code></pre>
+ $ ses           : num [1:525] 2 2 2 2 2 2 2 2 2 2 ...
+ $ school_climate: num [1:525] 5.6 5.6 5.6 5.6 5.6 5.6 5.6 5.6 5.6 5.6 ...
+ $ motivation    : num [1:525] 7.8 6.9 6.5 5.2 7 5.8 6 4.5 8 6.2 ...
+ $ homework      : num [1:525] 7.71 7.91 7.94 7.76 6.59 7.13 7.45 7.08 7.61 6.88 ...
+ $ math          : num [1:525] 72.5 76 71.7 71.3 70.5 72.3 69.2 70.8 79.5 69.4 ...
+</code></pre>
 </div>
 </div>
 <p>Le variabili disponibili sono:</p>
@@ -318,16 +391,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="prime-righe-del-dataset" class="level2">
 <h2 class="anchored" data-anchor-id="prime-righe-del-dataset">Prime righe del dataset</h2>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(dat)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(dat)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>  school_id ses school_climate motivation homework math
-1         1   2            5.6        7.8     7.71 72.5
-2         1   2            5.6        6.9     7.91 76.0
-3         1   2            5.6        6.5     7.94 71.7
-4         1   2            5.6        5.2     7.76 71.3
-5         1   2            5.6        7.0     6.59 70.5
-6         1   2            5.6        5.8     7.13 72.3</code></pre>
+<pre><code># A tibble: 6 × 6
+  school_id   ses school_climate motivation homework  math
+  &lt;fct&gt;     &lt;dbl&gt;          &lt;dbl&gt;      &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;
+1 1             2            5.6        7.8     7.71  72.5
+2 1             2            5.6        6.9     7.91  76  
+3 1             2            5.6        6.5     7.94  71.7
+4 1             2            5.6        5.2     7.76  71.3
+5 1             2            5.6        7       6.59  70.5
+6 1             2            5.6        5.8     7.13  72.3
+</code></pre>
 </div>
 </div>
 </section>
@@ -343,9 +419,457 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>quanto varia il rendimento tra studenti della stessa scuola e tra scuole diverse?</li>
 </ul>
 <p>Queste domande richiedono attenzione alla struttura gerarchica del dataset, perché alcune variabili descrivono gli studenti, mentre altre descrivono le scuole.</p>
-
-
 </section>
+</section>
+<section id="predittori-a-diversi-livelli" class="level1">
+<h1>Predittori a diversi livelli</h1>
+<p>Una distinzione importante riguarda la tipologia di predittori. Con una struttura multilivello a due livelli, come in questo caso, possiamo avere variabili a livello 1, cioè a livello dello studente, e variabili a livello 2, cioè a livello della scuola.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(dat)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 6
+  school_id   ses school_climate motivation homework  math
+  &lt;fct&gt;     &lt;dbl&gt;          &lt;dbl&gt;      &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;
+1 1             2            5.6        7.8     7.71  72.5
+2 1             2            5.6        6.9     7.91  76  
+3 1             2            5.6        6.5     7.94  71.7
+4 1             2            5.6        5.2     7.76  71.3
+5 1             2            5.6        7       6.59  70.5
+6 1             2            5.6        5.8     7.13  72.3
+</code></pre>
+</div>
+</div>
+<section id="effetti-di-predittori-a-livelli-diversi" class="level2">
+<h2 class="anchored" data-anchor-id="effetti-di-predittori-a-livelli-diversi">Effetti di predittori a livelli diversi</h2>
+<p>Immaginiamo di voler misurare l’impatto del carico di compiti, <code>homework</code>, sulla performance in matematica. Intuitivamente, ci si potrebbe aspettare che, all’aumentare del carico di compiti, migliori la performance. Proviamo a vedere graficamente questa relazione:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>dat <span class="sc">|&gt;</span> </span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> homework, <span class="at">y =</span> math)) <span class="sc">+</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># questa è una regressione con lm, solo grafica</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-homework-math-marginale" class="quarto-float quarto-figure quarto-figure-center anchored" width="960" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-homework-math-marginale-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="03-centering_files/figure-html/fig-homework-math-marginale-1.svg" id="fig-homework-math-marginale" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" width="960">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-homework-math-marginale-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>L’associazione sembra negativa: maggiore è il carico di compiti, minori sono i punteggi. Potrebbe esserci una spiegazione funzionale anche per questo risultato, ma prima conviene osservare l’associazione separatamente per ogni cluster, cioè per ogni scuola:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>dat <span class="sc">|&gt;</span> </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> homework, <span class="at">y =</span> math)) <span class="sc">+</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># questa è una regressione con lm, solo grafica</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_smooth</span>(<span class="fu">aes</span>(<span class="at">color =</span> school_id), <span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-homework-math-per-scuola" class="quarto-float quarto-figure quarto-figure-center anchored" width="960" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-homework-math-per-scuola-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="03-centering_files/figure-html/fig-homework-math-per-scuola-1.svg" id="fig-homework-math-per-scuola" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" width="960">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-homework-math-per-scuola-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>La relazione cambia completamente. Dentro ogni scuola sembra esserci un effetto positivo del carico di compiti, mentre complessivamente sembra esserci un effetto negativo. Questo pattern è noto come <strong>paradosso di Simpson</strong> e mostra la complessità che possono assumere i dati organizzati su più livelli.</p>
+<p>Immaginiamo ora di analizzare superficialmente questi dati aggregandoli per scuola. Calcoliamo quindi la media del carico di compiti e del punteggio in matematica per ogni scuola e poi osserviamo la relazione tra queste due quantità.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>dat <span class="sc">|&gt;</span> </span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">math =</span> <span class="fu">mean</span>(math),</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">homework =</span> <span class="fu">mean</span>(homework),</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">.by =</span> <span class="fu">c</span>(school_id)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span> </span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> homework, <span class="at">y =</span> math)) <span class="sc">+</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-homework-math-aggregato-scuola" class="quarto-float quarto-figure quarto-figure-center anchored" width="960" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-homework-math-aggregato-scuola-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="03-centering_files/figure-html/fig-homework-math-aggregato-scuola-1.svg" id="fig-homework-math-aggregato-scuola" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" width="960">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-homework-math-aggregato-scuola-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Guardando solo il pattern aggregato, concluderemmo che la relazione è negativa: all’aumentare dei compiti assegnati diminuiscono le performance in matematica.</p>
+<p>Cosa sta succedendo? Sostanzialmente questo è un caso in cui l’effetto <strong>tra cluster</strong> è diverso dall’effetto <strong>dentro i cluster</strong>. In ogni scuola, all’aumentare dei compiti, almeno graficamente, la performance migliora. Invece, tra scuole, maggiori quantità medie di compiti sono associate a performance medie inferiori.</p>
+</section>
+</section>
+<section id="within-e-between-effects" class="level1">
+<h1>Within e between effects</h1>
+<p>Possiamo chiamare effetto <strong>within</strong> l’effetto dentro ogni cluster. In questo caso, l’effetto within descrive come varia la performance in matematica degli studenti al netto delle differenze tra scuole.</p>
+<p>Possiamo invece chiamare effetto <strong>between</strong> l’effetto tra cluster. In questo caso, l’effetto between descrive come varia la performance media in matematica tra scuole diverse.</p>
+<p>In termini di modello, è importante riuscire a separare questi due effetti. Per farlo è sufficiente trasformare la variabile <code>homework</code> con diverse forme di centramento.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Centramento di una variabile">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Centramento di una variabile
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Centrare una variabile significa sottrarre una costante. Solitamente si centra sulla media o su un altro valore significativo. Se sottraiamo a tutti i valori una costante, quella costante diventa il nuovo zero e i valori vengono espressi come deviazioni positive o negative rispetto a quello zero.</p>
+<p>Il centramento non cambia la variabilità né la forma della distribuzione della variabile: produce semplicemente uno spostamento dei valori.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="fl">1e3</span>, <span class="dv">100</span>, <span class="dv">50</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(x, <span class="at">breaks =</span> <span class="dv">30</span>, <span class="at">main =</span> <span class="st">"x"</span>)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(x <span class="sc">-</span> <span class="fu">mean</span>(x), <span class="at">breaks =</span> <span class="dv">30</span>, <span class="at">main =</span> <span class="st">"x - mean(x)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-esempio-centramento" class="quarto-float quarto-figure quarto-figure-center anchored" width="960" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-esempio-centramento-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="03-centering_files/figure-html/fig-esempio-centramento-1.svg" id="fig-esempio-centramento" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" width="960">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-esempio-centramento-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Nella nuova variabile, un valore pari a 50 significa che quell’osservazione è 50 unità sopra la media; un valore pari a -20 significa che è 20 unità sotto la media.</p>
+</div>
+</div>
+<section id="cluster-mean-centering" class="level2">
+<h2 class="anchored" data-anchor-id="cluster-mean-centering">Cluster mean centering</h2>
+<p>Per isolare l’effetto <em>within</em> dobbiamo rimuovere l’effetto <em>between</em>. In altri termini, dobbiamo rimuovere dai dati il fatto che scuole diverse possono avere carichi medi di compiti diversi.</p>
+<p>La modalità più utile è centrare ogni valore rispetto alla media del suo cluster di riferimento: questa operazione viene chiamata <em>cluster mean centering</em> (CMC). Indicando con <span class="math inline">\(h_{ij}\)</span> il valore di <code>homework</code> dello studente <span class="math inline">\(i\)</span> nella scuola <span class="math inline">\(j\)</span>, e con <span class="math inline">\(\bar{h}_{.j}\)</span> la media di <code>homework</code> nella scuola <span class="math inline">\(j\)</span>, definiamo:</p>
+<p><span class="math display">\[
+h^{\text{CMC}}_{ij} = h_{ij} - \bar{h}_{.j}
+\]</span></p>
+<p>Vediamo graficamente cosa succede:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> dat <span class="sc">|&gt;</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># calcolo la media di ogni cluster</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">homework_cm =</span> <span class="fu">mean</span>(homework), <span class="at">.by =</span> <span class="fu">c</span>(school_id)) <span class="sc">|&gt;</span> </span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">homework_cmc =</span> homework <span class="sc">-</span> homework_cm)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>dat <span class="sc">|&gt;</span> </span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> homework_cmc, <span class="at">y =</span> math, <span class="at">color =</span> school_id)) <span class="sc">+</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-homework-cmc-punti" class="quarto-float quarto-figure quarto-figure-center anchored" width="960" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-homework-cmc-punti-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="03-centering_files/figure-html/fig-homework-cmc-punti-1.svg" id="fig-homework-cmc-punti" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" width="960">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-homework-cmc-punti-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>In questo modo abbiamo rimosso le differenze sistematiche tra scuole. Guardate cosa succede se stimiamo la relazione complessiva tra <code>homework_cmc</code> e <code>math</code>:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>dat <span class="sc">|&gt;</span> </span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> homework_cmc, <span class="at">y =</span> math)) <span class="sc">+</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">color =</span> school_id)) <span class="sc">+</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">lwd =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_smooth</span>(<span class="fu">aes</span>(<span class="at">color =</span> school_id), <span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-homework-cmc-within" class="quarto-float quarto-figure quarto-figure-center anchored" width="960" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-homework-cmc-within-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="03-centering_files/figure-html/fig-homework-cmc-within-1.svg" id="fig-homework-cmc-within" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" width="960">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-homework-cmc-within-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Ora la relazione complessiva, cioè la linea blu spessa, è positiva e completamente diversa rispetto a prima. Questo è ciò che intendiamo con effetto within.</p>
+<p>Per inserire questa distinzione nel modello possiamo creare due versioni della variabile <code>homework</code>: una che rappresenta la media del cluster e una che rappresenta il valore centrato sulla media del cluster. Sono le variabili <code>homework_cm</code> e <code>homework_cmc</code> create prima.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(dat[, <span class="fu">c</span>(<span class="st">"school_id"</span>, <span class="st">"homework"</span>, <span class="st">"homework_cm"</span>, <span class="st">"homework_cmc"</span>)])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 4
+  school_id homework homework_cm homework_cmc
+  &lt;fct&gt;        &lt;dbl&gt;       &lt;dbl&gt;        &lt;dbl&gt;
+1 1             7.71        7.54        0.167
+2 1             7.91        7.54        0.367
+3 1             7.94        7.54        0.397
+4 1             7.76        7.54        0.217
+5 1             6.59        7.54       -0.953
+6 1             7.13        7.54       -0.413
+</code></pre>
+</div>
+</div>
+<p>Prendiamo, ad esempio, l’osservazione 5 e l’osservazione 520:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>dat[<span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">520</span>), <span class="fu">c</span>(<span class="st">"school_id"</span>, <span class="st">"homework"</span>, <span class="st">"homework_cm"</span>, <span class="st">"homework_cmc"</span>)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 4
+  school_id homework homework_cm homework_cmc
+  &lt;fct&gt;        &lt;dbl&gt;       &lt;dbl&gt;        &lt;dbl&gt;
+1 1             6.59        7.54       -0.953
+2 15            2.68        3.50       -0.823
+</code></pre>
+</div>
+</div>
+<p>Questi studenti appartengono alle scuole 1 e 15, hanno un carico di compiti di circa 7 e 3 ore, e questo corrisponde in entrambi i casi a circa 1 ora in meno rispetto alla media del loro cluster. Quindi questi due studenti hanno un carico assoluto di studio diverso, ma sono alla stessa distanza rispetto alla media della propria scuola.</p>
+</section>
+</section>
+<section id="modelli-con-predittori-centrati" class="level1">
+<h1>Modelli con predittori centrati</h1>
+<p>Possiamo usare la variabile <code>homework_cmc</code> nel modello per stimare la retta blu del grafico precedente, cioè l’effetto dell’incremento nello studio al netto delle differenze medie di studio tra scuole.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># modello senza centering</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>fit1 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(math <span class="sc">~</span> homework <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> school_id), <span class="at">data =</span> dat)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="co"># modello con centering dentro il cluster</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>fit2 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(math <span class="sc">~</span> homework_cmc <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> school_id), <span class="at">data =</span> dat)</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit1)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: math ~ homework + (1 | school_id)
+   Data: dat
+
+REML criterion at convergence: 2751
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-2.7595 -0.6157 -0.0038  0.6755  2.8332 
+
+Random effects:
+ Groups    Name        Variance Std.Dev.
+ school_id (Intercept) 276.16   16.62   
+ Residual                9.14    3.02   
+Number of obs: 525, groups:  school_id, 15
+
+Fixed effects:
+            Estimate Std. Error      df t value Pr(&gt;|t|)    
+(Intercept)   69.343      4.450  16.038    15.6  4.2e-11 ***
+homework       3.676      0.215 512.390    17.1  &lt; 2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Correlation of Fixed Effects:
+         (Intr)
+homework -0.263
+</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit2)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: math ~ homework_cmc + (1 | school_id)
+   Data: dat
+
+REML criterion at convergence: 2742
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-2.7685 -0.6262 -0.0071  0.6853  2.8415 
+
+Random effects:
+ Groups    Name        Variance Std.Dev.
+ school_id (Intercept) 145.35   12.06   
+ Residual                9.14    3.02   
+Number of obs: 525, groups:  school_id, 15
+
+Fixed effects:
+             Estimate Std. Error      df t value Pr(&gt;|t|)    
+(Intercept)    89.412      3.116  14.000    28.7  7.7e-14 ***
+homework_cmc    3.725      0.215 509.000    17.3  &lt; 2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Correlation of Fixed Effects:
+            (Intr)
+homewrk_cmc 0.000 
+</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">ggeffect</span>(fit2))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="03-centering_files/figure-html/fit-homework-senza-con-centering-1.svg" class="img-fluid quarto-figure quarto-figure-center figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Poiché in entrambi i modelli teniamo conto delle differenze tra scuole tramite l’intercetta random, viene stimata una relazione positiva, anche se leggermente diversa. Vediamo invece cosa accade con <code>lm</code>, che ignora il clustering: la relazione è negativa, come avevamo visto nel grafico marginale.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>fit3 <span class="ot">&lt;-</span> <span class="fu">lm</span>(math <span class="sc">~</span> homework, <span class="at">data =</span> dat)</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit3)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = math ~ homework, data = dat)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-22.412  -5.558   0.069   4.651  25.713 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  126.929      1.455    87.2   &lt;2e-16 ***
+homework      -6.873      0.259   -26.6   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 8.01 on 523 degrees of freedom
+Multiple R-squared:  0.574, Adjusted R-squared:  0.573 
+F-statistic:  706 on 1 and 523 DF,  p-value: &lt;2e-16
+</code></pre>
+</div>
+</div>
+<p>Quindi <code>fit2</code> rappresenta una stima dell’effetto within. Al netto del cluster, all’aumentare di un’ora di studio la performance in matematica aumenta. Questo succede in media, ma, come abbiamo visto nel grafico, il pattern è abbastanza consistente tra scuole.</p>
+<section id="separare-effetto-within-ed-effetto-between" class="level2">
+<h2 class="anchored" data-anchor-id="separare-effetto-within-ed-effetto-between">Separare effetto within ed effetto between</h2>
+<p>Possiamo anche includere l’effetto between nel modello, separando chiaramente i due aspetti di <code>homework</code>. Per farlo dobbiamo inserire come predittore <code>homework_cm</code>, cioè la variabile che contiene la media di <code>homework</code> in ogni scuola. Questa variabile è rilevante solo a livello 2, cioè a livello della scuola.</p>
+<p>Il modello può essere scritto in forma semplificata come:</p>
+<p><span class="math display">\[
+\text{math}_{ij} = \beta_0 + \beta_W h^{\text{CMC}}_{ij} + \beta_B \bar{h}_{.j} + u_{0j} + \varepsilon_{ij}
+\]</span></p>
+<p>dove:</p>
+<ul>
+<li><span class="math inline">\(\beta_W\)</span> è l’effetto within;</li>
+<li><span class="math inline">\(\beta_B\)</span> è l’effetto between;</li>
+<li><span class="math inline">\(u_{0j}\)</span> è l’intercetta random della scuola <span class="math inline">\(j\)</span>;</li>
+<li><span class="math inline">\(\varepsilon_{ij}\)</span> è il residuo individuale.</li>
+</ul>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>fit4 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(math <span class="sc">~</span> homework_cmc <span class="sc">+</span> homework_cm <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> school_id), <span class="at">data =</span> dat)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit4)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: math ~ homework_cmc + homework_cm + (1 | school_id)
+   Data: dat
+
+REML criterion at convergence: 2681
+
+Scaled residuals: 
+   Min     1Q Median     3Q    Max 
+-2.840 -0.621 -0.002  0.680  2.833 
+
+Random effects:
+ Groups    Name        Variance Std.Dev.
+ school_id (Intercept) 1.73     1.32    
+ Residual              9.14     3.02    
+Number of obs: 525, groups:  school_id, 15
+
+Fixed effects:
+             Estimate Std. Error      df t value Pr(&gt;|t|)    
+(Intercept)   141.972      1.693  13.000    83.8   &lt;2e-16 ***
+homework_cmc    3.725      0.215 509.000    17.3   &lt;2e-16 ***
+homework_cm    -9.628      0.303  13.000   -31.8    1e-13 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Correlation of Fixed Effects:
+            (Intr) hmwrk_cmc
+homewrk_cmc  0.000          
+homework_cm -0.977  0.000   
+</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">ggeffect</span>(fit4))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$homework_cmc
+</code></pre>
+</div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="03-centering_files/figure-html/fit-within-between-homework-1.svg" class="img-fluid quarto-figure quarto-figure-center figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+$homework_cm
+</code></pre>
+</div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="03-centering_files/figure-html/fit-within-between-homework-2.svg" class="img-fluid quarto-figure quarto-figure-center figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>In questo modello abbiamo stimato chiaramente i due pattern. All’aumentare delle ore di studio aumentano le performance individuali al netto delle differenze tra scuole. Tra scuole, invece, le performance medie sono inferiori all’aumentare delle ore medie di studio.</p>
+<p>Possiamo infine stimare anche la variabilità dell’effetto within. Dal grafico abbiamo visto che la relazione, seppure simile, cambia tra scuole. Possiamo quindi inserire l’effetto within come random slope.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>fit5 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(math <span class="sc">~</span> homework_cmc <span class="sc">+</span> homework_cm <span class="sc">+</span> (homework_cmc <span class="sc">|</span> school_id), <span class="at">data =</span> dat)</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit5)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: math ~ homework_cmc + homework_cm + (homework_cmc | school_id)
+   Data: dat
+
+REML criterion at convergence: 2680
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-2.8916 -0.6068 -0.0116  0.6728  2.8356 
+
+Random effects:
+ Groups    Name         Variance Std.Dev. Corr 
+ school_id (Intercept)  1.7269   1.314         
+           homework_cmc 0.0352   0.188    -1.00
+ Residual               9.1280   3.021         
+Number of obs: 525, groups:  school_id, 15
+
+Fixed effects:
+             Estimate Std. Error      df t value Pr(&gt;|t|)    
+(Intercept)   141.978      1.661  13.291    85.5   &lt;2e-16 ***
+homework_cmc    3.723      0.220 113.461    16.9   &lt;2e-16 ***
+homework_cm    -9.629      0.297  13.267   -32.4    5e-14 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Correlation of Fixed Effects:
+            (Intr) hmwrk_cmc
+homewrk_cmc -0.057          
+homework_cm -0.976  0.012   
+optimizer (nloptwrap) convergence code: 0 (OK)
+boundary (singular) fit: see help('isSingular')
+</code></pre>
+</div>
+</div>
+<p>In questo caso, probabilmente la variabilità della slope è molto piccola e il modello fatica a stimarla.</p>
+</section>
+</section>
+<section id="esercizio" class="level1">
+<h1>Esercizio</h1>
+<p>Provate, esplorando il dataset, a capire perché emerge questa relazione inversa tra scuole e dentro le scuole. C’è una variabile nel dataset che lo spiega chiaramente.</p>
+</section>
+<section id="bibliografia" class="level1">
+<h1>Bibliografia</h1>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" data-line-spacing="2" role="list">
+<div id="ref-Enders2007-dk" class="csl-entry" role="listitem">
+Enders, C. K., &amp; Tofighi, D. (2007). <span class="nocase">Centering predictor variables in cross-sectional multilevel models: a new look at an old issue</span>. <em>Psychological Methods</em>, <em>12</em>, 121–138. <a href="https://doi.org/10.1037/1082-989X.12.2.121">https://doi.org/10.1037/1082-989X.12.2.121</a>
+</div>
+</div>
+
+
 </section>
 
 </main> <!-- /main -->
@@ -400,13 +924,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy

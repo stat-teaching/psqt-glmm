@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.21">
+<meta name="generator" content="quarto-1.8.26">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -73,10 +73,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ea1d7ac60288e0f1efdbc993fd8432ae.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-45dd08599a1b1e22c1c6eae1dc94be9b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-f245066ca199b7326ac6b360085ddf3a.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -145,8 +145,6 @@ window.Quarto = {
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a href="../index.html" class="navbar-brand navbar-brand-logo">
-    </a>
     <a class="navbar-brand" href="../index.html">
     <span class="navbar-title">PSQT-GLMM</span>
     </a>
@@ -184,9 +182,24 @@ window.Quarto = {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#casi-limite" id="toc-casi-limite" class="nav-link active" data-scroll-target="#casi-limite">Casi limite</a></li>
+  <li><a href="#setup" id="toc-setup" class="nav-link active" data-scroll-target="#setup">Setup</a></li>
+  <li><a href="#dataset-ed-esplorazione" id="toc-dataset-ed-esplorazione" class="nav-link" data-scroll-target="#dataset-ed-esplorazione">Dataset ed esplorazione</a></li>
+  <li><a href="#modello-lineare-e-complete-pooling" id="toc-modello-lineare-e-complete-pooling" class="nav-link" data-scroll-target="#modello-lineare-e-complete-pooling">Modello lineare e complete pooling</a></li>
+  <li><a href="#dal-complete-pooling-al-partial-pooling" id="toc-dal-complete-pooling-al-partial-pooling" class="nav-link" data-scroll-target="#dal-complete-pooling-al-partial-pooling">Dal complete pooling al partial pooling</a>
+  <ul class="collapse">
+  <li><a href="#stime-soggetto-specifiche-e-shrinkage" id="toc-stime-soggetto-specifiche-e-shrinkage" class="nav-link" data-scroll-target="#stime-soggetto-specifiche-e-shrinkage">Stime soggetto-specifiche e shrinkage</a>
+  <ul class="collapse">
+  <li><a href="#casi-limite" id="toc-casi-limite" class="nav-link" data-scroll-target="#casi-limite">Casi limite</a></li>
   <li><a href="#interpretazione" id="toc-interpretazione" class="nav-link" data-scroll-target="#interpretazione">Interpretazione</a></li>
+  </ul></li>
+  </ul></li>
   <li><a href="#modello-con-predittori" id="toc-modello-con-predittori" class="nav-link" data-scroll-target="#modello-con-predittori">Modello con predittori</a></li>
+  <li><a href="#random-slope" id="toc-random-slope" class="nav-link" data-scroll-target="#random-slope">Random slope</a>
+  <ul class="collapse">
+  <li><a href="#distribuzione-normale-multivariata" id="toc-distribuzione-normale-multivariata" class="nav-link" data-scroll-target="#distribuzione-normale-multivariata">Distribuzione normale multivariata</a></li>
+  </ul></li>
+  <li><a href="#intervalli-di-confidenza-e-visualizzazione" id="toc-intervalli-di-confidenza-e-visualizzazione" class="nav-link" data-scroll-target="#intervalli-di-confidenza-e-visualizzazione">Intervalli di confidenza e visualizzazione</a></li>
+  <li><a href="#interpretazione-e-diagnostica" id="toc-interpretazione-e-diagnostica" class="nav-link" data-scroll-target="#interpretazione-e-diagnostica">Interpretazione e diagnostica</a></li>
   </ul>
 </nav>
     </div>
@@ -225,6 +238,8 @@ window.Quarto = {
 </header>
 
 
+<section id="setup" class="level1">
+<h1>Setup</h1>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lme4)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
@@ -234,8 +249,11 @@ window.Quarto = {
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> sleepstudy</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># ?sleepstudy</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p>Cominciamo direttamente con un esempio con il dataset <code>sleepstudy</code> del pacchetto <code>lme4</code><a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>.</p>
-<p>Il dataset riguarda l’impatto della deprivazione da sonno nei tempi di reazione di un gruppo di soggetti.</p>
+</section>
+<section id="dataset-ed-esplorazione" class="level1">
+<h1>Dataset ed esplorazione</h1>
+<p>Cominciamo direttamente con un esempio basato sul dataset <code>sleepstudy</code> del pacchetto <code>lme4</code><a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>.</p>
+<p>Il dataset riguarda l’impatto della deprivazione da sonno sui tempi di reazione di un gruppo di soggetti.</p>
 <blockquote class="blockquote">
 <p>The average reaction time per day (in milliseconds) for subjects in a sleep deprivation study. Days 0-1 were adaptation and training (T1/T2), day 2 was baseline (B); sleep deprivation started after day 2.</p>
 </blockquote>
@@ -271,12 +289,12 @@ window.Quarto = {
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="01-intro-glmm_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+<p><img src="01-intro-glmm_files/figure-html/hist-reaction-1.svg" class="img-fluid quarto-figure quarto-figure-center figure-img" width="960"></p>
 </figure>
 </div>
 </div>
 </div>
-<p>Vediamo il numero di giorni che abbiamo di deprivazione. Per ogni giorno di deprivazione (massimo 9) abbiamo 18 soggetti.</p>
+<p>Vediamo il numero di osservazioni per ciascun giorno di deprivazione. Per ogni giorno di deprivazione (da 0 a 9) abbiamo 18 soggetti.</p>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(dat<span class="sc">$</span>Days)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -325,13 +343,13 @@ soggetti 0 1 2 3 4 5 6 7 8 9
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="01-intro-glmm_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+<p><img src="01-intro-glmm_files/figure-html/boxplot-reaction-days-1.svg" class="img-fluid quarto-figure quarto-figure-center figure-img" width="960"></p>
 </figure>
 </div>
 </div>
 </div>
-<p>Si vede chiaramente un pattern, dove al crescere della deprivazione crescono chiaramente i tempi di reazione. Ovviamente è presente della variabilità ma la mediana del tempo cresce chiaramente.</p>
-<p>Vediamo ora la situazione per ogni soggetto. Ogni linea è il trend di ogni soggetto. Vediamo che nonostante ci sia variabilità tra soggetti, il pattern è abbastanza comune per tutti : al crescere della deprivazione da sonno, si abbassano i tempi di reazione.</p>
+<p>Si vede chiaramente un pattern: al crescere della deprivazione aumentano i tempi di reazione. Ovviamente è presente della variabilità ma la mediana dei tempi di reazione aumenta chiaramente.</p>
+<p>Vediamo ora la situazione per ogni soggetto. Ogni linea è il trend di ogni soggetto. Vediamo che, nonostante la variabilità tra soggetti, il pattern è abbastanza comune a tutti: al crescere della deprivazione da sonno, aumentano i tempi di reazione.</p>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>dat <span class="sc">|&gt;</span> </span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> Days, <span class="at">y =</span> Reaction)) <span class="sc">+</span></span>
@@ -339,14 +357,17 @@ soggetti 0 1 2 3 4 5 6 7 8 9
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="01-intro-glmm_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+<p><img src="01-intro-glmm_files/figure-html/line-reaction-subjects-1.svg" class="img-fluid quarto-figure quarto-figure-center figure-img" width="960"></p>
 </figure>
 </div>
 </div>
 </div>
-<p>Ora, proviamo a stimare con un modello statistico questo trend che vediamo ad occhio dove i tempi di reazione aumentano. Se lo affrontiamo con gli strumenti che conosciamo finora ovvero i modelli lineari, possiamo implementare un modello di questo tipo:</p>
+</section>
+<section id="modello-lineare-e-complete-pooling" class="level1">
+<h1>Modello lineare e complete pooling</h1>
+<p>Ora proviamo a stimare con un modello statistico il trend che osserviamo a occhio: i tempi di reazione aumentano con i giorni di deprivazione. Se lo affrontiamo con gli strumenti che conosciamo finora ovvero i modelli lineari, possiamo implementare un modello di questo tipo:</p>
 <p><span class="math display">\[
-\mbox{RT}_{i} = \beta_0 + \beta_1 \mbox{Days}_i + \epsilon_i
+\text{RT}_{ij} = \beta_0 + \beta_1\text{Days}_{ij} + \varepsilon_{ij}
 \]</span></p>
 <p>Possiamo anche implementarlo direttamente in R:</p>
 <div class="cell" data-layout-align="center">
@@ -374,14 +395,14 @@ F-statistic: 71.5 on 1 and 178 DF,  p-value: 9.89e-15
 </code></pre>
 </div>
 </div>
-<p>Possiamo intepretare i parametri in modo classico:</p>
+<p>Possiamo interpretare i parametri in modo classico:</p>
 <ul>
 <li><span class="math inline">\(\beta_0\)</span>: al tempo 0 (Days = 0) il tempo di reazione medio è 251.405 ms</li>
-<li><span class="math inline">\(\beta_1\)</span>: per ogni giorno che passa di deprivazione, il tempo di reazione medio aumenta di 10.467 ms</li>
+<li><span class="math inline">\(\beta_1\)</span>: per ogni giorno che passa di deprivazione, in media il tempo di reazione medio aumenta di 10.467 ms</li>
 </ul>
 <p>Questo modello sta cercando di stimare la relazione tra Days e Reaction <span class="math inline">\(\beta_1\)</span> utilizzando tutte le osservazioni <span class="math inline">\(i\)</span> del dataset. Notate qualcosa di strano?</p>
-<p>Da nessuna parte nel modello si tiene conto del fatto che le righe del dataset sono <strong>raggruppate</strong> in base al soggetto. Ogni soggetto ha 10 righe (0-9) che indicano il suo tempo di reazione. Questo comporta che le righe non sono indipendenti ovvero che le righe associate al soggetto 308 sono (probabilmente) più simili tra loro rispetto alle righe di un’altro soggetto.</p>
-<p>In termini pratici, se un soggetto parte a tempo 0 con un tempo di reazione alto mentre un’altro soggetto parte con un tempo di reazione basso è probabile che anche le osservazioni per gli altri tempi siano in media più alte/basse.</p>
+<p>In nessuna parte del modello si tiene conto del fatto che le righe del dataset sono <strong>raggruppate</strong> in base al soggetto. Ogni soggetto ha 10 righe (0-9) che indicano il suo tempo di reazione. Questo comporta che le righe non sono indipendenti, ovvero che le righe associate al soggetto 308 sono (probabilmente) più simili tra loro rispetto alle righe di un altro soggetto.</p>
+<p>In termini pratici, se un soggetto parte a tempo 0 con un tempo di reazione alto mentre un altro soggetto parte con un tempo di reazione basso è probabile che anche le osservazioni per gli altri tempi siano in media più alte/basse.</p>
 <p>Vediamo un grafico con tutte le osservazioni per ogni soggetto. Il punto rosso rappresenta la media di ogni soggetto.</p>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>dat <span class="sc">|&gt;</span> </span>
@@ -389,10 +410,10 @@ F-statistic: 71.5 on 1 and 178 DF,  p-value: 9.89e-15
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
 <span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">stat_summary</span>(<span class="at">fun =</span> mean, <span class="at">geom =</span> <span class="st">"point"</span>, <span class="at">size =</span> <span class="dv">5</span>, <span class="at">col =</span> <span class="st">"red"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
-<div id="fig-cluster-means" class="quarto-float quarto-figure quarto-figure-center anchored" width="672" data-fig-align="center">
+<div id="fig-cluster-means" class="quarto-float quarto-figure quarto-figure-center anchored" width="960" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-cluster-means-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="01-intro-glmm_files/figure-html/fig-cluster-means-1.png" id="fig-cluster-means" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" width="672">
+<img src="01-intro-glmm_files/figure-html/fig-cluster-means-1.svg" id="fig-cluster-means" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" width="960">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-cluster-means-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;1
@@ -404,16 +425,16 @@ Figure&nbsp;1
 <p>Da questo grafico vediamo che:</p>
 <ul>
 <li>ogni soggetto ha la sua media e le medie dei soggetti sono diverse tra loro</li>
-<li>le osservazioni di un soggetto sono più simili tra loro rispetto ad osservazioni di due soggetti diversi</li>
+<li>le osservazioni di un soggetto sono più simili tra loro rispetto a osservazioni di due soggetti diversi</li>
 </ul>
-<p>Proviamo ad unire i due plot precedenti facendo vedere variazioni di media e anche dell’effetto dei giorni di deprivazione:</p>
+<p>Proviamo ad unire i due grafici precedenti mostrando sia le differenze di media sia le differenze nell’effetto dei giorni di deprivazione:</p>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(Reaction <span class="sc">~</span> Days, <span class="at">data =</span> dat, <span class="at">type =</span> <span class="st">"b"</span>)</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(dat<span class="sc">$</span>Days[dat<span class="sc">$</span>Days <span class="sc">==</span> <span class="dv">0</span>], dat<span class="sc">$</span>Reaction[dat<span class="sc">$</span>Days <span class="sc">==</span> <span class="dv">0</span>], <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">pch =</span> <span class="dv">19</span>, <span class="at">cex =</span> <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="01-intro-glmm_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+<p><img src="01-intro-glmm_files/figure-html/base-plot-reaction-days-1.svg" class="img-fluid quarto-figure quarto-figure-center figure-img" width="960"></p>
 </figure>
 </div>
 </div>
@@ -427,9 +448,14 @@ Figure&nbsp;1
 <span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">group =</span> Subject)) <span class="sc">+</span></span>
 <span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="01-intro-glmm_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+<div id="fig-overall-lm-line" class="quarto-float quarto-figure quarto-figure-center anchored" width="960" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-overall-lm-line-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="01-intro-glmm_files/figure-html/fig-overall-lm-line-1.svg" id="fig-overall-lm-line" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" width="960">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-overall-lm-line-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2
+</figcaption>
 </figure>
 </div>
 </div>
@@ -475,14 +501,9 @@ full         251 10.47
 <span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">intercept =</span> <span class="fu">coef</span>(fit_lm)[<span class="dv">1</span>], <span class="at">slope =</span> <span class="fu">coef</span>(fit_lm)[<span class="dv">2</span>], <span class="at">lwd =</span> <span class="dv">1</span>, <span class="at">col =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
 <span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
-<div id="fig-prova" class="quarto-float quarto-figure quarto-figure-center anchored" width="672" data-fig-align="center">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-prova-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="01-intro-glmm_files/figure-html/fig-prova-1.png" id="fig-prova" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" width="672">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-prova-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;2
-</figcaption>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="01-intro-glmm_files/figure-html/fit-by-subject-plot-1.svg" class="img-fluid quarto-figure quarto-figure-center figure-img" width="960"></p>
 </figure>
 </div>
 </div>
@@ -490,35 +511,21 @@ Figure&nbsp;2
 <p>Questi due approcci che abbiamo usato hanno un nome specifico e si chiamano:</p>
 <ul>
 <li><strong>complete pooling</strong>: modello che ignora il fatto che ci sono soggetti diversi con osservazioni nested. Stima una relazione unica ignorando la correlazione tra osservazioni dello stesso soggetto.</li>
-<li><strong>no pooling</strong>: modello(i) che ignorano in un certo senso il trend medio e preferiscono avere un parametro (o meglio due, <span class="math inline">\(\beta_0\)</span> e <span class="math inline">\(\beta_1\)</span>) per ogni soggetto.</li>
+<li><strong>no pooling</strong>: modello(i) che ignorano in un certo senso il trend medio e preferiscono avere un parametro, o meglio due: <span class="math inline">\(\beta_0\)</span> e <span class="math inline">\(\beta_1\)</span>) per ogni soggetto.</li>
 </ul>
 <p>Possiamo trovare pregi e difetti di entrambi. Proviamo ad elencarne alcuni:</p>
 <ul>
-<li>il <strong>complete pooling</strong> non tiene conto del cluster/soggetto. Vedremo dopo meglio le conseguenze ma sta ignorando una componente fondamentale della struttura dati. Il “vantaggio” è che a prescindere dal numero di soggetti ed osservazioni, il numero di parametri stimati è sempre minimo. In questo caso solo 3, <span class="math inline">\(\beta_0\)</span>, <span class="math inline">\(\beta_1\)</span> e <span class="math inline">\(\sigma^2_{\epsilon}\)</span>.</li>
-<li>il <strong>no pooling</strong>: tiene, forse troppo, conto del fatto che ci sono cluster/soggetti tanto che decide di stimare un intero modello per ognuno. Il vantaggio è che teniamo conto delle differenze che abbiamo visto anche ad occhio, lo svantaggio è che il numero di parametri cresce tantissimo all’aumentare dei cluster/soggetti e alla complessità del modello.</li>
+<li>il <strong>complete pooling</strong> non tiene conto del cluster/soggetto. Vedremo dopo meglio le conseguenze ma sta ignorando una componente fondamentale della struttura dati. Il “vantaggio” è che a prescindere dal numero di soggetti e osservazioni, il numero di parametri stimati è sempre minimo. In questo caso solo 3, <span class="math inline">\(\beta_0\)</span>, <span class="math inline">\(\beta_1\)</span> e <span class="math inline">\(\sigma^2_{\varepsilon}\)</span>.</li>
+<li>il <strong>no pooling</strong>: tiene, forse troppo, conto del fatto che ci sono cluster/soggetti tanto che decide di stimare un intero modello per ognuno. Il vantaggio è che teniamo conto delle differenze che abbiamo visto anche a occhio, lo svantaggio è che il numero di parametri cresce tantissimo all’aumentare del numero di cluster/soggetti e alla complessità del modello.</li>
 </ul>
 <p>Potete immaginare che un approccio sensato stia nel mezzo, ma prima di vedere più formalmente come implementarlo, facciamo un passo indietro riguardo il <strong>complete pooling</strong> ed il fatto di ignorare i cluster.</p>
-<p>Mentre è chiaro che stimare un parametro per soggetto sia una scelta problematica, il problema di ignorare i soggetti/cluster è meno chiaro. La questione si esprime bene in termini di informazione.</p>
-<p>Immaginate di misurare i tempi di reazione di un soggetto, 9 volte, oppure di misurare i tempi di reazione in 9 soggetti diversi una volta. E’ chiaro che:</p>
-<p>Immaginate due situazioni: misuriamo i tempi di reazione di uno stesso soggetto 9 volte, oppure misuriamo i tempi di reazione di 9 soggetti diversi una sola volta ciascuno. In entrambi i casi abbiamo 9 osservazioni, ma non abbiamo la stessa quantità di informazione indipendente.</p>
+<p>Se è chiaro che stimare un parametro per soggetto sia una scelta problematica, il problema di ignorare i soggetti/cluster è meno chiaro. La questione si esprime bene in termini di informazione.</p>
+<p>Immaginate di misurare i tempi di reazione di un soggetto, 9 volte oppure di misurare i tempi di reazione in 9 soggetti diversi una volta. È chiaro che:</p>
+<p>Immaginate due situazioni: misuriamo i tempi di reazione di uno stesso soggetto 9 volte oppure misuriamo i tempi di reazione di 9 soggetti diversi una sola volta ciascuno. In entrambi i casi abbiamo 9 osservazioni, ma non abbiamo la stessa quantità di informazione indipendente.</p>
 <p>Nel primo caso, le osservazioni sono parzialmente ridondanti: se un soggetto è mediamente molto veloce, è probabile che tutte le sue misurazioni tendano a essere più veloci. Le 9 osservazioni ci informano molto bene su quel soggetto, ma meno sulla variabilità generale tra soggetti.</p>
 <p>Nel secondo caso, invece, ogni osservazione proviene da un soggetto diverso. Le osservazioni sono quindi meno dipendenti tra loro e portano più informazione sulla popolazione di soggetti da cui sono state estratte.</p>
 <p>Il problema nasce quando trattiamo le 9 misurazioni dello stesso soggetto come se fossero equivalenti a 9 soggetti diversi. In quel caso sovrastimiamo la quantità di informazione indipendente contenuta nei dati.</p>
 <p>Ora riprendiamo il grafico precedente:</p>
-<div class="cell" data-layout-align="center">
-<div class="cell-output-display">
-<div id="fig-cluster-means" class="quarto-float quarto-figure quarto-figure-center anchored" width="672" data-fig-align="center">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-cluster-means-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="01-intro-glmm_files/figure-html/fig-cluster-means-1.png" id="fig-cluster-means" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" width="672">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-cluster-means-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;3
-</figcaption>
-</figure>
-</div>
-</div>
-</div>
 <p>Ora, se le medie dei soggetti sono diverse tra loro automaticamente le osservazioni saranno più correlate. Avere una baseline diversa comporta che le osservazioni del soggetto 308 tenderanno ad essere maggiori (e più simili tra loro) di quelle del soggetto 309.</p>
 <p>Quindi, la variabilità tra le medie dei soggetti (cluster) è un indice di quanto sono correlati. In modo grezzo e non formalmente corretto proviamo a calcolare un indice chiamiamolo <span class="math inline">\(\rho\)</span>. Dove <span class="math inline">\(\sigma^2_{\text{id}}\)</span> è la variabilità dovuta ai soggetti e <span class="math inline">\(\sigma^2_{y}\)</span> è la variabilità totale.</p>
 <p><span class="math display">\[
@@ -533,11 +540,11 @@ Figure&nbsp;3
 </code></pre>
 </div>
 </div>
-<p>Quindi il 47% circa, della varibilità totale è dovuta al raggruppamento delle osservazioni per soggetto. Dopo lo vedremo più formalmente ma questo indice si chiama <strong>intraclass correlation</strong> (ICC) e rappresenta appunto una stima della correlazione tra osservazioni nello stesso cluster. Prima di passare al modello più formale vediamo l’impatto dell’ICC:</p>
+<p>Quindi circa il 47% della variabilità totale è dovuta al raggruppamento delle osservazioni per soggetto. Dopo lo vedremo più formalmente ma questo indice si chiama <strong>intraclass correlation</strong> (ICC) e rappresenta appunto una stima della correlazione tra osservazioni nello stesso cluster. Prima di passare al modello più formale vediamo l’impatto dell’ICC:</p>
 <p><span class="math display">\[
 n_{\text{eff}} = \frac{km}{1 + (m - 1) \rho}
 \]</span></p>
-<p>Dove <span class="math inline">\(m\)</span> è il numero totale di osservazioni (medio) in ogni cluster e <span class="math inline">\(k\)</span> è il numero di cluster. Quindi <span class="math inline">\(n = km\)</span> è il numero totale di osservazioni nel dataset e <span class="math inline">\(\rho\)</span> è l’ICC che abbiamo calcolato prima<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>. Questa formula calcola quello che si chiama <em>effective sample size</em> ovvero il numero di osservazioni effettive una volta che teniamo conto della correlazione.</p>
+<p>Dove <span class="math inline">\(m\)</span> è il numero totale di osservazioni (medio) in ogni cluster e <span class="math inline">\(k\)</span> è il numero di cluster. Quindi <span class="math inline">\(n = km\)</span> è il numero totale di osservazioni nel dataset e <span class="math inline">\(\rho\)</span> è l’ICC che abbiamo calcolato prima<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>. Questa formula calcola quello che si chiama <em>effective sample size</em> cioè il numero di osservazioni effettive una volta che teniamo conto della correlazione.</p>
 <p>Calcoliamolo nel nostro caso e poi vediamo alcuni scenari:</p>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>neff <span class="ot">&lt;-</span> <span class="cf">function</span>(k, m, r) (k<span class="sc">*</span>m)<span class="sc">/</span>(<span class="dv">1</span> <span class="sc">+</span> (m<span class="dv">-1</span>)<span class="sc">*</span>r)</span>
@@ -566,14 +573,19 @@ n_{\text{eff}} = \frac{km}{1 + (m - 1) \rho}
 <span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">xlab</span>(<span class="st">"ICC"</span>) <span class="sc">+</span></span>
 <span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ylab</span>(<span class="st">"Effective Sample Size"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="01-intro-glmm_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+<div id="fig-neff-icc" class="quarto-float quarto-figure quarto-figure-center anchored" width="960" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-neff-icc-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="01-intro-glmm_files/figure-html/fig-neff-icc-1.svg" id="fig-neff-icc" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" width="960">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-neff-icc-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3
+</figcaption>
 </figure>
 </div>
 </div>
 </div>
-<p>Come vedete, quando ICC = 0 non abbiamo perdita di informazione. Questo è quello che il modello lineare semplice assume normalmente. Quando, nel caso estremo, ICC = 1 allora il numero di osservazioni effettive corrisponde al numero di cluster. In altri termini tutte le osservazioni all’interno del cluster sono esattamente identiche e quindi <span class="math inline">\(m\)</span> osservazioni valgono come 1.</p>
+<p>Come vedete, quando ICC = 0 non abbiamo perdita di informazione. Questo è quello che il modello lineare semplice assume normalmente. Quando, nel caso estremo, ICC = 1 allora il numero di osservazioni effettive corrisponde al numero di cluster. In altri termini tutte le osservazioni all’interno dello stesso cluster sono esattamente identiche e quindi <span class="math inline">\(m\)</span> osservazioni valgono come una sola osservazione indipendente.</p>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># funzione per simulare dati con un certo icc</span></span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>simICC <span class="ot">&lt;-</span> <span class="cf">function</span>(k, m, icc){</span>
@@ -594,14 +606,19 @@ n_{\text{eff}} = \frac{km}{1 + (m - 1) \rho}
 <span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">xlab</span>(<span class="st">"Soggetti"</span>) <span class="sc">+</span></span>
 <span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ylab</span>(<span class="st">"Y"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="01-intro-glmm_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+<div id="fig-simulate-icc" class="quarto-float quarto-figure quarto-figure-center anchored" width="960" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-simulate-icc-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="01-intro-glmm_files/figure-html/fig-simulate-icc-1.svg" id="fig-simulate-icc" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" width="960">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-simulate-icc-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4
+</figcaption>
 </figure>
 </div>
 </div>
 </div>
-<p>Come vedete in questi dati simulati, all’aumentare dell’ICC aumenta la variabilità tra le medie dei cluster/soggetti e inoltre la variabilità dentro i cluster diminuisce perchè le osservazioni tendono a diventare più simili tra loro.</p>
+<p>Come vedete in questi dati simulati, all’aumentare dell’ICC aumenta la variabilità tra le medie dei cluster/soggetti e inoltre la variabilità dentro i cluster diminuisce perché le osservazioni tendono a diventare più simili tra loro.</p>
 <p>In termini pratici, il problema più importante di ignorare il clustering delle osservazioni è legato alla sovrastima (fittizia) della precisione (quindi sottostima dell’errore standard) del modello lineare classico. Immaginiamo che il modello stia stimando una semplice media il cui errore standard è:</p>
 <p><span class="math display">\[
 \text{SE}_{\bar y} = \frac{\hat \sigma^2_y}{\sqrt{n}} \quad n = km
@@ -630,8 +647,11 @@ n_{\text{eff}} = \frac{km}{1 + (m - 1) \rho}
 </code></pre>
 </div>
 </div>
-<p>L’errore standard è drasticamente più grande perchè teniamo conto dell’informazione effettiva al netto della correlazione (ICC). Questo vale per qualsiasi parametro in un modello dove ignoriamo la presenza dei cluster (e ovviamente ICC &gt; 0).</p>
-<p>Vediamo adesso più formalmente come espandere il modello lineare che conosciamo. L’idea di base che dobbiamo incorporare è quella del clustering. Il nostro modello ne deve tenere conto, quindi dimentichiamoci l’idea del <strong>complete-pooling</strong>. Se volessimo introdurre l’idea del <strong>no-pooling</strong> che tiene conto (all’estremo) del clustering dobbiamo stimare un parametro per soggetto:</p>
+<p>L’errore standard è drasticamente più grande perché teniamo conto dell’informazione effettiva al netto della correlazione (ICC). Questo vale per qualsiasi parametro in un modello dove ignoriamo la presenza dei cluster (e ovviamente ICC &gt; 0).</p>
+</section>
+<section id="dal-complete-pooling-al-partial-pooling" class="level1">
+<h1>Dal complete pooling al partial pooling</h1>
+<p>Vediamo ora più formalmente come espandere il modello lineare che conosciamo. L’idea di base che dobbiamo incorporare è quella del clustering. Il nostro modello ne deve tenere conto, quindi dimentichiamoci l’idea del <strong>complete-pooling</strong>. Se volessimo introdurre l’idea del <strong>no-pooling</strong> che tiene conto (all’estremo) del clustering dobbiamo stimare un parametro per soggetto:</p>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>fit_pool <span class="ot">&lt;-</span> <span class="fu">lm</span>(Reaction <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> dat)</span>
 <span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>fit_no_pool <span class="ot">&lt;-</span> <span class="fu">lm</span>(Reaction <span class="sc">~</span> <span class="dv">0</span> <span class="sc">+</span> Subject, <span class="at">data =</span> dat)</span>
@@ -694,7 +714,7 @@ F-statistic:  462 on 18 and 162 DF,  p-value: &lt;2e-16
 </code></pre>
 </div>
 </div>
-<p>Per incorporare il cluster abbiamo capito che il parametro critico è ICC o comunque la variabilità tra le medie dei cluster. Quindi possiamo parametrizzare il modello in modo che ci sia una media generale (come nel <strong>complete-pooling</strong>) ma che sia chiaro come ogni cluster/soggetto si collochi rispetto alla media generale.</p>
+<p>Per incorporare il cluster abbiamo capito che il parametro critico è l’ICC o comunque la variabilità tra le medie dei cluster. Quindi possiamo parametrizzare il modello in modo che ci sia una media generale (come nel <strong>complete-pooling</strong>) ma che sia chiaro come ogni cluster/soggetto si collochi rispetto alla media generale.</p>
 <div class="cell" data-layout-align="center">
 <details class="code-fold">
 <summary>Code</summary>
@@ -707,36 +727,41 @@ F-statistic:  462 on 18 and 162 DF,  p-value: &lt;2e-16
 <span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ungroup</span>() <span class="sc">|&gt;</span> </span>
 <span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> Subject, <span class="at">y =</span> Reaction)) <span class="sc">+</span></span>
 <span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="fu">mean</span>(dat<span class="sc">$</span>Reaction)) <span class="sc">+</span></span>
-<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_segment</span>(<span class="fu">aes</span>(<span class="at">x =</span> Subject, <span class="at">xend =</span> Subject, <span class="at">y =</span> gm, <span class="at">yend =</span> cm), <span class="at">col =</span> <span class="st">"dodgerblue"</span>, <span class="at">lwd =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_segment</span>(<span class="fu">aes</span>(<span class="at">x =</span> Subject, <span class="at">xend =</span> Subject, <span class="at">y =</span> Reaction, <span class="at">yend =</span> cm),<span class="at">col =</span> <span class="st">"darkgreen"</span>, <span class="at">position =</span> <span class="fu">position_jitter</span>(<span class="at">width =</span> <span class="fl">0.3</span>, <span class="at">seed =</span> <span class="dv">2026</span>)) <span class="sc">+</span></span>
-<span id="cb41-12"><a href="#cb41-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">2</span>, <span class="at">alpha =</span> <span class="fl">0.2</span>, <span class="at">position =</span> <span class="fu">position_jitter</span>(<span class="at">width =</span> <span class="fl">0.3</span>, <span class="at">seed =</span> <span class="dv">2026</span>)) <span class="sc">+</span></span>
-<span id="cb41-13"><a href="#cb41-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">stat_summary</span>(<span class="at">fun =</span> mean, <span class="at">geom =</span> <span class="st">"point"</span>, <span class="at">size =</span> <span class="dv">5</span>, <span class="at">col =</span> <span class="st">"red"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_segment</span>(<span class="fu">aes</span>(<span class="at">x =</span> Subject, <span class="at">xend =</span> Subject, <span class="at">y =</span> Reaction, <span class="at">yend =</span> cm),<span class="at">col =</span> <span class="st">"darkgreen"</span>, <span class="at">position =</span> <span class="fu">position_jitter</span>(<span class="at">width =</span> <span class="fl">0.3</span>, <span class="at">seed =</span> <span class="dv">2026</span>)) <span class="sc">+</span></span>
+<span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">2</span>, <span class="at">alpha =</span> <span class="fl">0.2</span>, <span class="at">position =</span> <span class="fu">position_jitter</span>(<span class="at">width =</span> <span class="fl">0.3</span>, <span class="at">seed =</span> <span class="dv">2026</span>)) <span class="sc">+</span></span>
+<span id="cb41-12"><a href="#cb41-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">stat_summary</span>(<span class="at">fun =</span> mean, <span class="at">geom =</span> <span class="st">"point"</span>, <span class="at">size =</span> <span class="dv">5</span>, <span class="at">col =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb41-13"><a href="#cb41-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_segment</span>(<span class="fu">aes</span>(<span class="at">x =</span> Subject, <span class="at">xend =</span> Subject, <span class="at">y =</span> gm, <span class="at">yend =</span> cm), <span class="at">col =</span> <span class="st">"dodgerblue"</span>, <span class="at">lwd =</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="01-intro-glmm_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="960"></p>
+<div id="fig-variance-decomposition" class="quarto-float quarto-figure quarto-figure-center anchored" width="960" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-variance-decomposition-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="01-intro-glmm_files/figure-html/fig-variance-decomposition-1.svg" id="fig-variance-decomposition" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" width="960">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-variance-decomposition-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5
+</figcaption>
 </figure>
 </div>
 </div>
 </div>
-<p>In questo grafico vediamo che ogni osservazione può essere scomposta nella sua deviazione rispetto alla media del cluster che a sua volta devia rispetto alla media generale. Quindi, il tempo di reazione del soggetto <span class="math inline">\(i\)</span> nell’osservazione <span class="math inline">\(j\)</span> è:</p>
+<p>In questo grafico vediamo che ogni osservazione può essere scomposta nella sua deviazione rispetto alla media del cluster che a sua volta devia rispetto alla media generale. Quindi, il tempo di reazione del soggetto <span class="math inline">\(i\)</span> nell’osservazione/giorno <span class="math inline">\(j\)</span> è:</p>
 <p><span class="math display">\[
-\text{RT}_{ij} = \overline{\text{RT}} + \textcolor{blue}{u_i} + \textcolor{green}{\epsilon_{ij}}
+\text{RT}_{ij} = \overline{\text{RT}} + \textcolor{blue}{u_{0i}} + \textcolor{green}{\varepsilon_{ij}}
 \]</span></p>
-<p>Dove quindi la media di ogni soggetto è <span class="math inline">\(\textcolor{red}{\overline{\text{RT}}_i} = \overline{\text{RT}} + \textcolor{blue}{u_i}\)</span>. In questo modo, il parametro critico diventa <span class="math inline">\(\text{Var}(u_i)\)</span> ovvero la variabilità tra le medie dei cluster. Se <span class="math inline">\(\text{Var}(u_i) \approx 0\)</span> allora tutte le osservazioni deviano solo rispetto alla media generale <span class="math inline">\(\overline{\text{RT}}\)</span> (e siamo nel <strong>complete-pooling</strong>). <span class="math inline">\(\text{Var}(\epsilon_{ij})\)</span> rimane sempre, come nel modello lineare, la varianza dei residui.</p>
-<p>Il segreto del modello ad effetti misti è quello di fare un <strong>partial-pooling</strong> ovvero non stimare un parametro per soggetto/cluster ma stimare <span class="math inline">\(\text{Var}(u_i)\)</span> ovvero la variabilità dei cluster attorno alla media generale. Questo permette di tenere conto dei cluster ma di evitare di stimare un parametro per ogni soggetto.</p>
+<p>Dove quindi la media di ogni soggetto è <span class="math inline">\(\textcolor{red}{\overline{\text{RT}}_i} = \overline{\text{RT}} + \textcolor{blue}{u_{0i}}\)</span>. In questo modo, il parametro critico diventa <span class="math inline">\(\text{Var}(u_{0i})\)</span> ovvero la variabilità tra le medie dei cluster. Se <span class="math inline">\(\text{Var}(u_{0i}) \approx 0\)</span> allora tutte le osservazioni deviano solo rispetto alla media generale <span class="math inline">\(\overline{\text{RT}}\)</span> (e siamo nel <strong>complete-pooling</strong>). <span class="math inline">\(\text{Var}(\varepsilon_{ij})\)</span> rimane sempre, come nel modello lineare, la varianza dei residui.</p>
+<p>Il segreto del modello ad effetti misti è quello di fare un <strong>partial-pooling</strong> ovvero non stimare un parametro per soggetto/cluster ma stimare <span class="math inline">\(\text{Var}(u_{0i})\)</span> ovvero la variabilità dei cluster attorno alla media generale. Questo permette di tenere conto dei cluster ma di evitare di stimare un parametro per ogni soggetto.</p>
 <p>In termini di modello possiamo scrivere più formalmente:</p>
 <p><span class="math display">\[
-RT_{ij} = \mu_0 + u_i + \epsilon_{ij}
+\text{RT}_{ij} = \mu_0 + u_{0i} + \varepsilon_{ij}
 \]</span></p>
 <p><span class="math display">\[
-u_i \sim \mathcal{N}(0, \sigma^2_{u})
+u_{0i} \sim \mathcal{N}(0, \sigma^2_{u0})
 \]</span></p>
 <p><span class="math display">\[
-\epsilon_{ij} \sim \mathcal{N}(0, \sigma^2_{\epsilon})
+\varepsilon_{ij} \sim \mathcal{N}(0, \sigma^2_{\varepsilon})
 \]</span></p>
-<p>L’assunzione principale (oltre a quelle che già facciamo con il modello lineare classico) è che le deviazioni dei soggetti/cluster rispetto alla media generale siano distributite normalmente. Ora vediamo direttamente come implementarlo in R con il pacchetto <code>lme4</code>. La funzione principale è <code>lme4::lmer()</code>:</p>
+<p>L’assunzione principale (oltre a quelle che già facciamo con il modello lineare classico) è che le deviazioni dei soggetti/cluster rispetto alla media generale siano distribuite normalmente. Ora vediamo direttamente come implementarlo in R con il pacchetto <code>lme4</code>. La funzione principale è <code>lme4::lmer()</code>:</p>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lme4)</span>
 <span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -763,7 +788,7 @@ Fixed Effects:
 <li><strong>parte fissa</strong>: <code>Reaction ~ 1</code> che identifica la componente sistematica del modello ovvero quelli che abbiamo chiamato effetti fissi. Questa parte viene scritta allo stesso modo di <code>lm()</code>.</li>
 <li><strong>parte random</strong>: <code>(1|Subject)</code> che descrive il clustering, in questo caso rispetto ai soggetti.</li>
 </ul>
-<p>La sintassi per la parte random è leggermente complessa e non molto intuitiva. Sostanzialmente ogni effetto random (ovvero ogni variable che crea dei cluster) ha il suo effetto random. Questo viene aggiunto con <code>+</code> alla parte fissa <code>+ (1|Subject)</code>. La scrittura è <code>predittore|cluster</code> quindi a sinistra di <code>|</code> si mette un possibile predittore, in questo caso <code>1|</code> indica che abbiamo solo intercetta, nessun predittore. A destra <code>|cluster</code> si mette la variabile che identifica i cluster.</p>
+<p>La sintassi per la parte random è leggermente complessa e non molto intuitiva. Sostanzialmente ogni effetto random (ovvero ogni variabile che definisce cluster) ha il suo effetto random. Questo viene aggiunto con <code>+</code> alla parte fissa <code>+ (1|Subject)</code>. La scrittura è <code>predittore|cluster</code> quindi a sinistra di <code>|</code> si mette un possibile predittore, in questo caso <code>1|</code> indica che abbiamo solo intercetta, nessun predittore. A destra <code>|cluster</code> si mette la variabile che identifica i cluster.</p>
 <p>La variabile cluster deve ovviamente essere nel nostro dataset e deve ripetere lo stesso valore per ogni osservazione associata a quel cluster.</p>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(dat, <span class="at">n =</span> <span class="dv">20</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -818,11 +843,11 @@ Fixed effects:
 </code></pre>
 </div>
 </div>
-<p>Nel summary del modello vediamo una divisione chiara tra parte fissa e random. La parte fissa è sostanzialmente uguale a quella che otteniamo con <code>lm</code>. Abbiamo il parametro stimato, l’errore standard e la statistica test. Una cosa che non abbiamo sono i p value. Questo è un punto critico ma di base, con i modelli mixed-effects il calcolo dei gradi di libertà (necessario per i p value) non è semplice e non c’è un modo univoco.</p>
+<p>Nel summary del modello vediamo una divisione chiara tra parte fissa e random. La parte fissa è sostanzialmente uguale a quella che otteniamo con <code>lm</code>. Abbiamo il parametro stimato, l’errore standard e la statistica test. Una cosa che non abbiamo sono i p-value. Questo è un punto critico ma di base, con i modelli mixed-effects il calcolo dei gradi di libertà (necessario per i p-value) non è semplice e non c’è un modo univoco.</p>
 <p>Il modo più semplice per averli è usare il pacchetto <code>lmerTest</code> che usa un’approssimazione per il calcolo:</p>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lmerTest)</span>
-<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="co"># dobbiamo ri-fittare il modello dopo aver caricato il pacchetto perchè lmerTest</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="co"># dobbiamo rifittare il modello dopo aver caricato il pacchetto perché lmerTest</span></span>
 <span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a><span class="co"># contiene un wrapper della funzione lmer()</span></span>
 <span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">lmer</span>(Reaction <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>Subject), <span class="at">data =</span> dat)</span>
 <span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -862,11 +887,11 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 Number of obs: 180, groups:  Subject, 18</code></pre>
 </div>
 </div>
-<p>La parte <code>residual</code> è quella che avremmo ottenuto anche dal modello con <code>lm</code> e rappresenta <span class="math inline">\(\sigma^2_{\epsilon}\)</span> ovvero la variabilità dei residui. Invece la parte <code>subject</code> è la stima di <span class="math inline">\(\sigma^2_{u}\)</span> ovvero della variazione attorno alla media generale.</p>
-<p>Questo modello è detto <em>random-intercept model</em> perchè consente ad ogni cluster/soggetto di avere la sua media ed è espressa come deviazione rispetto alla media generale <code>(Intercept)</code>.</p>
+<p>La parte <code>residual</code> è quella che avremmo ottenuto anche dal modello con <code>lm</code> e rappresenta <span class="math inline">\(\sigma^2_{\varepsilon}\)</span> ovvero la variabilità dei residui. Invece la parte <code>Subject</code> è la stima di <span class="math inline">\(\sigma^2_{u0}\)</span> ovvero della variabilità dei soggetti attorno alla media generale.</p>
+<p>Questo modello è detto <em>random-intercept model</em> perché consente ad ogni cluster/soggetto di avere la sua media ed è espressa come deviazione rispetto alla media generale <code>(Intercept)</code>.</p>
 <p>Possiamo anche calcolare l’ICC in modo più accurato ovvero usando le componenti di varianza calcolate dal modello.</p>
 <p><span class="math display">\[
-\mbox{ICC} = \frac{\sigma^2_{u}}{\sigma^2_{u} + \sigma^2_{\epsilon}}
+\mbox{ICC} = \frac{\sigma^2_{u0}}{\sigma^2_{u0} + \sigma^2_{\varepsilon}}
 \]</span></p>
 <p>Ovvero la varianza delle intercette di ogni cluster/soggetto sulla variabilità totale. Possiamo usare il pacchetto <code>performance</code> ed il pacchetto <code>insight</code> per estrarre informazioni utili da questi modelli.</p>
 <div class="cell" data-layout-align="center">
@@ -909,7 +934,7 @@ Subject
 </code></pre>
 </div>
 </div>
-<p>Questa è la stima più accurata di quello che avevamo calcolato a mano in precendenza. Questo significa che il 40% della variabilità totale è spiegata/dovuta al clustering delle osservazioni dentro i soggetti. Vediamo la differenza con il modello con <code>lm()</code>:</p>
+<p>Questa è la stima più accurata di quello che avevamo calcolato a mano in precendenza. Questo significa che il 40% della variabilità totale è spiegata/dovuta al clustering delle osservazioni entro i soggetti. Vediamo la differenza con il modello con <code>lm()</code>:</p>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>fit_lm <span class="ot">&lt;-</span> <span class="fu">lm</span>(Reaction <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> dat)</span>
 <span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_lm)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -959,7 +984,9 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 </div>
 </div>
 <p>Come vedete, la stima dell’intercetta generale (quindi i tempi di reazione medi) è praticamente identica tra i due modelli. Quello che è drasticamente diverso è l’errore standard. Se notate, la differenza è simile a quella che avevamo calcolato a mano. Ignorando il clustering, abbiamo una sovrastima della precisione dovuta ad aver violato l’assunzione di indipendenza delle osservazioni.</p>
-<p>Una cosa che possiamo fare ora è stimare il punteggio medio di ogni soggetto che sarà quindi <span class="math inline">\(\beta_0 + u_i\)</span> ovvero l’intercetta generale più la deviazione soggetto-specifica. Possiamo ottenere queste stime con la funzione <code>ranef()</code>:</p>
+<section id="stime-soggetto-specifiche-e-shrinkage" class="level2">
+<h2 class="anchored" data-anchor-id="stime-soggetto-specifiche-e-shrinkage">Stime soggetto-specifiche e shrinkage</h2>
+<p>Una cosa che possiamo fare ora è stimare il punteggio medio di ogni soggetto che sarà quindi <span class="math inline">\(\beta_0 + u_{0i}\)</span> ovvero l’intercetta generale più la deviazione soggetto-specifica. Possiamo ottenere queste stime con la funzione <code>ranef()</code>:</p>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="co"># queste le stime dei parametri fissi beta_0</span></span>
 <span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a>(fe <span class="ot">&lt;-</span> <span class="fu">fixef</span>(fit))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -968,7 +995,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
         299 
 </code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="co"># queste sono le stime di u_i</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="co"># queste sono le stime di u_0i</span></span>
 <span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a>(re <span class="ot">&lt;-</span> <span class="fu">ranef</span>(fit))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>$Subject
@@ -1022,7 +1049,7 @@ with conditional variances for "Subject"
 </code></pre>
 </div>
 </div>
-<p>Un’altro modo più efficiente di ottere le stime è usare la funzione <code>coeff()</code> che fornisce direttamente la stima come combinazione lineare di parametri fissi e random.</p>
+<p>Un altro modo più diretto per ottenere le stime è usare la funzione <code>coeff()</code> che fornisce direttamente la stima come combinazione lineare di parametri fissi e random.</p>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -1088,17 +1115,22 @@ Subject372     318  315     372
 <span id="cb71-4"><a href="#cb71-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>() <span class="sc">+</span></span>
 <span id="cb71-5"><a href="#cb71-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="fu">fixef</span>(fit)[<span class="dv">1</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="01-intro-glmm_files/figure-html/unnamed-chunk-29-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+<div id="fig-partial-pooling-intercepts" class="quarto-float quarto-figure quarto-figure-center anchored" width="960" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-partial-pooling-intercepts-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="01-intro-glmm_files/figure-html/fig-partial-pooling-intercepts-1.svg" id="fig-partial-pooling-intercepts" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" width="960">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-partial-pooling-intercepts-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6
+</figcaption>
 </figure>
 </div>
 </div>
 </div>
-<p>Dal grafico vediamo un concetto molto importante ovvero quello dello <em>shrinkage</em>. Come vedete, le stime fatte dal modello con <code>lmer</code> sono sistematicamente minori. In termini fisici è come se fossero più attirate verso il centro (la stima dell’effetto medio, linea nera) rispetto a quelle con il modello <code>lm</code> (un parametro per soggetto).</p>
+<p>Dal grafico vediamo un concetto molto importante ovvero quello dello <em>shrinkage</em>. Come vedete, le stime fatte dal modello con <code>lmer</code> sono sistematicamente minori. In termini intuitivi è come se fossero più attirate verso il centro (la stima dell’effetto medio, linea nera) rispetto a quelle con il modello <code>lm</code> (un parametro per soggetto).</p>
 <p>Vediamo anche che lo <em>shrinkage</em> non è casuale, né necessariamente uguale per tutti i gruppi. Nel caso più semplice di un modello a intercetta variabile,</p>
 <p><span class="math display">\[
-y_{ij} = \mu + u_j + \varepsilon_{ij}
+y_{ij} = \mu + u_{0i} + \varepsilon_{ij}
 \]</span></p>
 <p>con:</p>
 <p><span class="math display">\[
@@ -1110,58 +1142,58 @@ u_j \sim N(0,\tau^2)
 \]</span></p>
 <p>la stima della media del gruppo <span class="math inline">\(j\)</span> può essere scritta come:</p>
 <p><span class="math display">\[
-\hat{\mu}_j =
-\hat{\mu} + \lambda_j(\bar{y}_j - \hat{\mu})
+\hat{\mu}_i =
+\hat{\mu} + \lambda_i(\bar{y}_i - \hat{\mu})
 \]</span></p>
-<p>dove <span class="math inline">\(\bar{y}_j\)</span> è la media grezza del gruppo <span class="math inline">\(j\)</span>, <span class="math inline">\(\hat{\mu}\)</span> è la media globale stimata e <span class="math inline">\(\lambda_j\)</span> è un peso compreso tra 0 e 1:</p>
+<p>dove <span class="math inline">\(\bar{y}_i\)</span> è la media grezza del gruppo <span class="math inline">\(j\)</span>, <span class="math inline">\(\hat{\mu}\)</span> è la media globale stimata e <span class="math inline">\(\lambda_i\)</span> è un peso compreso tra 0 e 1:</p>
 <p><span class="math display">\[
-\lambda_j =
-\frac{\tau^2}{\tau^2 + \sigma^2/n_j}
+\lambda_i =
+\frac{\tau^2}{\tau^2 + \sigma^2/n_i}
 \]</span></p>
 <p>La stessa espressione può essere riscritta come media pesata tra la media globale e la media osservata del gruppo:</p>
 <p><span class="math display">\[
-\hat{\mu}_j =
-(1-\lambda_j)\hat{\mu} + \lambda_j \bar{y}_j
+\hat{\mu}_i =
+(1-\lambda_i)\hat{\mu} + \lambda_i \bar{y}_i
 \]</span></p>
-<p>Quindi la stima del gruppo non coincide necessariamente con la sua media grezza: è una stima intermedia tra la media globale e la media del gruppo. Il peso <span class="math inline">\(\lambda_j\)</span> misura quanto il modello si fida dell’informazione specifica del gruppo.</p>
-<p>Se <span class="math inline">\(\lambda_j\)</span> è vicino a 1, la stima del gruppo sarà molto vicina a <span class="math inline">\(\bar{y}_j\)</span>. Se invece <span class="math inline">\(\lambda_j\)</span> è vicino a 0, la stima del gruppo sarà molto vicina a <span class="math inline">\(\hat{\mu}\)</span>.</p>
+<p>Quindi la stima del gruppo non coincide necessariamente con la sua media grezza: è una stima intermedia tra la media globale e la media del gruppo. Il peso <span class="math inline">\(\lambda_i\)</span> misura quanto il modello si fida dell’informazione specifica del gruppo.</p>
+<p>Se <span class="math inline">\(\lambda_i\)</span> è vicino a 1, la stima del gruppo sarà molto vicina a <span class="math inline">\(\bar{y}_i\)</span>. Se invece <span class="math inline">\(\lambda_i\)</span> è vicino a 0, la stima del gruppo sarà molto vicina a <span class="math inline">\(\hat{\mu}\)</span>.</p>
 <section id="casi-limite" class="level3">
 <h3 class="anchored" data-anchor-id="casi-limite">Casi limite</h3>
-<p>Se il gruppo ha molte osservazioni, cioè se <span class="math inline">\(n_j\)</span> è molto grande, allora:</p>
+<p>Se il gruppo ha molte osservazioni, cioè se <span class="math inline">\(n_i\)</span> è molto grande, allora:</p>
 <p><span class="math display">\[
-\frac{\sigma^2}{n_j} \to 0
+\frac{\sigma^2}{n_i} \to 0
 \]</span></p>
 <p>e quindi:</p>
 <p><span class="math display">\[
-\lambda_j \to
+\lambda_i \to
 \frac{\tau^2}{\tau^2 + 0}
 =
 1
 \]</span></p>
 <p>In questo caso:</p>
 <p><span class="math display">\[
-\hat{\mu}_j
+\hat{\mu}_i
 \to
-\bar{y}_j
+\bar{y}_i
 \]</span></p>
 <p>Il modello si fida molto della media osservata del gruppo e lo shrinkage tende a scomparire.</p>
-<p>Al contrario, se il gruppo ha poche osservazioni, il termine <span class="math inline">\(\sigma^2/n_j\)</span> rimane più grande. Di conseguenza, <span class="math inline">\(\lambda_j\)</span> diminuisce e la stima del gruppo viene tirata maggiormente verso la media globale.</p>
+<p>Al contrario, se il gruppo ha poche osservazioni, il termine <span class="math inline">\(\sigma^2/n_i\)</span> rimane più grande. Di conseguenza, <span class="math inline">\(\lambda_i\)</span> diminuisce e la stima del gruppo viene spostata maggiormente verso la media globale.</p>
 <p>Anche la varianza tra gruppi è importante. Se <span class="math inline">\(\tau^2\)</span> è molto piccola, il modello conclude che i gruppi non differiscono molto tra loro:</p>
 <p><span class="math display">\[
-\lambda_j \to 0
+\lambda_i \to 0
 \]</span></p>
 <p>e quindi:</p>
 <p><span class="math display">\[
-\hat{\mu}_j \to \hat{\mu}
+\hat{\mu}_i \to \hat{\mu}
 \]</span></p>
 <p>Le stime dei gruppi collassano verso la media globale.</p>
-<p>Se invece <span class="math inline">\(\tau^2\)</span> è grande rispetto a <span class="math inline">\(\sigma^2/n_j\)</span>, il modello riconosce molta variabilità reale tra gruppi. In questo caso <span class="math inline">\(\lambda_j\)</span> è più vicino a 1 e lo shrinkage è più debole.</p>
+<p>Se invece <span class="math inline">\(\tau^2\)</span> è grande rispetto a <span class="math inline">\(\sigma^2/n_i\)</span>, il modello riconosce molta variabilità reale tra gruppi. In questo caso <span class="math inline">\(\lambda_i\)</span> è più vicino a 1 e lo shrinkage è più debole.</p>
 </section>
 <section id="interpretazione" class="level3">
 <h3 class="anchored" data-anchor-id="interpretazione">Interpretazione</h3>
 <p>Lo shrinkage aumenta quando:</p>
 <p><span class="math display">\[
-n_j \downarrow
+n_i \downarrow
 \]</span></p>
 <p>cioè quando il gruppo ha poche osservazioni;</p>
 <p><span class="math display">\[
@@ -1176,14 +1208,16 @@ n_j \downarrow
 <p>È importante distinguere tra shrinkage proporzionale e shrinkage assoluto. Se due gruppi hanno lo stesso numero di osservazioni, lo stesso modello applica la stessa proporzione di shrinkage. Tuttavia, un gruppo più lontano dalla media globale viene spostato di più in termini assoluti, semplicemente perché la sua distanza iniziale è maggiore.</p>
 <p>Infatti:</p>
 <p><span class="math display">\[
-\bar{y}_j - \hat{\mu}_j =
-(1-\lambda_j)(\bar{y}_j - \hat{\mu})
+\bar{y}_i - \hat{\mu}_i =
+(1-\lambda_i)(\bar{y}_i - \hat{\mu})
 \]</span></p>
-<p>Per esempio, se <span class="math inline">\(\lambda_j = .70\)</span>, il modello conserva il 70% della deviazione del gruppo dalla media globale e ne riduce il 30%. Se un gruppo dista 10 dalla media globale, lo spostamento sarà 3; se un gruppo dista 100, lo spostamento sarà 30. Il secondo gruppo viene quindi trascinato di più in termini assoluti, ma non in termini proporzionali.</p>
+<p>Per esempio, se <span class="math inline">\(\lambda_i = .70\)</span>, il modello conserva il 70% della deviazione del gruppo dalla media globale e ne riduce il 30%. Se un gruppo dista 10 dalla media globale, lo spostamento sarà 3; se un gruppo dista 100, lo spostamento sarà 30. Il secondo gruppo viene quindi trascinato di più in termini assoluti, ma non in termini proporzionali.</p>
 <p>In sintesi, lo shrinkage è una forma di <strong>partial pooling</strong>: il mixed model non usa solo la media del singolo gruppo, come farebbe una stima completamente separata, ma non ignora nemmeno le differenze tra gruppi, come farebbe un modello completamente aggregato. Produce invece una stima intermedia, tanto più vicina alla media del gruppo quanto più l’informazione su quel gruppo è precisa.</p>
 </section>
-<section id="modello-con-predittori" class="level2">
-<h2 class="anchored" data-anchor-id="modello-con-predittori">Modello con predittori</h2>
+</section>
+</section>
+<section id="modello-con-predittori" class="level1">
+<h1>Modello con predittori</h1>
 <p>Vediamo ora cosa succede aggiungendo il predittore <code>Days</code> nel modello con intercetta random. Partiamo dal modello in R e poi formalizziamo quello che succede:</p>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>fit_days <span class="ot">&lt;-</span> <span class="fu">lmer</span>(Reaction <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> Days <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>Subject), <span class="at">data =</span> dat)</span>
@@ -1215,7 +1249,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 </code></pre>
 </div>
 </div>
-<p>Ora abbiamo anche l’effetto fisso di <code>Days</code> che ovviamente intepretiamo allo stesso modo di un modello con <code>lm</code>. Confrontiamolo comunque con la stima che ignora i cluster:</p>
+<p>Ora abbiamo l’effetto fisso di <code>Days</code> che interpretiamo allo stesso modo di un modello con <code>lm</code>. Confrontiamolo comunque con la stima che ignora i cluster:</p>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a>fit_days_lm <span class="ot">&lt;-</span> <span class="fu">lm</span>(Reaction <span class="sc">~</span> Days, <span class="at">data =</span> dat)</span>
 <span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_days_lm)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -1258,7 +1292,7 @@ SE            0.804   1.238
 </code></pre>
 </div>
 </div>
-<p>Vediamo lo stesso pattern del modello precedente, le stime degli effetti fissi sono praticamente identiche ma gli standard error sono decisamente maggiori nel modello con <code>lmer</code> (nulla di nuovo).</p>
+<p>Vediamo lo stesso pattern del modello precedente, le stime degli effetti fissi sono praticamente identiche ma gli standard error sono decisamente maggiori nel modello con <code>lmer</code> (come atteso).</p>
 <p>Il modello con <code>lm</code> sta stimando un’intercetta comune a tutti e una slope/pendenza comune a tutti. Il modello <code>fit_days</code> invece incorpora il clustering dei soggetti stimando un’intercetta specifica per ogni soggetto. Vediamo graficamente:</p>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Estraiamo i coefficienti</span></span>
@@ -1317,18 +1351,23 @@ SE            0.804   1.238
 <span id="cb84-4"><a href="#cb84-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>() <span class="sc">+</span></span>
 <span id="cb84-5"><a href="#cb84-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">facet_wrap</span>(<span class="sc">~</span>name)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="01-intro-glmm_files/figure-html/unnamed-chunk-32-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+<div id="fig-random-intercept-lines" class="quarto-float quarto-figure quarto-figure-center anchored" width="960" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-random-intercept-lines-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="01-intro-glmm_files/figure-html/fig-random-intercept-lines-1.svg" id="fig-random-intercept-lines" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" width="960">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-random-intercept-lines-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7
+</figcaption>
 </figure>
 </div>
 </div>
 </div>
 <p>Quello che si vede è che la pendenza rimane la stessa per ogni soggetto in entrambi i modelli. Tuttavia nel modello con <code>lmer</code> ogni soggetto ha la sua intercetta e quindi una parte di variabilità viene catturata dal termine random.</p>
-<p>In termini pratici stiamo introducendo nel modello le differenze individuali nei termini che ogni soggetto ha il suo tempo di reazione medio di partenza.</p>
+<p>In termini pratici stiamo introducendo nel modello le differenze individuali nel senso che ogni soggetto ha il suo tempo di reazione medio di partenza.</p>
 <p>In termini più formali, il nostro modello ora diventa:</p>
 <p><span class="math display">\[
-y_{ij} = \beta_0 + u_i + \beta_1 \text{Days}_{ij} + \epsilon_{ij}
+y_{ij} = \beta_0 + u_{0i} + \beta_1 \text{Days}_{ij} + \varepsilon_{ij}
 \]</span></p>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -1340,11 +1379,14 @@ Tip
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Un trucco per leggere le formule dei modelli con effetti random riguarda il guardare i subscript <span class="math inline">\(i\)</span>, <span class="math inline">\(j\)</span>, etc. Se <span class="math inline">\(i\)</span> sono i soggetti, ogni volta che vediamo <span class="math inline">\(i\)</span> significa che quel termine <em>varia</em> tra soggetti. Nel nostro caso <span class="math inline">\(u_i\)</span> significa che ogni soggetto può avere un <span class="math inline">\(u\)</span> diverso ovvero una deviazione rispetto la media generale.</p>
+<p>Un trucco per leggere le formule dei modelli con effetti random riguarda il guardare i subscript <span class="math inline">\(i\)</span>, <span class="math inline">\(j\)</span>, etc. Se <span class="math inline">\(i\)</span> sono i soggetti, ogni volta che vediamo <span class="math inline">\(i\)</span> significa che quel termine <em>varia</em> tra soggetti. Nel nostro caso <span class="math inline">\(u_{0i}\)</span> significa che ogni soggetto può avere un <span class="math inline">\(u_{0i}\)</span> diverso ovvero una deviazione rispetto la media generale.</p>
 <p>Allo stesso modo <span class="math inline">\(ij\)</span> significa che quel valore può variare per ogni combinazione di <span class="math inline">\(i\)</span> (soggetto) e <span class="math inline">\(j\)</span> giorno di deprivazione.</p>
 <p>Al contrario, per ora, <span class="math inline">\(\beta_1\)</span> non ha nessun subscript quindi il valore è fisso (effetto fisso) per ogni osservazione nel dataset.</p>
 </div>
 </div>
+</section>
+<section id="random-slope" class="level1">
+<h1>Random slope</h1>
 <p>Se riguardiamo i grafici iniziali però ci accorgiamo che non solo i soggetti hanno il loro tempo di reazione medio ma anche l’impatto della deprivazione è diverso tra soggetti. Per modellare questo aspetto possiamo permettere al modello di mettere il subscript <span class="math inline">\(i\)</span> anche su <span class="math inline">\(\beta_1\)</span> e non solo su <span class="math inline">\(\beta_0\)</span>.</p>
 <p>Vediamo anche qui prima in R e poi più formalmente. Per aggiungere la <strong>random slope</strong> per <code>Days</code> dobbiamo includere <code>Days</code> sia nella parte fissa (come ora) che in quella random:</p>
 <div class="cell" data-layout-align="center">
@@ -1363,10 +1405,10 @@ Scaled residuals:
 -3.954 -0.463  0.023  0.463  5.179 
 
 Random effects:
- Groups   Name        Variance Std.Dev. Corr 
- Subject  (Intercept) 612.1    24.74         
-          Days         35.1     5.92    0.07 
- Residual             654.9    25.59         
+ Groups   Name        Variance Std.Dev. Corr
+ Subject  (Intercept) 612.1    24.74        
+          Days         35.1     5.92    0.07
+ Residual             654.9    25.59        
 Number of obs: 180, groups:  Subject, 18
 
 Fixed effects:
@@ -1381,7 +1423,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 <p>Vediamo che la parte fissa è rimasta la stessa in termini di parametri stimati mentre quella random è diventata più complessa. Nella sezione random effects:</p>
 <ul>
 <li><code>(Intercept)</code>: è la varianza delle intercette (come nel modello precedente). Indica quanto la media dei soggetti varia attorno alla media generale.</li>
-<li><code>(Days)</code>: è la varianza delle slopes (questa è la novità). Indica quanto le slopes dei soggetti variano rispetto alla slope generale.</li>
+<li><code>(Days)</code>: è la varianza delle slope (questa è la novità). Indica quanto le slope dei soggetti variano rispetto alla slope generale.</li>
 </ul>
 <p>La cosa migliore è vederlo subito graficamente e poi passiamo ai valori specifici:</p>
 <div class="cell" data-layout-align="center">
@@ -1412,9 +1454,14 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 <span id="cb89-5"><a href="#cb89-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">facet_wrap</span>(<span class="sc">~</span>model) <span class="sc">+</span></span>
 <span id="cb89-6"><a href="#cb89-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="01-intro-glmm_files/figure-html/unnamed-chunk-34-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+<div id="fig-random-slope-lines" class="quarto-float quarto-figure quarto-figure-center anchored" width="960" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-random-slope-lines-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="01-intro-glmm_files/figure-html/fig-random-slope-lines-1.svg" id="fig-random-slope-lines" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" width="960">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-random-slope-lines-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8
+</figcaption>
 </figure>
 </div>
 </div>
@@ -1485,7 +1532,7 @@ attr(,"class")
 </div>
 </div>
 </div>
-<p>L’altra differenza importante riguarda sempre gli errori standard. Nel modello che ignora le random slopes, la precisione nella stima di <span class="math inline">\(\beta_1\)</span> è molto più elevata (artificiosamente):</p>
+<p>L’altra differenza importante riguarda sempre gli errori standard. Nel modello che ignora le random slope, la precisione nella stima di <span class="math inline">\(\beta_1\)</span> è molto più elevata (artificiosamente):</p>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb94"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a>car<span class="sc">::</span><span class="fu">compareCoefs</span>(fit_days, fit_days_slopes)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -1507,13 +1554,13 @@ SE            0.804   1.546
 <div class="cell" data-layout-align="center" data-lines="^Random|^ Residual">
 <div class="cell-output cell-output-stdout">
 <pre><code>Random effects:
- Groups   Name        Variance Std.Dev. Corr 
- Subject  (Intercept) 612.1    24.74         
-          Days         35.1     5.92    0.07 
- Residual             654.9    25.59         </code></pre>
+ Groups   Name        Variance Std.Dev. Corr
+ Subject  (Intercept) 612.1    24.74        
+          Days         35.1     5.92    0.07
+ Residual             654.9    25.59        </code></pre>
 </div>
 </div>
-<p>Quel termine rappresenta la correlazione stimata tra intercette e slopes random. Con le formule sarà più chiaro ma in termini interpretativi rappresenta la tendenza di soggetti con tempi di reazione medi maggiori ad avere anche un effetto di <code>Days</code> maggiore (nel caso di correlazione positiva oppure l’inverso). In questo caso sembra che intercette e slopes non siano correlate.</p>
+<p>Quel termine rappresenta la correlazione stimata tra intercette e slope random. Con le formule sarà più chiaro ma in termini interpretativi rappresenta la tendenza di soggetti con tempi di reazione medi maggiori ad avere anche un effetto di <code>Days</code> maggiore (nel caso di correlazione positiva oppure l’inverso). In questo caso sembra che intercette e slope non siano correlate.</p>
 <p>La parte random può essere complicata da stimare a volte e quindi è possibile porre dei vincoli. Nel nostro caso possiamo fissare la correlazione a zero (ovvero non farla stimare al modello):</p>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb97"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb97-1"><a href="#cb97-1" aria-hidden="true" tabindex="-1"></a>fit_days_slopes_0 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(Reaction <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> Days <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">+</span> Days <span class="sc">||</span> Subject), <span class="at">data =</span> dat)</span>
@@ -1546,7 +1593,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 </code></pre>
 </div>
 </div>
-<p>Essendo che viene stimata praticamente a zero, il fissarla a priori non fa cambiare molto. Possiamo anche formalmente comparare i modelli usando un likelihood-ratio test con la funzione <code>anova()</code>:</p>
+<p>Dato che viene stimata praticamente a zero, fissarla a priori non fa cambiare molto. Possiamo anche formalmente comparare i modelli usando un likelihood-ratio test con la funzione <code>anova()</code>:</p>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb99"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb99-1"><a href="#cb99-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(fit_days, fit_days_slopes_0, fit_days_slopes)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -1565,22 +1612,28 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 </div>
 </div>
 <p>Il primo confronto valuta se l’aggiunta della random slope per Days migliora il modello rispetto al modello con sola intercetta random. Il secondo confronto valuta se, una volta inclusa la random slope, sia utile stimare anche la correlazione tra intercetta e slope random. In questo caso i modelli hanno la stessa parte fissa e differiscono solo nella struttura random.</p>
-<p>Essendo la correlazione praticamente a zero, il confronto tra modelli ci dice che il modello migliore è quello che include le random slopes ma esclude la correlazione tra intercette e slopes.</p>
+<p>Essendo la correlazione praticamente a zero, il confronto tra modelli ci dice che il modello migliore è quello che include le random slope ma esclude la correlazione tra intercette e slope.</p>
 <p>Vediamo adesso formalmente il modello:</p>
 <p><span class="math display">\[
-y_{ij} = \beta_0 + u_i + (\beta_1 + b_i)\text{Days}_{ij} + \epsilon_{ij}
+y_{ij} = \beta_0 + u_{0i} + (\beta_1 + u_{1i})\text{Days}_{ij} + \varepsilon_{ij}
 \]</span></p>
 <p><span class="math display">\[
-u_i, b_i \sim \mathcal{N}(\mathbf{0}, \Sigma)
+\begin{bmatrix}
+u_{0i} \\
+u_{1i}
+\end{bmatrix}
+\sim \mathcal{N}\left(\mathbf{0}, \Sigma\right)
 \]</span></p>
 <p><span class="math display">\[
 \Sigma =
 \begin{bmatrix}
-\sigma^2_{u_i} &amp; \rho \sigma_{u_i} \sigma_{b_i}  \\
-\rho \sigma_{u_i} \sigma_{b_i} &amp; \sigma^2_{b_i}
+\sigma^2_{u0} &amp; \rho \sigma_{u0} \sigma_{u1}  \\
+\rho \sigma_{u0} \sigma_{u1} &amp; \sigma^2_{u1}
 \end{bmatrix}
 \]</span></p>
-<p>Quindi le intercette e slopes random vengono da una distribuzione normale multivariata con matrice di varianza-covarianza <span class="math inline">\(\Sigma\)</span>.</p>
+<p>Quindi le intercette e slope random vengono da una distribuzione normale multivariata con matrice di varianza-covarianza <span class="math inline">\(\Sigma\)</span>.</p>
+<section id="distribuzione-normale-multivariata" class="level2">
+<h2 class="anchored" data-anchor-id="distribuzione-normale-multivariata">Distribuzione normale multivariata</h2>
 <div class="callout callout-style-default callout-note callout-titled" title="Distribuzione normale multivariata">
 <div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
@@ -1593,14 +1646,14 @@ u_i, b_i \sim \mathcal{N}(\mathbf{0}, \Sigma)
 </div>
 <div id="callout-2" class="callout-2-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>Se non siete familari con le distribuzioni normali multivariate e matrici di varianza-covarianza facciamo un piccolo approfondimento. La distribuzione normale è definita per media <span class="math inline">\(\mu\)</span> e varianza <span class="math inline">\(\sigma^2\)</span> ed è una distribuzione univariata.</p>
+<p>Se non siete familiari con le distribuzioni normali multivariate e matrici di varianza-covarianza facciamo un piccolo approfondimento. La distribuzione normale è definita per media <span class="math inline">\(\mu\)</span> e varianza <span class="math inline">\(\sigma^2\)</span> ed è una distribuzione univariata.</p>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb101"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb101-1"><a href="#cb101-1" aria-hidden="true" tabindex="-1"></a><span class="co"># normale con media 0 e sd 1</span></span>
 <span id="cb101-2"><a href="#cb101-2" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="dv">10</span>, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">1</span>)</span>
 <span id="cb101-3"><a href="#cb101-3" aria-hidden="true" tabindex="-1"></a>x</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code> [1] -0.49855  0.42054 -1.66931  0.00303  0.42816  0.71316  1.22587 -1.70461
- [9] -1.07823  0.63469
+<pre><code> [1]  1.9214 -0.9072  0.4312 -0.6406 -1.0278  0.0121 -0.7158 -0.5999 -0.9782
+[10]  1.2342
 </code></pre>
 </div>
 </div>
@@ -1609,16 +1662,17 @@ u_i, b_i \sim \mathcal{N}(\mathbf{0}, \Sigma)
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb103"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb103-1"><a href="#cb103-1" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="dv">10</span>, <span class="at">mean =</span> <span class="dv">5</span>, <span class="at">sd =</span> <span class="dv">2</span>)</span>
 <span id="cb103-2"><a href="#cb103-2" aria-hidden="true" tabindex="-1"></a>y</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code> [1] 1.99 6.89 3.84 6.68 1.54 7.73 2.61 4.74 3.48 2.69
+<pre><code> [1]  4.7559  7.7037  3.6658  5.1995  4.8713  5.3388  3.1777 -0.0481  3.4450
+[10]  7.1534
 </code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb105"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb105-1"><a href="#cb105-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(x, y)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.058
+<pre><code>[1] 0.221
 </code></pre>
 </div>
 </div>
-<p>Tuttavia potrei voler inserire una correlazione tra le due distribuzioni e quindi mettere oltre alle due medie e varianze anche la correlazione. Per questo caso possiamo definire una matrice di varianza covarianza <span class="math inline">\(\Sigma\)</span> che descrive le varianze delle due (o più) distribuzioni normali e la(e) loro correlazione(i).</p>
+<p>Tuttavia potrei voler inserire una correlazione tra le due distribuzioni e quindi mettere oltre alle due medie e varianze anche la correlazione. Per questo caso possiamo definire una matrice di varianza covarianza <span class="math inline">\(\Sigma\)</span> che descrive le varianze delle due (o più) distribuzioni normali e le loro correlazioni.</p>
 <p><span class="math display">\[
 \Sigma =
 \begin{bmatrix}
@@ -1666,43 +1720,47 @@ u_i, b_i \sim \mathcal{N}(\mathbf{0}, \Sigma)
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb111"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb111-1"><a href="#cb111-1" aria-hidden="true" tabindex="-1"></a><span class="co"># vettore di medie</span></span>
 <span id="cb111-2"><a href="#cb111-2" aria-hidden="true" tabindex="-1"></a>mu <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>)</span>
 <span id="cb111-3"><a href="#cb111-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb111-4"><a href="#cb111-4" aria-hidden="true" tabindex="-1"></a><span class="co"># cosi generiamo due distribuzioni normali correlate</span></span>
+<span id="cb111-4"><a href="#cb111-4" aria-hidden="true" tabindex="-1"></a><span class="co"># così generiamo due distribuzioni normali correlate</span></span>
 <span id="cb111-5"><a href="#cb111-5" aria-hidden="true" tabindex="-1"></a>MASS<span class="sc">::</span><span class="fu">mvrnorm</span>(<span class="dv">10</span>, <span class="at">mu =</span> mu, <span class="at">Sigma =</span> S)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>         [,1]   [,2]
- [1,]  1.2164  2.020
- [2,] -0.1731 -1.328
- [3,]  0.5856 -2.175
- [4,]  2.4346 -1.219
- [5,]  0.0801 -0.318
- [6,] -3.0136 -5.372
- [7,] -1.3987 -0.782
- [8,] -1.9533 -4.013
- [9,]  0.7425  0.674
-[10,] -0.8033 -2.136
+ [1,]  0.6303 -2.881
+ [2,]  0.6385 -0.744
+ [3,] -0.1760  1.331
+ [4,] -0.1235 -2.102
+ [5,]  1.3651  0.841
+ [6,]  0.6655  0.533
+ [7,] -0.5618 -5.486
+ [8,]  0.0393 -1.323
+ [9,]  0.1290  0.568
+[10,]  1.0452  2.921
 </code></pre>
 </div>
 </div>
 </div>
 </div>
 </div>
-<p>Quindi tramite la formula <code>(1|Subject)</code> possiamo rendere più o meno complessa la distribuzione normale multivariata che descrive gli effetti random. Ad esempio, facendo <code>(1|Subject)</code> stiamo sostanzialmente facendo:</p>
+<p>Quindi tramite la formula della parte random possiamo rendere più o meno complessa la distribuzione normale multivariata che descrive gli effetti random. Ad esempio, facendo <code>(1|Subject)</code> stiamo sostanzialmente facendo:</p>
 <p><span class="math display">\[
 \Sigma =
 \begin{bmatrix}
-\sigma^2_{u_i}
+\sigma^2_{u0}
 \end{bmatrix}
 \]</span></p>
-<p>Ovvero una singola distribuzione normale. Mentre <code>(Days||Subject)</code> stiamo imponendo gli elementi off-diagonal (fuori dalla diagonale) ad essere zero:</p>
+<p>Ovvero una singola distribuzione normale. Mentre <code>(Days||Subject)</code> stiamo imponendo gli elementi off-diagonal (fuori diagonale) ad essere zero:</p>
 <p><span class="math display">\[
 \Sigma =
 \begin{bmatrix}
-\sigma^2_{u_i} &amp; 0  \\
-0 &amp; \sigma^2_{b_i}
+\sigma^2_{u0} &amp; 0  \\
+0 &amp; \sigma^2_{u1}
 \end{bmatrix}
 \]</span></p>
+</section>
+</section>
+<section id="intervalli-di-confidenza-e-visualizzazione" class="level1">
+<h1>Intervalli di confidenza e visualizzazione</h1>
 <p>Ora vediamo qualche modo di avere informazioni aggiuntive rispetto al modello stimato che vadano oltre quello che <code>summary()</code> riporta.</p>
-<p>Possiamo estrarre gli intervalli di confidenza con il comando <code>confint()</code>. La prima opzione è chiamata Wald confidence intervals. Questi non sono altro che dei semplici intervalli di confidenza basati sull’approssimazione normale della distrubuzione campionaria. In formula questo equivale a:</p>
+<p>Possiamo estrarre gli intervalli di confidenza con il comando <code>confint()</code>. La prima opzione è chiamata Wald confidence intervals. Questi non sono altro che dei semplici intervalli di confidenza basati sull’approssimazione normale della distribuzione campionaria. In formula questo equivale a:</p>
 <p><span class="math display">\[
 95\% CI = \hat \beta \pm q \text{SE}_{\beta}
 \]</span></p>
@@ -1745,30 +1803,30 @@ Days          7.44   13.5
 </code></pre>
 </div>
 </div>
-<p>L’altra opzione che è anche il default riguarda l’utilizzo dei profile likelihood confidence intervals. Questo tipo di intervalli sono basati sulla likelihood della stima dei parametri:</p>
+<p>L’altra opzione che è anche il default riguarda l’utilizzo dei profile likelihoodd confidence intervals. Questo tipo di intervalli sono basati sulla likelihood profilo dei parametri dei parametri:</p>
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb121"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb121-1"><a href="#cb121-1" aria-hidden="true" tabindex="-1"></a><span class="co"># estraggo prima le likelihood perchè ci mette molto, altrimenti direttamente con</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb121"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb121-1"><a href="#cb121-1" aria-hidden="true" tabindex="-1"></a><span class="co"># estraggo prima le likelihood perché ci mette molto, altrimenti direttamente con</span></span>
 <span id="cb121-2"><a href="#cb121-2" aria-hidden="true" tabindex="-1"></a><span class="co"># confint(fit)</span></span>
 <span id="cb121-3"><a href="#cb121-3" aria-hidden="true" tabindex="-1"></a>pf <span class="ot">&lt;-</span> <span class="fu">profile</span>(fit_days_slopes)</span>
 <span id="cb121-4"><a href="#cb121-4" aria-hidden="true" tabindex="-1"></a><span class="fu">confint</span>(pf, <span class="at">method =</span> <span class="st">"profile"</span>, <span class="at">level =</span> <span class="fl">0.95</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>              2.5 %  97.5 %
 .sig01       14.381  37.716
-.sig02        3.801   8.753
-.sig03       -0.482   0.685
+.sig02       -0.482   0.685
+.sig03        3.801   8.753
 .sigma       22.898  28.858
 (Intercept) 237.681 265.130
 Days          7.359  13.576
 </code></pre>
 </div>
 </div>
-<p>Questo è il grafico delle profile likelihoo di ogni parametro. L’intervallo di confidenza in questo caso si calcola direttamente sulla profile likelihood e potrebbe essere diverso dalla versione Wald oltre a non essere necessariamente simmetrico.</p>
+<p>Questo è il grafico delle profile likelihood per ogni parametro. L’intervallo di confidenza in questo caso si calcola direttamente sulla profile likelihoodd e potrebbe essere diverso dalla versione Wald oltre a non essere necessariamente simmetrico.</p>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb123"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb123-1"><a href="#cb123-1" aria-hidden="true" tabindex="-1"></a>lattice<span class="sc">::</span><span class="fu">densityplot</span>(pf)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="01-intro-glmm_files/figure-html/unnamed-chunk-47-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+<p><img src="01-intro-glmm_files/figure-html/densityplot-profile-1.svg" class="img-fluid quarto-figure quarto-figure-center figure-img" width="960"></p>
 </figure>
 </div>
 </div>
@@ -1783,13 +1841,13 @@ Days          7.359  13.576
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="01-intro-glmm_files/figure-html/unnamed-chunk-48-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+<p><img src="01-intro-glmm_files/figure-html/dotplot-random-effects-1.svg" class="img-fluid quarto-figure quarto-figure-center figure-img" width="960"></p>
 </figure>
 </div>
 </div>
 </div>
-<p>Questi grafici sono molto utili per avere un’idea più concreta, ad intepretare le varianze stimate, rispetto a quanto variano i parametri tra soggetti. Ad esempio mentre chiaro che l’intercetta è molto diversa tra soggetti, la slope seppur con delle differenze sembrebbe essere più simile (a parte alcuni soggetti).</p>
-<p>Ora vediamo come rappresentare graficamente ed in formato tabella il nostro modello. Per gli effetti fissi possiamo usare il pacchetto <code>ggeffects()</code>:</p>
+<p>Questi grafici sono molto utili per avere un’idea più concreta, ad interpretare le varianze stimate, rispetto a quanto variano i parametri tra soggetti. Ad esempio mentre è chiaro che l’intercetta è molto diversa tra soggetti, la slope seppure con alcune differenze sembrerebbe essere più simile (a parte alcuni soggetti).</p>
+<p>Ora vediamo come rappresentare graficamente ed in formato tabella il nostro modello. Per gli effetti fissi possiamo usare il pacchetto <code>ggeffects</code>:</p>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb126"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb126-1"><a href="#cb126-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggeffects)</span>
 <span id="cb126-2"><a href="#cb126-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -1826,7 +1884,7 @@ attr(,"model.name")
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="01-intro-glmm_files/figure-html/unnamed-chunk-50-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+<p><img src="01-intro-glmm_files/figure-html/plot-ggeffects-days-1.svg" class="img-fluid quarto-figure quarto-figure-center figure-img" width="960"></p>
 </figure>
 </div>
 </div>
@@ -1852,14 +1910,17 @@ attr(,"model.name")
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="01-intro-glmm_files/figure-html/unnamed-chunk-51-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+<p><img src="01-intro-glmm_files/figure-html/shrinkage-coefficients-1.svg" class="img-fluid quarto-figure quarto-figure-center figure-img" width="960"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>Come avevamo già visto, le stime di ogni soggetto vengono trascinate verso il centro di gravità ovvero i parametri stimati con <code>lme4</code>.</p>
-<p>Prima di passare a modelli più complessi vorrei fare un cenno rispetto l’interpretazione di effetti fissi e random. Se ci concentriamo nell’effetto <code>Days</code>, quindi <span class="math inline">\(\beta_1\)</span> lo intepretiamo come l’aumento dei tempi di reazione per ogni giorno che passa di deprivazione da sonno.</p>
-<p>Ora un punto importante riguarda la distinzione tra <span class="math inline">\(\beta_1\)</span> stimato con <code>lm</code> e <span class="math inline">\(\beta_1\)</span> stimato con <code>lme4</code>. Nel modello lineare classico noi stimiamo <span class="math inline">\(\beta_1\)</span> inteso come un valore fisso che, in base al numero di osservazioni, verra stimato con più o meno precisione. L’unica fonte di variabilità è <span class="math inline">\(\epsilon\)</span> che, idealmente, si può ridurre semplicemente aumentando la numerosità campionaria. Ogni soggetto ha lo stesso effetto di <code>Days</code>.</p>
+</section>
+<section id="interpretazione-e-diagnostica" class="level1">
+<h1>Interpretazione e diagnostica</h1>
+<p>Prima di passare a modelli più complessi vorrei fare un cenno rispetto all’interpretazione di effetti fissi e random. Se ci concentriamo sull’effetto <code>Days</code>, quindi <span class="math inline">\(\beta_1\)</span> lo interpretiamo come l’aumento dei tempi di reazione per ogni giorno che passa di deprivazione da sonno.</p>
+<p>Ora un punto importante riguarda la distinzione tra <span class="math inline">\(\beta_1\)</span> stimato con <code>lm</code> e <span class="math inline">\(\beta_1\)</span> stimato con <code>lme4</code>. Nel modello lineare classico noi stimiamo <span class="math inline">\(\beta_1\)</span> inteso come un valore fisso che, in base al numero di osservazioni, verrà stimato con più o meno precisione. L’unica fonte di variabilità è <span class="math inline">\(\varepsilon\)</span> che, idealmente, si può ridurre semplicemente aumentando la numerosità campionaria. Ogni soggetto ha lo stesso effetto di <code>Days</code>.</p>
 <p>Nel caso di <code>lme4</code>, <span class="math inline">\(\beta_1\)</span> è l’effetto medio di una distribuzione di effetti veri. Essendo la distribuzione assunta come normale possiamo anche visualizzarla:</p>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb131"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb131-1"><a href="#cb131-1" aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">fixef</span>(fit_days_slopes)</span>
@@ -1884,26 +1945,31 @@ attr(,"model.name")
 <span id="cb131-20"><a href="#cb131-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Slope soggetto-specifico per Days"</span>,</span>
 <span id="cb131-21"><a href="#cb131-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Densità"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="01-intro-glmm_files/figure-html/unnamed-chunk-52-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+<div id="fig-fixed-random-distributions" class="quarto-float quarto-figure quarto-figure-center anchored" width="960" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-fixed-random-distributions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="01-intro-glmm_files/figure-html/fig-fixed-random-distributions-1.svg" id="fig-fixed-random-distributions" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" width="960">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-fixed-random-distributions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;9
+</figcaption>
 </figure>
 </div>
 </div>
 </div>
-<p>Quindi, la media dell’effetto vero di <code>Days</code> è <span class="math inline">\(\beta_1\)</span> (stimato con <code>lme4</code>) ma alcuni soggetti hanno <span class="math inline">\(\beta_1 = 0\)</span> mentre altri <span class="math inline">\(\beta_1 = 20\)</span>. Questa è una distizione importante ma sottile, le caso di modelli multilivello gli effetti fissi sono la media di effetti veri la cui distrubuzione (in particolare la deviazione standard) viene stimata.</p>
+<p>Quindi, la media dell’effetto vero di <code>Days</code> è <span class="math inline">\(\beta_1\)</span> (stimato con <code>lme4</code>) ma alcuni soggetti hanno <span class="math inline">\(\beta_1 = 0\)</span> mentre altri <span class="math inline">\(\beta_1 = 20\)</span>. Questa è una distinzione importante ma sottile, nel caso di modelli multilivello gli effetti fissi sono la media di effetti veri la cui distribuzione (in particolare la deviazione standard) viene stimata.</p>
 <p>Per la diagnostica valgono sostanzialmente gli stessi assunti del modello lineare classico e possiamo verificarli (graficamente) allo stesso modo. Il pacchetto <code>performance</code> ha diverse funzioni per la diagnostica dei modelli, tra cui anche <code>lme4</code>:</p>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb132"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb132-1"><a href="#cb132-1" aria-hidden="true" tabindex="-1"></a>performance<span class="sc">::</span><span class="fu">check_model</span>(fit_days_slopes)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="01-intro-glmm_files/figure-html/unnamed-chunk-53-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+<p><img src="01-intro-glmm_files/figure-html/check-model-diagnostics-1.svg" class="img-fluid quarto-figure quarto-figure-center figure-img" width="960"></p>
 </figure>
 </div>
 </div>
 </div>
-<p>L’unica differenza importante può essere riguardo la diagnostica di outlier e punti influenti. Infatti mentre nel modello <code>lm</code> la singola osservazione (riga del dataset) veniva valutata, nel modello <code>lmer</code> abbiamo cluster di osservazioni. Possiamo usare il pacchetto <code>influence.ME</code> che calcola le comuni diagnostiche per outlier e punti influenti ma a livello del cluster. L’unica accortezza riguarda l’aspetto computazionale perchè è necessario fittare il modello togliendo un cluster/soggetto per volta.</p>
+<p>L’unica differenza importante può essere riguardo alla diagnostica di outlier e punti influenti. Infatti, mentre nel modello <code>lm</code> la singola osservazione (riga del dataset) veniva valutata, nel modello <code>lmer</code> abbiamo cluster di osservazioni. Possiamo usare il pacchetto <code>influence.ME</code> che calcola le comuni diagnostiche per outlier e punti influenti ma a livello del cluster. L’unica accortezza riguarda l’aspetto computazionale perché è necessario fittare il modello togliendo un cluster/soggetto per volta.</p>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb133"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb133-1"><a href="#cb133-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(influence.ME)</span>
 <span id="cb133-2"><a href="#cb133-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -1934,7 +2000,7 @@ attr(,"model.name")
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="01-intro-glmm_files/figure-html/unnamed-chunk-54-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+<p><img src="01-intro-glmm_files/figure-html/influence-subjects-1.svg" class="img-fluid quarto-figure quarto-figure-center figure-img" width="960"></p>
 </figure>
 </div>
 </div>
@@ -1942,7 +2008,7 @@ attr(,"model.name")
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="01-intro-glmm_files/figure-html/unnamed-chunk-54-2.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+<p><img src="01-intro-glmm_files/figure-html/influence-subjects-2.svg" class="img-fluid quarto-figure quarto-figure-center figure-img" width="960"></p>
 </figure>
 </div>
 </div>
@@ -1956,7 +2022,7 @@ attr(,"model.name")
 
 <ol>
 <li id="fn1"><p>Vedremo che questo pacchetto è quello più utilizzato e completo per implementare modelli con effetti random in R<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn2"><p>Questo non è il calcolo preciso, quello più accurato lo faremo dopo con le stime del modello ma può essere inteso come un’approssimazione<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>Questo non è il calcolo più preciso, quello più accurato lo faremo dopo con le stime del modello ma può essere inteso come un’approssimazione<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -2010,13 +2076,14 @@ attr(,"model.name")
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy

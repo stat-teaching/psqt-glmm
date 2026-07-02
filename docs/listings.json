@@ -2,9 +2,9 @@
   {
     "listing": "/index.html",
     "items": [
+      "/materials/00-intro-corso.pdf",
       "/materials/01-intro-glmm.html",
       "/materials/02-complex-random-structures.html",
-      "/materials/slides/01-intro.pdf",
       "/materials/03-centering.html"
     ]
   }
