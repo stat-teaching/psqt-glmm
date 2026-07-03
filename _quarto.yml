@@ -18,8 +18,7 @@ website:
         text: Home
     right:
       - icon: github
-        href: https://github.com/stat-teaching/metasimulation
-        aria-label: GitHub
+        href: https://github.com/stat-teaching/psqt-glmm
   page-footer: "Master PSQT - Quantitative Psychology"
         
 author: 
