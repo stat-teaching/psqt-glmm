@@ -95,7 +95,7 @@
     "href": "index.html#materiali",
     "title": "Generalized Linear Mixed-Effects Models",
     "section": "Materiali",
-    "text": "Materiali\n\n\n   \n    \n    \n      Order By\n      Default\n      \n        Title\n      \n    \n  \n    \n      \n      \n    \n\n\n\n\n\n\nModified\n\n\n\nTitle\n\n\n\n\n\n\n\n\n2026-07-02\n\n\nIntroduzione al corso\n\n\n\n\n\n\n2026-07-02\n\n\nIntroduzione ai Linear Mixed-Effects Models\n\n\n\n\n\n\n2026-07-03\n\n\nStrutture random complesse\n\n\n\n\n\n\n2026-07-03\n\n\nPredittori a vari livelli\n\n\n\n\n\n\nNo matching items"
+    "text": "Materiali\n\n\n   \n    \n    \n      Order By\n      Default\n      \n        Title\n      \n    \n  \n    \n      \n      \n    \n\n\n\n\n\n\nModified\n\n\n\nTitle\n\n\n\n\n\n\n\n\n2026-07-03\n\n\nIntroduzione al corso\n\n\n\n\n\n\n2026-07-03\n\n\nIntroduzione ai Linear Mixed-Effects Models\n\n\n\n\n\n\n2026-07-03\n\n\nStrutture random complesse\n\n\n\n\n\n\n2026-07-03\n\n\nPredittori a vari livelli\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "index.html#altro-materiale",
@@ -109,7 +109,7 @@
     "href": "index.html#esercizi",
     "title": "Generalized Linear Mixed-Effects Models",
     "section": "Esercizi",
-    "text": "Esercizi\nQuesto sito contiene diversi dataset per esercitarsi con i mixed-models https://uoepsy.github.io/lmm/00_datasets.html"
+    "text": "Esercizi\n\nEsercizio su dataset di esempio presi da https://uoepsy.github.io/lmm/00_datasets.html [link]"
   },
   {
     "objectID": "index.html#dati",
@@ -117,6 +117,104 @@
     "title": "Generalized Linear Mixed-Effects Models",
     "section": "Dati",
     "text": "Dati\n\nstress.rds\nheck2011.csv\nschool.rds"
+  },
+  {
+    "objectID": "esercizi/esercizi.html",
+    "href": "esercizi/esercizi.html",
+    "title": "Esercizio: analisi di un dataset con struttura multilivello",
+    "section": "",
+    "text": "Scegliete un dataset dalla pagina:\nhttps://uoepsy.github.io/lmm/00_datasets.html\nL’obiettivo è svolgere una breve analisi applicata su dati con struttura di dipendenza: importazione, esplorazione, grafici, stima di modelli mixed-effects e interpretazione.\nLa struttura dei dati può essere di tipo diverso, ad esempio:\n\nosservazioni ripetute entro soggetti;\nstudenti entro scuole o classi;\npazienti entro reparti;\nitem e soggetti nello stesso disegno sperimentale;\nmisurazioni raggruppate entro più fattori di clustering;\ndati longitudinali, crossed o nested."
+  },
+  {
+    "objectID": "esercizi/esercizi.html#obiettivo",
+    "href": "esercizi/esercizi.html#obiettivo",
+    "title": "Esercizio: analisi di un dataset con struttura multilivello",
+    "section": "",
+    "text": "Scegliete un dataset dalla pagina:\nhttps://uoepsy.github.io/lmm/00_datasets.html\nL’obiettivo è svolgere una breve analisi applicata su dati con struttura di dipendenza: importazione, esplorazione, grafici, stima di modelli mixed-effects e interpretazione.\nLa struttura dei dati può essere di tipo diverso, ad esempio:\n\nosservazioni ripetute entro soggetti;\nstudenti entro scuole o classi;\npazienti entro reparti;\nitem e soggetti nello stesso disegno sperimentale;\nmisurazioni raggruppate entro più fattori di clustering;\ndati longitudinali, crossed o nested."
+  },
+  {
+    "objectID": "esercizi/esercizi.html#scelta-del-dataset",
+    "href": "esercizi/esercizi.html#scelta-del-dataset",
+    "title": "Esercizio: analisi di un dataset con struttura multilivello",
+    "section": "2 1. Scelta del dataset",
+    "text": "2 1. Scelta del dataset\nScegliete un dataset e descrivetelo brevemente.\nIndicate:\n\nnome del dataset;\nvariabile dipendente;\npredittore principale;\neventuali predittori secondari;\nfattore o fattori di raggruppamento;\ntipo di struttura dei dati;\ndomanda di ricerca.\n\nDomande guida\n\nPerché il dataset non può essere considerato formato da osservazioni completamente indipendenti?\nQuali unità o fattori generano dipendenza tra osservazioni?\nQuale relazione volete studiare?\nQuale tipo di modello pensate possa essere appropriato?"
+  },
+  {
+    "objectID": "esercizi/esercizi.html#importazione-e-controllo-dei-dati",
+    "href": "esercizi/esercizi.html#importazione-e-controllo-dei-dati",
+    "title": "Esercizio: analisi di un dataset con struttura multilivello",
+    "section": "3 2. Importazione e controllo dei dati",
+    "text": "3 2. Importazione e controllo dei dati\nImportate i dati in R e controllate la struttura del dataset.\nVerificate:\n\nnumero di osservazioni;\nnumero di variabili;\ntipo delle variabili;\neventuali valori mancanti;\neventuali variabili da trasformare in fattori.\n\nDomande guida\n\nIl dataset è pronto per l’analisi?\nCi sono variabili che devono essere ricodificate?\nI fattori di raggruppamento sono codificati correttamente?\nCi sono valori mancanti o anomalie evidenti?"
+  },
+  {
+    "objectID": "esercizi/esercizi.html#struttura-di-dipendenza-dei-dati",
+    "href": "esercizi/esercizi.html#struttura-di-dipendenza-dei-dati",
+    "title": "Esercizio: analisi di un dataset con struttura multilivello",
+    "section": "4 3. Struttura di dipendenza dei dati",
+    "text": "4 3. Struttura di dipendenza dei dati\nDescrivete la struttura di dipendenza presente nel dataset.\nEsempi:\n\nosservazioni ripetute entro soggetti;\nstudenti entro scuole;\nstudenti entro classi entro scuole;\npazienti entro reparti;\nsoggetti e item in un disegno crossed;\nmisure raccolte in più occasioni temporali;\npiù fattori di raggruppamento presenti nello stesso modello.\n\nDomande guida\n\nQuali sono le unità osservazionali?\nQuali sono i fattori di raggruppamento?\nLa struttura è nested, crossed, longitudinale o di altro tipo?\nQuanti livelli o gruppi ci sono per ciascun fattore di raggruppamento?\nI gruppi sono bilanciati o sbilanciati?\nPerché un modello lineare classico potrebbe essere inadeguato?"
+  },
+  {
+    "objectID": "esercizi/esercizi.html#esplorazione-descrittiva",
+    "href": "esercizi/esercizi.html#esplorazione-descrittiva",
+    "title": "Esercizio: analisi di un dataset con struttura multilivello",
+    "section": "5 4. Esplorazione descrittiva",
+    "text": "5 4. Esplorazione descrittiva\nEsplorate la variabile dipendente e i predittori principali.\nProduci almeno:\n\nuna tabella descrittiva;\nun grafico della variabile dipendente;\nun grafico della variabile dipendente rispetto ad almeno un fattore di raggruppamento.\n\nDomande guida\n\nCom’è distribuita la variabile dipendente?\nCi sono differenze visibili tra gruppi o cluster?\nCi sono outlier o pattern particolari?\nLa variabile dipendente è continua, binaria o di conteggio?"
+  },
+  {
+    "objectID": "esercizi/esercizi.html#relazione-tra-predittore-e-outcome",
+    "href": "esercizi/esercizi.html#relazione-tra-predittore-e-outcome",
+    "title": "Esercizio: analisi di un dataset con struttura multilivello",
+    "section": "6 5. Relazione tra predittore e outcome",
+    "text": "6 5. Relazione tra predittore e outcome\nEsplorate graficamente la relazione tra il predittore principale e la variabile dipendente.\nProduci almeno:\n\nun grafico complessivo;\nun grafico separato per gruppi, soggetti, item o cluster, se interpretabile;\nin alternativa, un grafico su un sottoinsieme di gruppi se i gruppi sono molti.\n\nDomande guida\n\nLa relazione complessiva sembra positiva, negativa o nulla?\nLa relazione sembra simile nei diversi gruppi o cluster?\nÈ plausibile che l’intercetta vari tra gruppi?\nÈ plausibile che anche lo slope vari tra gruppi?\nCi sono differenze tra la relazione complessiva e le relazioni entro gruppo?"
+  },
+  {
+    "objectID": "esercizi/esercizi.html#modello-nullo",
+    "href": "esercizi/esercizi.html#modello-nullo",
+    "title": "Esercizio: analisi di un dataset con struttura multilivello",
+    "section": "7 6. Modello nullo",
+    "text": "7 6. Modello nullo\nStimate un modello nullo con sola intercetta random per almeno un fattore di raggruppamento.\nNel caso siano presenti più fattori di raggruppamento, valutate quale struttura random sia più coerente con il disegno dei dati.\nObiettivo: valutare quanta variabilità è attribuibile alle differenze tra gruppi, soggetti, item o altre unità di clustering.\nDomande guida\n\nQual è la media generale stimata?\nQuali componenti di varianza vengono stimate?\nQuale fattore di raggruppamento spiega più variabilità?\nÈ possibile calcolare o interpretare un ICC?\nIl modello nullo suggerisce una struttura di dipendenza rilevante?"
+  },
+  {
+    "objectID": "esercizi/esercizi.html#modello-con-predittore-fisso",
+    "href": "esercizi/esercizi.html#modello-con-predittore-fisso",
+    "title": "Esercizio: analisi di un dataset con struttura multilivello",
+    "section": "8 7. Modello con predittore fisso",
+    "text": "8 7. Modello con predittore fisso\nAggiungete il predittore principale come effetto fisso, mantenendo una struttura random coerente con il disegno dei dati.\nDomande guida\n\nL’effetto del predittore è positivo o negativo?\nCome si interpreta il coefficiente?\nIl predittore sembra utile per spiegare la variabile dipendente?\nLe componenti di varianza cambiano rispetto al modello nullo?\nIl modello è coerente con i grafici esplorativi?"
+  },
+  {
+    "objectID": "esercizi/esercizi.html#modello-con-random-slope",
+    "href": "esercizi/esercizi.html#modello-con-random-slope",
+    "title": "Esercizio: analisi di un dataset con struttura multilivello",
+    "section": "9 8. Modello con random slope",
+    "text": "9 8. Modello con random slope\nSe teoricamente sensato, stimate un modello in cui l’effetto del predittore principale può variare tra gruppi, soggetti, item o altri cluster.\nPotete valutare:\n\nrandom intercept;\nrandom slope;\nrandom intercept e random slope correlati;\nrandom intercept e random slope non correlati;\nrandom effects per più fattori di raggruppamento, se presenti.\n\nDomande guida\n\nIl modello converge?\nCi sono problemi di singolarità?\nLa varianza della random slope è rilevante?\nLa random slope è teoricamente giustificata?\nLa struttura random scelta è coerente con il disegno dei dati?"
+  },
+  {
+    "objectID": "esercizi/esercizi.html#confronto-tra-modelli",
+    "href": "esercizi/esercizi.html#confronto-tra-modelli",
+    "title": "Esercizio: analisi di un dataset con struttura multilivello",
+    "section": "10 9. Confronto tra modelli",
+    "text": "10 9. Confronto tra modelli\nConfrontate almeno tre modelli, ad esempio:\n\nmodello nullo;\nmodello con predittore fisso;\nmodello con una struttura random più complessa.\n\nUsate criteri come:\n\nAIC;\nBIC;\nlikelihood ratio test;\ninterpretabilità;\nproblemi di convergenza;\ncoerenza con la domanda di ricerca.\n\nDomande guida\n\nQuale modello si adatta meglio ai dati?\nIl modello più complesso è davvero necessario?\nCi sono problemi tecnici che sconsigliano alcuni modelli?\nQuale modello scegliereste come modello finale?\nPerché?"
+  },
+  {
+    "objectID": "esercizi/esercizi.html#diagnostica-del-modello-finale",
+    "href": "esercizi/esercizi.html#diagnostica-del-modello-finale",
+    "title": "Esercizio: analisi di un dataset con struttura multilivello",
+    "section": "11 10. Diagnostica del modello finale",
+    "text": "11 10. Diagnostica del modello finale\nScegliete un modello finale e controllatene la diagnostica.\nConsiderate:\n\nresidui;\nvalori previsti;\neffetti random;\nconvergenza;\nsingolarità;\neventuali gruppi, soggetti o item anomali.\n\nDomande guida\n\nIl modello mostra problemi evidenti?\nI residui sono plausibili?\nGli effetti random sono interpretabili?\nCi sono cluster particolarmente influenti?\nCi sono limiti da segnalare?"
+  },
+  {
+    "objectID": "esercizi/esercizi.html#interpretazione-finale",
+    "href": "esercizi/esercizi.html#interpretazione-finale",
+    "title": "Esercizio: analisi di un dataset con struttura multilivello",
+    "section": "12 11. Interpretazione finale",
+    "text": "12 11. Interpretazione finale\nScrivete un breve commento conclusivo.\nIl commento deve includere:\n\ndataset scelto;\nstruttura di dipendenza dei dati;\nmodello finale;\ninterpretazione dell’effetto principale;\ninterpretazione delle componenti random;\nrisposta alla domanda di ricerca.\n\n\n12.1 Traccia\n\nIl dataset analizzato contiene osservazioni non indipendenti, raggruppate secondo .... La variabile dipendente è ... e il predittore principale è ....\nIl modello nullo suggerisce che una parte della variabilità è attribuibile a ....\nL’aggiunta del predittore ... mostra che ....\nIl modello finale scelto è ..., perché ....\nIn conclusione, i risultati suggeriscono che ...."
+  },
+  {
+    "objectID": "esercizi/esercizi.html#consegna",
+    "href": "esercizi/esercizi.html#consegna",
+    "title": "Esercizio: analisi di un dataset con struttura multilivello",
+    "section": "13 Consegna",
+    "text": "13 Consegna\nLa consegna deve contenere:\n\ncodice R funzionante;\nbreve descrizione del dataset;\nalmeno tre grafici;\nalmeno tre modelli;\nconfronto tra modelli;\ndiagnostica del modello finale;\nbreve interpretazione scritta.\n\nNon limitatevi a copiare l’output di R: ogni risultato importante deve essere commentato."
   },
   {
     "objectID": "materials/02-complex-random-structures.html",

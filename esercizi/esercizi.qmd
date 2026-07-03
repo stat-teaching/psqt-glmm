@@ -1,0 +1,261 @@
+---
+title: "Esercizio: analisi di un dataset con struttura multilivello"
+subtitle: "Esplorazione dei dati e modelli mixed-effects"
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    number-sections: true
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Obiettivo
+
+Scegliete un dataset dalla pagina:
+
+<https://uoepsy.github.io/lmm/00_datasets.html>
+
+L'obiettivo è svolgere una breve analisi applicata su dati con struttura di dipendenza: importazione, esplorazione, grafici, stima di modelli mixed-effects e interpretazione.
+
+La struttura dei dati può essere di tipo diverso, ad esempio:
+
+- osservazioni ripetute entro soggetti;
+- studenti entro scuole o classi;
+- pazienti entro reparti;
+- item e soggetti nello stesso disegno sperimentale;
+- misurazioni raggruppate entro più fattori di clustering;
+- dati longitudinali, crossed o nested.
+
+## 1. Scelta del dataset
+
+Scegliete un dataset e descrivetelo brevemente.
+
+Indicate:
+
+- nome del dataset;
+- variabile dipendente;
+- predittore principale;
+- eventuali predittori secondari;
+- fattore o fattori di raggruppamento;
+- tipo di struttura dei dati;
+- domanda di ricerca.
+
+**Domande guida**
+
+1. Perché il dataset non può essere considerato formato da osservazioni completamente indipendenti?
+2. Quali unità o fattori generano dipendenza tra osservazioni?
+3. Quale relazione volete studiare?
+4. Quale tipo di modello pensate possa essere appropriato?
+
+## 2. Importazione e controllo dei dati
+
+Importate i dati in R e controllate la struttura del dataset.
+
+Verificate:
+
+- numero di osservazioni;
+- numero di variabili;
+- tipo delle variabili;
+- eventuali valori mancanti;
+- eventuali variabili da trasformare in fattori.
+
+**Domande guida**
+
+1. Il dataset è pronto per l'analisi?
+2. Ci sono variabili che devono essere ricodificate?
+3. I fattori di raggruppamento sono codificati correttamente?
+4. Ci sono valori mancanti o anomalie evidenti?
+
+## 3. Struttura di dipendenza dei dati
+
+Descrivete la struttura di dipendenza presente nel dataset.
+
+Esempi:
+
+- osservazioni ripetute entro soggetti;
+- studenti entro scuole;
+- studenti entro classi entro scuole;
+- pazienti entro reparti;
+- soggetti e item in un disegno crossed;
+- misure raccolte in più occasioni temporali;
+- più fattori di raggruppamento presenti nello stesso modello.
+
+**Domande guida**
+
+1. Quali sono le unità osservazionali?
+2. Quali sono i fattori di raggruppamento?
+3. La struttura è nested, crossed, longitudinale o di altro tipo?
+4. Quanti livelli o gruppi ci sono per ciascun fattore di raggruppamento?
+5. I gruppi sono bilanciati o sbilanciati?
+6. Perché un modello lineare classico potrebbe essere inadeguato?
+
+## 4. Esplorazione descrittiva
+
+Esplorate la variabile dipendente e i predittori principali.
+
+Produci almeno:
+
+- una tabella descrittiva;
+- un grafico della variabile dipendente;
+- un grafico della variabile dipendente rispetto ad almeno un fattore di raggruppamento.
+
+**Domande guida**
+
+1. Com'è distribuita la variabile dipendente?
+2. Ci sono differenze visibili tra gruppi o cluster?
+3. Ci sono outlier o pattern particolari?
+4. La variabile dipendente è continua, binaria o di conteggio?
+
+## 5. Relazione tra predittore e outcome
+
+Esplorate graficamente la relazione tra il predittore principale e la variabile dipendente.
+
+Produci almeno:
+
+- un grafico complessivo;
+- un grafico separato per gruppi, soggetti, item o cluster, se interpretabile;
+- in alternativa, un grafico su un sottoinsieme di gruppi se i gruppi sono molti.
+
+**Domande guida**
+
+1. La relazione complessiva sembra positiva, negativa o nulla?
+2. La relazione sembra simile nei diversi gruppi o cluster?
+3. È plausibile che l'intercetta vari tra gruppi?
+4. È plausibile che anche lo slope vari tra gruppi?
+5. Ci sono differenze tra la relazione complessiva e le relazioni entro gruppo?
+
+## 6. Modello nullo
+
+Stimate un modello nullo con sola intercetta random per almeno un fattore di raggruppamento.
+
+Nel caso siano presenti più fattori di raggruppamento, valutate quale struttura random sia più coerente con il disegno dei dati.
+
+**Obiettivo:** valutare quanta variabilità è attribuibile alle differenze tra gruppi, soggetti, item o altre unità di clustering.
+
+**Domande guida**
+
+1. Qual è la media generale stimata?
+2. Quali componenti di varianza vengono stimate?
+3. Quale fattore di raggruppamento spiega più variabilità?
+4. È possibile calcolare o interpretare un ICC?
+5. Il modello nullo suggerisce una struttura di dipendenza rilevante?
+
+## 7. Modello con predittore fisso
+
+Aggiungete il predittore principale come effetto fisso, mantenendo una struttura random coerente con il disegno dei dati.
+
+**Domande guida**
+
+1. L'effetto del predittore è positivo o negativo?
+2. Come si interpreta il coefficiente?
+3. Il predittore sembra utile per spiegare la variabile dipendente?
+4. Le componenti di varianza cambiano rispetto al modello nullo?
+5. Il modello è coerente con i grafici esplorativi?
+
+## 8. Modello con random slope
+
+Se teoricamente sensato, stimate un modello in cui l'effetto del predittore principale può variare tra gruppi, soggetti, item o altri cluster.
+
+Potete valutare:
+
+- random intercept;
+- random slope;
+- random intercept e random slope correlati;
+- random intercept e random slope non correlati;
+- random effects per più fattori di raggruppamento, se presenti.
+
+**Domande guida**
+
+1. Il modello converge?
+2. Ci sono problemi di singolarità?
+3. La varianza della random slope è rilevante?
+4. La random slope è teoricamente giustificata?
+5. La struttura random scelta è coerente con il disegno dei dati?
+
+## 9. Confronto tra modelli
+
+Confrontate almeno tre modelli, ad esempio:
+
+1. modello nullo;
+2. modello con predittore fisso;
+3. modello con una struttura random più complessa.
+
+Usate criteri come:
+
+- AIC;
+- BIC;
+- likelihood ratio test;
+- interpretabilità;
+- problemi di convergenza;
+- coerenza con la domanda di ricerca.
+
+**Domande guida**
+
+1. Quale modello si adatta meglio ai dati?
+2. Il modello più complesso è davvero necessario?
+3. Ci sono problemi tecnici che sconsigliano alcuni modelli?
+4. Quale modello scegliereste come modello finale?
+5. Perché?
+
+## 10. Diagnostica del modello finale
+
+Scegliete un modello finale e controllatene la diagnostica.
+
+Considerate:
+
+- residui;
+- valori previsti;
+- effetti random;
+- convergenza;
+- singolarità;
+- eventuali gruppi, soggetti o item anomali.
+
+**Domande guida**
+
+1. Il modello mostra problemi evidenti?
+2. I residui sono plausibili?
+3. Gli effetti random sono interpretabili?
+4. Ci sono cluster particolarmente influenti?
+5. Ci sono limiti da segnalare?
+
+## 11. Interpretazione finale
+
+Scrivete un breve commento conclusivo.
+
+Il commento deve includere:
+
+- dataset scelto;
+- struttura di dipendenza dei dati;
+- modello finale;
+- interpretazione dell'effetto principale;
+- interpretazione delle componenti random;
+- risposta alla domanda di ricerca.
+
+### Traccia
+
+> Il dataset analizzato contiene osservazioni non indipendenti, raggruppate secondo `...`. La variabile dipendente è `...` e il predittore principale è `...`.
+>
+> Il modello nullo suggerisce che una parte della variabilità è attribuibile a `...`.
+>
+> L'aggiunta del predittore `...` mostra che `...`.
+>
+> Il modello finale scelto è `...`, perché `...`.
+>
+> In conclusione, i risultati suggeriscono che `...`.
+
+## Consegna
+
+La consegna deve contenere:
+
+- codice R funzionante;
+- breve descrizione del dataset;
+- almeno tre grafici;
+- almeno tre modelli;
+- confronto tra modelli;
+- diagnostica del modello finale;
+- breve interpretazione scritta.
+
+Non limitatevi a copiare l'output di R: ogni risultato importante deve essere commentato.

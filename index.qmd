@@ -27,7 +27,7 @@ Questo sito contiene il materiale per il corso Estensione dei modelli lineari ge
 
 ## Esercizi
 
-Questo sito contiene diversi dataset per esercitarsi con i mixed-models [https://uoepsy.github.io/lmm/00_datasets.html](https://uoepsy.github.io/lmm/00_datasets.html)
+- Esercizio su dataset di esempio presi da [https://uoepsy.github.io/lmm/00_datasets.html](https://uoepsy.github.io/lmm/00_datasets.html) [[link](esercizi/esercizi.qmd)]
 
 ## Dati
 

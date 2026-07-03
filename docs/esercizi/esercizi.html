@@ -8,7 +8,7 @@
 
 <meta name="author" content="Filippo Gambarota">
 
-<title>Generalized Linear Mixed-Effects Models – PSQT-GLMM</title>
+<title>Esercizio: analisi di un dataset con struttura multilivello – PSQT-GLMM</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -24,26 +24,24 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-listing/list.min.js"></script>
-<script src="site_libs/quarto-listing/quarto-listing.js"></script>
-<script src="site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-ea1d7ac60288e0f1efdbc993fd8432ae.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-45dd08599a1b1e22c1c6eae1dc94be9b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ea1d7ac60288e0f1efdbc993fd8432ae.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-45dd08599a1b1e22c1c6eae1dc94be9b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -71,67 +69,9 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
-<script>
 
-  window.document.addEventListener("DOMContentLoaded", function (_event) {
-    const listingTargetEl = window.document.querySelector('#listing-materials .list');
-    if (!listingTargetEl) {
-      // No listing discovered, do not attach.
-      return; 
-    }
 
-    const options = {
-      valueNames: ['listing-file-modified','listing-title',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-title-sort'] }],
-      
-      searchColumns: ["listing-date","listing-title","listing-author"],
-    };
-
-    window['quarto-listings'] = window['quarto-listings'] || {};
-    window['quarto-listings']['listing-materials'] = new List('listing-materials', options);
-
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  });
-
-  window.addEventListener('hashchange',() => {
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  })
-  </script>
-
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
-
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="../styles.css">
 </head>
 
 <body class="nav-fixed quarto-light">
@@ -141,9 +81,9 @@ window.Quarto = {
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a href="./index.html" class="navbar-brand navbar-brand-logo">
+    <a href="../index.html" class="navbar-brand navbar-brand-logo">
     </a>
-    <a class="navbar-brand" href="./index.html">
+    <a class="navbar-brand" href="../index.html">
     <span class="navbar-title">PSQT-GLMM</span>
     </a>
   </div>
@@ -154,7 +94,7 @@ window.Quarto = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link active" href="./index.html" aria-current="page"> 
+    <a class="nav-link" href="../index.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
 </ul>
@@ -179,11 +119,20 @@ window.Quarto = {
         <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">On this page</h2>
    
-  <ul>
-  <li><a href="#materiali" id="toc-materiali" class="nav-link active" data-scroll-target="#materiali">Materiali</a></li>
-  <li><a href="#altro-materiale" id="toc-altro-materiale" class="nav-link" data-scroll-target="#altro-materiale">Altro materiale</a></li>
-  <li><a href="#esercizi" id="toc-esercizi" class="nav-link" data-scroll-target="#esercizi">Esercizi</a></li>
-  <li><a href="#dati" id="toc-dati" class="nav-link" data-scroll-target="#dati">Dati</a></li>
+  <ul class="collapse">
+  <li><a href="#obiettivo" id="toc-obiettivo" class="nav-link active" data-scroll-target="#obiettivo"><span class="header-section-number">1</span> Obiettivo</a></li>
+  <li><a href="#scelta-del-dataset" id="toc-scelta-del-dataset" class="nav-link" data-scroll-target="#scelta-del-dataset"><span class="header-section-number">2</span> 1. Scelta del dataset</a></li>
+  <li><a href="#importazione-e-controllo-dei-dati" id="toc-importazione-e-controllo-dei-dati" class="nav-link" data-scroll-target="#importazione-e-controllo-dei-dati"><span class="header-section-number">3</span> 2. Importazione e controllo dei dati</a></li>
+  <li><a href="#struttura-di-dipendenza-dei-dati" id="toc-struttura-di-dipendenza-dei-dati" class="nav-link" data-scroll-target="#struttura-di-dipendenza-dei-dati"><span class="header-section-number">4</span> 3. Struttura di dipendenza dei dati</a></li>
+  <li><a href="#esplorazione-descrittiva" id="toc-esplorazione-descrittiva" class="nav-link" data-scroll-target="#esplorazione-descrittiva"><span class="header-section-number">5</span> 4. Esplorazione descrittiva</a></li>
+  <li><a href="#relazione-tra-predittore-e-outcome" id="toc-relazione-tra-predittore-e-outcome" class="nav-link" data-scroll-target="#relazione-tra-predittore-e-outcome"><span class="header-section-number">6</span> 5. Relazione tra predittore e outcome</a></li>
+  <li><a href="#modello-nullo" id="toc-modello-nullo" class="nav-link" data-scroll-target="#modello-nullo"><span class="header-section-number">7</span> 6. Modello nullo</a></li>
+  <li><a href="#modello-con-predittore-fisso" id="toc-modello-con-predittore-fisso" class="nav-link" data-scroll-target="#modello-con-predittore-fisso"><span class="header-section-number">8</span> 7. Modello con predittore fisso</a></li>
+  <li><a href="#modello-con-random-slope" id="toc-modello-con-random-slope" class="nav-link" data-scroll-target="#modello-con-random-slope"><span class="header-section-number">9</span> 8. Modello con random slope</a></li>
+  <li><a href="#confronto-tra-modelli" id="toc-confronto-tra-modelli" class="nav-link" data-scroll-target="#confronto-tra-modelli"><span class="header-section-number">10</span> 9. Confronto tra modelli</a></li>
+  <li><a href="#diagnostica-del-modello-finale" id="toc-diagnostica-del-modello-finale" class="nav-link" data-scroll-target="#diagnostica-del-modello-finale"><span class="header-section-number">11</span> 10. Diagnostica del modello finale</a></li>
+  <li><a href="#interpretazione-finale" id="toc-interpretazione-finale" class="nav-link" data-scroll-target="#interpretazione-finale"><span class="header-section-number">12</span> 11. Interpretazione finale</a></li>
+  <li><a href="#consegna" id="toc-consegna" class="nav-link" data-scroll-target="#consegna"><span class="header-section-number">13</span> Consegna</a></li>
   </ul>
 </nav>
     </div>
@@ -192,8 +141,8 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Generalized Linear Mixed-Effects Models</h1>
-<p class="subtitle lead">PSQT</p>
+<h1 class="title">Esercizio: analisi di un dataset con struttura multilivello</h1>
+<p class="subtitle lead">Esplorazione dei dati e modelli mixed-effects</p>
 </div>
 
 
@@ -223,109 +172,248 @@ window.Quarto = {
 </header>
 
 
-<p>Questo sito contiene il materiale per il corso Estensione dei modelli lineari generalizzati al caso dei modelli con effetti misti (con effetti fissi e random) del master PSQT.</p>
-<section id="materiali" class="level2">
-<h2 class="anchored" data-anchor-id="materiali">Materiali</h2>
-<div id="listing-materials" class="quarto-listing quarto-listing-container-table">
-<div class="listing-actions-group">
-   <div class="input-group input-group-sm quarto-listing-sort">
-    <span class="input-group-text"><i class="bi bi-sort-down"></i></span>
-    <select id="listing-materials-sort" class="form-select" aria-label="Order By" onchange="window['quarto-listings']['listing-materials'].sort(this.options[this.selectedIndex].value, { order: this.options[this.selectedIndex].getAttribute('data-direction')})">
-      <option value="" disabled="" selected="" hidden="">Order By</option>
-      <option value="index" data-direction="asc">Default</option>
-      <option value="listing-title-sort" data-direction="asc">
-        Title
-      </option>
-    </select>
-  </div>
-    <div class="input-group input-group-sm quarto-listing-filter">
-      <span class="input-group-text"><i class="bi bi-search"></i></span>
-      <input type="text" class="search form-control" placeholder="Filter">
-    </div>
-</div>
-<table class="quarto-listing-table table">
-<thead>
-<tr>
-
-<th>
-Modified
-</th>
-
-<th>
-<a class="sort" data-sort="listing-title-sort" onclick="if (this.classList.contains('sort-asc')) { this.classList.add('sort-desc'); this.classList.remove('sort-asc') } else { this.classList.add('sort-asc'); this.classList.remove('sort-desc')} return false;">Title</a>
-</th>
-
-</tr>
-</thead>
-<tbody class="list">
-
-<tr data-index="0" data-listing-date-sort="1783077661000" data-listing-file-modified-sort="1783077661529" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="745" data-listing-title-sort="Introduzione al corso" data-listing-filename-sort="00-intro-corso.qmd">
-<td>
-<span class="listing-file-modified">2026-07-03</span>
-</td>
-<td>
-<a href="./materials/00-intro-corso.pdf" class="title listing-title">Introduzione al corso</a>
-</td>
-
-</tr>
-
-<tr data-index="1" data-listing-file-modified-sort="1783077661544" data-listing-reading-time-sort="30" data-listing-word-count-sort="5990" data-listing-title-sort="Introduzione ai Linear Mixed-Effects Models" data-listing-filename-sort="01-intro-glmm.qmd">
-<td>
-<span class="listing-file-modified">2026-07-03</span>
-</td>
-<td>
-<a href="./materials/01-intro-glmm.html" class="title listing-title">Introduzione ai Linear Mixed-Effects Models</a>
-</td>
-
-</tr>
-
-<tr data-index="2" data-listing-file-modified-sort="1783077661580" data-listing-reading-time-sort="16" data-listing-word-count-sort="3166" data-listing-title-sort="Strutture random complesse" data-listing-filename-sort="02-complex-random-structures.qmd">
-<td>
-<span class="listing-file-modified">2026-07-03</span>
-</td>
-<td>
-<a href="./materials/02-complex-random-structures.html" class="title listing-title">Strutture random complesse</a>
-</td>
-
-</tr>
-
-<tr data-index="3" data-listing-file-modified-sort="1783077661580" data-listing-reading-time-sort="10" data-listing-word-count-sort="1903" data-listing-title-sort="Predittori a vari livelli" data-listing-filename-sort="03-centering.qmd">
-<td>
-<span class="listing-file-modified">2026-07-03</span>
-</td>
-<td>
-<a href="./materials/03-centering.html" class="title listing-title">Predittori a vari livelli</a>
-</td>
-
-</tr>
-
-</tbody>
-</table>
-<div class="listing-no-matching d-none">No matching items</div>
-</div>
-</section>
-<section id="altro-materiale" class="level2">
-<h2 class="anchored" data-anchor-id="altro-materiale">Altro materiale</h2>
+<section id="obiettivo" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="obiettivo"><span class="header-section-number">1</span> Obiettivo</h2>
+<p>Scegliete un dataset dalla pagina:</p>
+<p><a href="https://uoepsy.github.io/lmm/00_datasets.html" class="uri">https://uoepsy.github.io/lmm/00_datasets.html</a></p>
+<p>L’obiettivo è svolgere una breve analisi applicata su dati con struttura di dipendenza: importazione, esplorazione, grafici, stima di modelli mixed-effects e interpretazione.</p>
+<p>La struttura dei dati può essere di tipo diverso, ad esempio:</p>
 <ul>
-<li>Il corso precedente era tenuto dal prof. Gianmarco ALtoè che ha una repository con del materiale ottimo e diversi dati ed esempi che useremo. Trovate il materiale qui <a href="https://osf.io/b7tkp/files/osfstorage">https://osf.io/b7tkp/files/osfstorage</a>.</li>
-<li>Materiale in inglese sui GLMM <a href="https://stat-teaching.github.io/psychometrics4neuroscience/materials/glmer/glmer.html">https://stat-teaching.github.io/psychometrics4neuroscience/materials/glmer/glmer.html</a></li>
-<li>Signal Detection Theory come GLMM <a href="https://stat-teaching.github.io/psychometrics4neuroscience/materials/signal-detection-theory.html">https://stat-teaching.github.io/psychometrics4neuroscience/materials/signal-detection-theory.html</a></li>
+<li>osservazioni ripetute entro soggetti;</li>
+<li>studenti entro scuole o classi;</li>
+<li>pazienti entro reparti;</li>
+<li>item e soggetti nello stesso disegno sperimentale;</li>
+<li>misurazioni raggruppate entro più fattori di clustering;</li>
+<li>dati longitudinali, crossed o nested.</li>
 </ul>
 </section>
-<section id="esercizi" class="level2">
-<h2 class="anchored" data-anchor-id="esercizi">Esercizi</h2>
+<section id="scelta-del-dataset" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="scelta-del-dataset"><span class="header-section-number">2</span> 1. Scelta del dataset</h2>
+<p>Scegliete un dataset e descrivetelo brevemente.</p>
+<p>Indicate:</p>
 <ul>
-<li>Esercizio su dataset di esempio presi da <a href="https://uoepsy.github.io/lmm/00_datasets.html">https://uoepsy.github.io/lmm/00_datasets.html</a> [<a href="./esercizi/esercizi.html">link</a>]</li>
+<li>nome del dataset;</li>
+<li>variabile dipendente;</li>
+<li>predittore principale;</li>
+<li>eventuali predittori secondari;</li>
+<li>fattore o fattori di raggruppamento;</li>
+<li>tipo di struttura dei dati;</li>
+<li>domanda di ricerca.</li>
 </ul>
+<p><strong>Domande guida</strong></p>
+<ol type="1">
+<li>Perché il dataset non può essere considerato formato da osservazioni completamente indipendenti?</li>
+<li>Quali unità o fattori generano dipendenza tra osservazioni?</li>
+<li>Quale relazione volete studiare?</li>
+<li>Quale tipo di modello pensate possa essere appropriato?</li>
+</ol>
 </section>
-<section id="dati" class="level2">
-<h2 class="anchored" data-anchor-id="dati">Dati</h2>
+<section id="importazione-e-controllo-dei-dati" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="importazione-e-controllo-dei-dati"><span class="header-section-number">3</span> 2. Importazione e controllo dei dati</h2>
+<p>Importate i dati in R e controllate la struttura del dataset.</p>
+<p>Verificate:</p>
 <ul>
-<li><a href="data/stress.rds">stress.rds</a></li>
-<li><a href="data/heck2011.csv">heck2011.csv</a></li>
-<li><a href="data/school.rds">school.rds</a></li>
+<li>numero di osservazioni;</li>
+<li>numero di variabili;</li>
+<li>tipo delle variabili;</li>
+<li>eventuali valori mancanti;</li>
+<li>eventuali variabili da trasformare in fattori.</li>
 </ul>
-
+<p><strong>Domande guida</strong></p>
+<ol type="1">
+<li>Il dataset è pronto per l’analisi?</li>
+<li>Ci sono variabili che devono essere ricodificate?</li>
+<li>I fattori di raggruppamento sono codificati correttamente?</li>
+<li>Ci sono valori mancanti o anomalie evidenti?</li>
+</ol>
+</section>
+<section id="struttura-di-dipendenza-dei-dati" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="struttura-di-dipendenza-dei-dati"><span class="header-section-number">4</span> 3. Struttura di dipendenza dei dati</h2>
+<p>Descrivete la struttura di dipendenza presente nel dataset.</p>
+<p>Esempi:</p>
+<ul>
+<li>osservazioni ripetute entro soggetti;</li>
+<li>studenti entro scuole;</li>
+<li>studenti entro classi entro scuole;</li>
+<li>pazienti entro reparti;</li>
+<li>soggetti e item in un disegno crossed;</li>
+<li>misure raccolte in più occasioni temporali;</li>
+<li>più fattori di raggruppamento presenti nello stesso modello.</li>
+</ul>
+<p><strong>Domande guida</strong></p>
+<ol type="1">
+<li>Quali sono le unità osservazionali?</li>
+<li>Quali sono i fattori di raggruppamento?</li>
+<li>La struttura è nested, crossed, longitudinale o di altro tipo?</li>
+<li>Quanti livelli o gruppi ci sono per ciascun fattore di raggruppamento?</li>
+<li>I gruppi sono bilanciati o sbilanciati?</li>
+<li>Perché un modello lineare classico potrebbe essere inadeguato?</li>
+</ol>
+</section>
+<section id="esplorazione-descrittiva" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="esplorazione-descrittiva"><span class="header-section-number">5</span> 4. Esplorazione descrittiva</h2>
+<p>Esplorate la variabile dipendente e i predittori principali.</p>
+<p>Produci almeno:</p>
+<ul>
+<li>una tabella descrittiva;</li>
+<li>un grafico della variabile dipendente;</li>
+<li>un grafico della variabile dipendente rispetto ad almeno un fattore di raggruppamento.</li>
+</ul>
+<p><strong>Domande guida</strong></p>
+<ol type="1">
+<li>Com’è distribuita la variabile dipendente?</li>
+<li>Ci sono differenze visibili tra gruppi o cluster?</li>
+<li>Ci sono outlier o pattern particolari?</li>
+<li>La variabile dipendente è continua, binaria o di conteggio?</li>
+</ol>
+</section>
+<section id="relazione-tra-predittore-e-outcome" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="relazione-tra-predittore-e-outcome"><span class="header-section-number">6</span> 5. Relazione tra predittore e outcome</h2>
+<p>Esplorate graficamente la relazione tra il predittore principale e la variabile dipendente.</p>
+<p>Produci almeno:</p>
+<ul>
+<li>un grafico complessivo;</li>
+<li>un grafico separato per gruppi, soggetti, item o cluster, se interpretabile;</li>
+<li>in alternativa, un grafico su un sottoinsieme di gruppi se i gruppi sono molti.</li>
+</ul>
+<p><strong>Domande guida</strong></p>
+<ol type="1">
+<li>La relazione complessiva sembra positiva, negativa o nulla?</li>
+<li>La relazione sembra simile nei diversi gruppi o cluster?</li>
+<li>È plausibile che l’intercetta vari tra gruppi?</li>
+<li>È plausibile che anche lo slope vari tra gruppi?</li>
+<li>Ci sono differenze tra la relazione complessiva e le relazioni entro gruppo?</li>
+</ol>
+</section>
+<section id="modello-nullo" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="modello-nullo"><span class="header-section-number">7</span> 6. Modello nullo</h2>
+<p>Stimate un modello nullo con sola intercetta random per almeno un fattore di raggruppamento.</p>
+<p>Nel caso siano presenti più fattori di raggruppamento, valutate quale struttura random sia più coerente con il disegno dei dati.</p>
+<p><strong>Obiettivo:</strong> valutare quanta variabilità è attribuibile alle differenze tra gruppi, soggetti, item o altre unità di clustering.</p>
+<p><strong>Domande guida</strong></p>
+<ol type="1">
+<li>Qual è la media generale stimata?</li>
+<li>Quali componenti di varianza vengono stimate?</li>
+<li>Quale fattore di raggruppamento spiega più variabilità?</li>
+<li>È possibile calcolare o interpretare un ICC?</li>
+<li>Il modello nullo suggerisce una struttura di dipendenza rilevante?</li>
+</ol>
+</section>
+<section id="modello-con-predittore-fisso" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="modello-con-predittore-fisso"><span class="header-section-number">8</span> 7. Modello con predittore fisso</h2>
+<p>Aggiungete il predittore principale come effetto fisso, mantenendo una struttura random coerente con il disegno dei dati.</p>
+<p><strong>Domande guida</strong></p>
+<ol type="1">
+<li>L’effetto del predittore è positivo o negativo?</li>
+<li>Come si interpreta il coefficiente?</li>
+<li>Il predittore sembra utile per spiegare la variabile dipendente?</li>
+<li>Le componenti di varianza cambiano rispetto al modello nullo?</li>
+<li>Il modello è coerente con i grafici esplorativi?</li>
+</ol>
+</section>
+<section id="modello-con-random-slope" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="modello-con-random-slope"><span class="header-section-number">9</span> 8. Modello con random slope</h2>
+<p>Se teoricamente sensato, stimate un modello in cui l’effetto del predittore principale può variare tra gruppi, soggetti, item o altri cluster.</p>
+<p>Potete valutare:</p>
+<ul>
+<li>random intercept;</li>
+<li>random slope;</li>
+<li>random intercept e random slope correlati;</li>
+<li>random intercept e random slope non correlati;</li>
+<li>random effects per più fattori di raggruppamento, se presenti.</li>
+</ul>
+<p><strong>Domande guida</strong></p>
+<ol type="1">
+<li>Il modello converge?</li>
+<li>Ci sono problemi di singolarità?</li>
+<li>La varianza della random slope è rilevante?</li>
+<li>La random slope è teoricamente giustificata?</li>
+<li>La struttura random scelta è coerente con il disegno dei dati?</li>
+</ol>
+</section>
+<section id="confronto-tra-modelli" class="level2" data-number="10">
+<h2 data-number="10" class="anchored" data-anchor-id="confronto-tra-modelli"><span class="header-section-number">10</span> 9. Confronto tra modelli</h2>
+<p>Confrontate almeno tre modelli, ad esempio:</p>
+<ol type="1">
+<li>modello nullo;</li>
+<li>modello con predittore fisso;</li>
+<li>modello con una struttura random più complessa.</li>
+</ol>
+<p>Usate criteri come:</p>
+<ul>
+<li>AIC;</li>
+<li>BIC;</li>
+<li>likelihood ratio test;</li>
+<li>interpretabilità;</li>
+<li>problemi di convergenza;</li>
+<li>coerenza con la domanda di ricerca.</li>
+</ul>
+<p><strong>Domande guida</strong></p>
+<ol type="1">
+<li>Quale modello si adatta meglio ai dati?</li>
+<li>Il modello più complesso è davvero necessario?</li>
+<li>Ci sono problemi tecnici che sconsigliano alcuni modelli?</li>
+<li>Quale modello scegliereste come modello finale?</li>
+<li>Perché?</li>
+</ol>
+</section>
+<section id="diagnostica-del-modello-finale" class="level2" data-number="11">
+<h2 data-number="11" class="anchored" data-anchor-id="diagnostica-del-modello-finale"><span class="header-section-number">11</span> 10. Diagnostica del modello finale</h2>
+<p>Scegliete un modello finale e controllatene la diagnostica.</p>
+<p>Considerate:</p>
+<ul>
+<li>residui;</li>
+<li>valori previsti;</li>
+<li>effetti random;</li>
+<li>convergenza;</li>
+<li>singolarità;</li>
+<li>eventuali gruppi, soggetti o item anomali.</li>
+</ul>
+<p><strong>Domande guida</strong></p>
+<ol type="1">
+<li>Il modello mostra problemi evidenti?</li>
+<li>I residui sono plausibili?</li>
+<li>Gli effetti random sono interpretabili?</li>
+<li>Ci sono cluster particolarmente influenti?</li>
+<li>Ci sono limiti da segnalare?</li>
+</ol>
+</section>
+<section id="interpretazione-finale" class="level2" data-number="12">
+<h2 data-number="12" class="anchored" data-anchor-id="interpretazione-finale"><span class="header-section-number">12</span> 11. Interpretazione finale</h2>
+<p>Scrivete un breve commento conclusivo.</p>
+<p>Il commento deve includere:</p>
+<ul>
+<li>dataset scelto;</li>
+<li>struttura di dipendenza dei dati;</li>
+<li>modello finale;</li>
+<li>interpretazione dell’effetto principale;</li>
+<li>interpretazione delle componenti random;</li>
+<li>risposta alla domanda di ricerca.</li>
+</ul>
+<section id="traccia" class="level3" data-number="12.1">
+<h3 data-number="12.1" class="anchored" data-anchor-id="traccia"><span class="header-section-number">12.1</span> Traccia</h3>
+<blockquote class="blockquote">
+<p>Il dataset analizzato contiene osservazioni non indipendenti, raggruppate secondo <code>...</code>. La variabile dipendente è <code>...</code> e il predittore principale è <code>...</code>.</p>
+<p>Il modello nullo suggerisce che una parte della variabilità è attribuibile a <code>...</code>.</p>
+<p>L’aggiunta del predittore <code>...</code> mostra che <code>...</code>.</p>
+<p>Il modello finale scelto è <code>...</code>, perché <code>...</code>.</p>
+<p>In conclusione, i risultati suggeriscono che <code>...</code>.</p>
+</blockquote>
+</section>
+</section>
+<section id="consegna" class="level2" data-number="13">
+<h2 data-number="13" class="anchored" data-anchor-id="consegna"><span class="header-section-number">13</span> Consegna</h2>
+<p>La consegna deve contenere:</p>
+<ul>
+<li>codice R funzionante;</li>
+<li>breve descrizione del dataset;</li>
+<li>almeno tre grafici;</li>
+<li>almeno tre modelli;</li>
+<li>confronto tra modelli;</li>
+<li>diagnostica del modello finale;</li>
+<li>breve interpretazione scritta.</li>
+</ul>
+<p>Non limitatevi a copiare l’output di R: ogni risultato importante deve essere commentato.</p>
 
 
 </section>
