@@ -1,0 +1,328 @@
+---
+title: "Esercizio: crossed random effects con il dataset lexdec"
+subtitle: "Decisione lessicale, soggetti e item"
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    number-sections: true
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Obiettivo
+
+In questo esercizio analizzerete il dataset `lexdec`, contenuto nel pacchetto `languageR`.
+
+Il dataset riguarda un compito di **decisione lessicale**: i partecipanti devono decidere se uno stimolo presentato è una parola. L'esito di interesse è il tempo di risposta.
+
+L'obiettivo è usare `lexdec` per lavorare con un modello mixed-effects con **effetti random crossed**. Ogni osservazione dipende infatti sia dal soggetto sia dalla parola presentata.
+
+## Installazione e caricamento del dataset
+
+Il dataset è disponibile nel pacchetto `languageR`.
+
+```{r, eval=FALSE}
+install.packages("languageR")
+```
+
+Caricare i pacchetti necessari e il dataset.
+
+```{r}
+library(languageR)
+library(lme4)
+library(lmerTest)
+library(tidyverse)
+library(performance)
+library(ggeffects)
+
+data("lexdec", package = "languageR")
+d <- lexdec
+```
+
+## Descrizione del dataset
+
+`lexdec` contiene dati da un compito di decisione lessicale.
+
+Ogni riga rappresenta la risposta di un soggetto a una parola. La struttura dei dati è **crossed**, perché:
+
+- ogni soggetto risponde a molte parole;
+- ogni parola viene presentata a più soggetti;
+- quindi le osservazioni sono raggruppate sia per `Subject` sia per `Word`.
+
+Le variabili principali sono:
+
+- `RT`: logaritmo del tempo di risposta;
+- `Subject`: identificativo del soggetto;
+- `Word`: parola presentata;
+- `Frequency`: frequenza della parola;
+- `Length`: lunghezza della parola;
+- `NativeLanguage`: lingua nativa del partecipante;
+- `Trial`: ordine della prova.
+
+## 1. Controllo iniziale dei dati
+
+Esplorate la struttura generale del dataset.
+
+Verificate:
+
+- numero di osservazioni;
+- numero di variabili;
+- nomi delle variabili;
+- tipo delle variabili;
+- presenza di valori mancanti;
+- numero di soggetti;
+- numero di parole;
+- numerosità delle osservazioni per soggetto;
+- numerosità delle osservazioni per parola.
+
+**Domande guida**
+
+1. Quante osservazioni contiene il dataset?
+2. Quanti soggetti ci sono?
+3. Quante parole ci sono?
+4. Il dataset è perfettamente bilanciato?
+5. Le variabili categoriali sono codificate correttamente?
+6. Perché le osservazioni non possono essere considerate indipendenti?
+
+## 2. Struttura crossed dei dati
+
+Descrivete la struttura di dipendenza del dataset.
+
+In particolare, spiegate perché non si tratta di una struttura semplicemente nested, ma di una struttura crossed.
+
+**Domande guida**
+
+1. Quali sono le unità osservazionali?
+2. Quali sono i fattori di raggruppamento?
+3. Perché `Subject` e `Word` sono crossed?
+4. Che cosa significa che una risposta dipende sia dal soggetto sia dall'item?
+5. Che tipo di errore si rischierebbe ignorando uno dei due fattori di raggruppamento?
+
+## 3. Esplorazione della variabile dipendente
+
+Esplorate la distribuzione di `RT`.
+
+Produci almeno:
+
+- una tabella descrittiva;
+- un grafico della distribuzione di `RT`;
+- un commento sulla forma della distribuzione.
+
+**Domande guida**
+
+1. Com'è distribuita la variabile `RT`?
+2. Sono presenti outlier evidenti?
+3. Perché può essere utile lavorare con il logaritmo del tempo di risposta?
+4. Un modello lineare mixed-effects sembra appropriato?
+
+## 4. Variabilità tra soggetti e tra parole
+
+Esplorate la variabilità dei tempi di risposta:
+
+- tra soggetti;
+- tra parole.
+
+Produci almeno:
+
+- un grafico di `RT` per soggetto;
+- un grafico di `RT` per parola;
+- una breve descrizione delle differenze osservate.
+
+**Domande guida**
+
+1. I soggetti sembrano differire nei tempi medi di risposta?
+2. Le parole sembrano differire nella difficoltà?
+3. Quale fonte di variabilità sembra più evidente?
+4. Perché ha senso includere sia `(1 | Subject)` sia `(1 | Word)`?
+
+## 5. Relazione tra frequenza della parola e tempo di risposta
+
+Esplorate la relazione tra `Frequency` e `RT`.
+
+Produci almeno:
+
+- un grafico complessivo della relazione;
+- un grafico separato per soggetto, oppure per un sottoinsieme di soggetti;
+- un breve commento interpretativo.
+
+**Domande guida**
+
+1. La relazione tra `Frequency` e `RT` sembra positiva o negativa?
+2. Le parole più frequenti sembrano riconosciute più rapidamente?
+3. L'effetto della frequenza sembra simile per tutti i soggetti?
+4. Potrebbe essere utile una random slope di `Frequency` per soggetto?
+
+## 6. Modello nullo crossed
+
+Stimate un modello nullo con due intercette random:
+
+- una per `Subject`;
+- una per `Word`.
+
+**Domande guida**
+
+1. Qual è la media generale stimata?
+2. Quanta variabilità è attribuibile ai soggetti?
+3. Quanta variabilità è attribuibile alle parole?
+4. Quanta variabilità resta a livello residuo?
+5. Il modello nullo conferma la presenza di dipendenza nei dati?
+
+## 7. Modello con frequenza della parola
+
+Aggiungete `Frequency` come predittore fisso.
+
+**Domande guida**
+
+1. L'effetto di `Frequency` è positivo o negativo?
+2. Come si interpreta il coefficiente?
+3. L'effetto è coerente con il grafico esplorativo?
+4. L'aggiunta di `Frequency` cambia la varianza attribuita alle parole?
+5. Le parole più frequenti risultano associate a tempi di risposta più bassi?
+
+## 8. Modello con più predittori
+
+Aggiungete altri predittori teoricamente rilevanti, ad esempio:
+
+- `Length`;
+- `NativeLanguage`;
+- `Trial`.
+
+**Domande guida**
+
+1. L'effetto di `Frequency` resta simile dopo aver controllato per altri predittori?
+2. Le parole più lunghe sono associate a tempi di risposta più alti?
+3. Ci sono differenze tra parlanti nativi e non nativi?
+4. L'ordine della prova è associato ai tempi di risposta?
+5. Il modello è più informativo del precedente?
+
+## 9. Random slope di `Frequency` per soggetto
+
+Stimate un modello in cui l'effetto di `Frequency` può variare tra soggetti.
+
+Valutate, se necessario:
+
+- una struttura con intercetta e slope random correlati;
+- una struttura con intercetta e slope random non correlati.
+
+**Domande guida**
+
+1. La random slope di `Frequency` è teoricamente sensata?
+2. La varianza della random slope è rilevante?
+3. Il modello converge?
+4. Il modello è singolare?
+5. È preferibile il modello con slope correlata o non correlata?
+6. I soggetti sembrano differire nella sensibilità alla frequenza delle parole?
+
+## 10. Altre random slope possibili
+
+Valutate, se sensato, una seconda struttura random alternativa.
+
+Possibili esempi:
+
+- random slope di `Length` per `Subject`;
+- random slope di `Trial` per `Subject`;
+- random slope di `NativeLanguage` per `Word`.
+
+**Domande guida**
+
+1. La random slope scelta è teoricamente giustificata?
+2. La variabile scelta varia dentro il fattore di raggruppamento?
+3. Il modello converge?
+4. La struttura random aggiunge informazione utile?
+5. Il modello diventa troppo complesso rispetto ai dati?
+
+## 11. Confronto tra modelli
+
+Confrontate i modelli stimati.
+
+Considerate almeno:
+
+- modello nullo crossed;
+- modello con `Frequency`;
+- modello con più predittori;
+- modello con random slope, se stimabile.
+
+Usate criteri come:
+
+- AIC;
+- BIC;
+- likelihood ratio test;
+- interpretabilità;
+- convergenza;
+- singolarità.
+
+**Domande guida**
+
+1. L'aggiunta di `Frequency` migliora il modello?
+2. L'aggiunta degli altri predittori migliora il modello?
+3. La random slope di `Frequency` migliora il modello?
+4. AIC e BIC portano alla stessa conclusione?
+5. Quale modello scegliereste come modello finale?
+6. Perché?
+
+## 12. Diagnostica del modello finale
+
+Scegliete un modello finale e controllatene la diagnostica.
+
+Considerate:
+
+- residui;
+- valori previsti;
+- effetti random;
+- convergenza;
+- singolarità;
+- soggetti potenzialmente anomali;
+- parole potenzialmente anomale.
+
+**Domande guida**
+
+1. I residui mostrano problemi evidenti?
+2. Ci sono segnali di eteroschedasticità?
+3. Gli effetti random sono interpretabili?
+4. Il modello presenta problemi di convergenza o singolarità?
+5. Ci sono soggetti o parole potenzialmente anomali?
+6. Quali limiti diagnostici vanno segnalati?
+
+## 13. Interpretazione finale
+
+Scrivete un breve commento conclusivo.
+
+Il commento deve includere:
+
+- descrizione del dataset;
+- spiegazione della struttura crossed;
+- modello finale scelto;
+- interpretazione di `Frequency`;
+- interpretazione degli altri predittori inclusi;
+- interpretazione della variabilità tra soggetti;
+- interpretazione della variabilità tra parole;
+- risposta alla domanda di ricerca.
+
+### Traccia
+
+> Il dataset `lexdec` contiene risposte in un compito di decisione lessicale. Ogni osservazione è associata sia a un soggetto sia a una parola; per questo motivo la struttura dei dati è crossed.
+>
+> Il modello nullo mostra variabilità sia tra soggetti sia tra parole. Questo indica che è appropriato usare un modello mixed-effects con due intercette random.
+>
+> L'aggiunta di `Frequency` mostra che `...`.
+>
+> Il modello finale scelto è `...`, perché `...`.
+>
+> In conclusione, i risultati suggeriscono che `...`.
+
+## Consegna
+
+La consegna deve contenere:
+
+- codice R funzionante;
+- breve descrizione del dataset;
+- almeno tre grafici;
+- almeno tre modelli;
+- confronto tra modelli;
+- diagnostica del modello finale;
+- breve interpretazione scritta.
+
+Non è sufficiente riportare l'output di R: ogni risultato importante deve essere commentato.

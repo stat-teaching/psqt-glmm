@@ -109,7 +109,7 @@
     "href": "index.html#esercizi",
     "title": "Generalized Linear Mixed-Effects Models",
     "section": "Esercizi",
-    "text": "Esercizi\n\nEsercizio su dataset di esempio presi da https://uoepsy.github.io/lmm/00_datasets.html [link]"
+    "text": "Esercizi\n\n\n   \n    \n    \n      Order By\n      Default\n      \n        Title\n      \n    \n  \n    \n      \n      \n    \n\n\n\n\n\n\nModified\n\n\n\nTitle\n\n\n\n\n\n\n\n\n2026-07-03\n\n\nEsercizio: analisi di un dataset con struttura multilivello\n\n\n\n\n\n\n2026-07-03\n\n\nEsercizio: crossed random effects con il dataset lexdec\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "index.html#dati",
@@ -215,6 +215,132 @@
     "title": "Esercizio: analisi di un dataset con struttura multilivello",
     "section": "13 Consegna",
     "text": "13 Consegna\nLa consegna deve contenere:\n\ncodice R funzionante;\nbreve descrizione del dataset;\nalmeno tre grafici;\nalmeno tre modelli;\nconfronto tra modelli;\ndiagnostica del modello finale;\nbreve interpretazione scritta.\n\nNon limitatevi a copiare l’output di R: ogni risultato importante deve essere commentato."
+  },
+  {
+    "objectID": "esercizi/lexdec.html",
+    "href": "esercizi/lexdec.html",
+    "title": "Esercizio: crossed random effects con il dataset lexdec",
+    "section": "",
+    "text": "In questo esercizio analizzerete il dataset lexdec, contenuto nel pacchetto languageR.\nIl dataset riguarda un compito di decisione lessicale: i partecipanti devono decidere se uno stimolo presentato è una parola. L’esito di interesse è il tempo di risposta.\nL’obiettivo è usare lexdec per lavorare con un modello mixed-effects con effetti random crossed. Ogni osservazione dipende infatti sia dal soggetto sia dalla parola presentata."
+  },
+  {
+    "objectID": "esercizi/lexdec.html#obiettivo",
+    "href": "esercizi/lexdec.html#obiettivo",
+    "title": "Esercizio: crossed random effects con il dataset lexdec",
+    "section": "",
+    "text": "In questo esercizio analizzerete il dataset lexdec, contenuto nel pacchetto languageR.\nIl dataset riguarda un compito di decisione lessicale: i partecipanti devono decidere se uno stimolo presentato è una parola. L’esito di interesse è il tempo di risposta.\nL’obiettivo è usare lexdec per lavorare con un modello mixed-effects con effetti random crossed. Ogni osservazione dipende infatti sia dal soggetto sia dalla parola presentata."
+  },
+  {
+    "objectID": "esercizi/lexdec.html#installazione-e-caricamento-del-dataset",
+    "href": "esercizi/lexdec.html#installazione-e-caricamento-del-dataset",
+    "title": "Esercizio: crossed random effects con il dataset lexdec",
+    "section": "2 Installazione e caricamento del dataset",
+    "text": "2 Installazione e caricamento del dataset\nIl dataset è disponibile nel pacchetto languageR.\n\ninstall.packages(\"languageR\")\n\nCaricare i pacchetti necessari e il dataset.\n\nlibrary(languageR)\nlibrary(lme4)\nlibrary(lmerTest)\nlibrary(tidyverse)\nlibrary(performance)\nlibrary(ggeffects)\n\ndata(\"lexdec\", package = \"languageR\")\nd &lt;- lexdec"
+  },
+  {
+    "objectID": "esercizi/lexdec.html#descrizione-del-dataset",
+    "href": "esercizi/lexdec.html#descrizione-del-dataset",
+    "title": "Esercizio: crossed random effects con il dataset lexdec",
+    "section": "3 Descrizione del dataset",
+    "text": "3 Descrizione del dataset\nlexdec contiene dati da un compito di decisione lessicale.\nOgni riga rappresenta la risposta di un soggetto a una parola. La struttura dei dati è crossed, perché:\n\nogni soggetto risponde a molte parole;\nogni parola viene presentata a più soggetti;\nquindi le osservazioni sono raggruppate sia per Subject sia per Word.\n\nLe variabili principali sono:\n\nRT: logaritmo del tempo di risposta;\nSubject: identificativo del soggetto;\nWord: parola presentata;\nFrequency: frequenza della parola;\nLength: lunghezza della parola;\nNativeLanguage: lingua nativa del partecipante;\nTrial: ordine della prova."
+  },
+  {
+    "objectID": "esercizi/lexdec.html#controllo-iniziale-dei-dati",
+    "href": "esercizi/lexdec.html#controllo-iniziale-dei-dati",
+    "title": "Esercizio: crossed random effects con il dataset lexdec",
+    "section": "4 1. Controllo iniziale dei dati",
+    "text": "4 1. Controllo iniziale dei dati\nEsplorate la struttura generale del dataset.\nVerificate:\n\nnumero di osservazioni;\nnumero di variabili;\nnomi delle variabili;\ntipo delle variabili;\npresenza di valori mancanti;\nnumero di soggetti;\nnumero di parole;\nnumerosità delle osservazioni per soggetto;\nnumerosità delle osservazioni per parola.\n\nDomande guida\n\nQuante osservazioni contiene il dataset?\nQuanti soggetti ci sono?\nQuante parole ci sono?\nIl dataset è perfettamente bilanciato?\nLe variabili categoriali sono codificate correttamente?\nPerché le osservazioni non possono essere considerate indipendenti?"
+  },
+  {
+    "objectID": "esercizi/lexdec.html#struttura-crossed-dei-dati",
+    "href": "esercizi/lexdec.html#struttura-crossed-dei-dati",
+    "title": "Esercizio: crossed random effects con il dataset lexdec",
+    "section": "5 2. Struttura crossed dei dati",
+    "text": "5 2. Struttura crossed dei dati\nDescrivete la struttura di dipendenza del dataset.\nIn particolare, spiegate perché non si tratta di una struttura semplicemente nested, ma di una struttura crossed.\nDomande guida\n\nQuali sono le unità osservazionali?\nQuali sono i fattori di raggruppamento?\nPerché Subject e Word sono crossed?\nChe cosa significa che una risposta dipende sia dal soggetto sia dall’item?\nChe tipo di errore si rischierebbe ignorando uno dei due fattori di raggruppamento?"
+  },
+  {
+    "objectID": "esercizi/lexdec.html#esplorazione-della-variabile-dipendente",
+    "href": "esercizi/lexdec.html#esplorazione-della-variabile-dipendente",
+    "title": "Esercizio: crossed random effects con il dataset lexdec",
+    "section": "6 3. Esplorazione della variabile dipendente",
+    "text": "6 3. Esplorazione della variabile dipendente\nEsplorate la distribuzione di RT.\nProduci almeno:\n\nuna tabella descrittiva;\nun grafico della distribuzione di RT;\nun commento sulla forma della distribuzione.\n\nDomande guida\n\nCom’è distribuita la variabile RT?\nSono presenti outlier evidenti?\nPerché può essere utile lavorare con il logaritmo del tempo di risposta?\nUn modello lineare mixed-effects sembra appropriato?"
+  },
+  {
+    "objectID": "esercizi/lexdec.html#variabilità-tra-soggetti-e-tra-parole",
+    "href": "esercizi/lexdec.html#variabilità-tra-soggetti-e-tra-parole",
+    "title": "Esercizio: crossed random effects con il dataset lexdec",
+    "section": "7 4. Variabilità tra soggetti e tra parole",
+    "text": "7 4. Variabilità tra soggetti e tra parole\nEsplorate la variabilità dei tempi di risposta:\n\ntra soggetti;\ntra parole.\n\nProduci almeno:\n\nun grafico di RT per soggetto;\nun grafico di RT per parola;\nuna breve descrizione delle differenze osservate.\n\nDomande guida\n\nI soggetti sembrano differire nei tempi medi di risposta?\nLe parole sembrano differire nella difficoltà?\nQuale fonte di variabilità sembra più evidente?\nPerché ha senso includere sia (1 | Subject) sia (1 | Word)?"
+  },
+  {
+    "objectID": "esercizi/lexdec.html#relazione-tra-frequenza-della-parola-e-tempo-di-risposta",
+    "href": "esercizi/lexdec.html#relazione-tra-frequenza-della-parola-e-tempo-di-risposta",
+    "title": "Esercizio: crossed random effects con il dataset lexdec",
+    "section": "8 5. Relazione tra frequenza della parola e tempo di risposta",
+    "text": "8 5. Relazione tra frequenza della parola e tempo di risposta\nEsplorate la relazione tra Frequency e RT.\nProduci almeno:\n\nun grafico complessivo della relazione;\nun grafico separato per soggetto, oppure per un sottoinsieme di soggetti;\nun breve commento interpretativo.\n\nDomande guida\n\nLa relazione tra Frequency e RT sembra positiva o negativa?\nLe parole più frequenti sembrano riconosciute più rapidamente?\nL’effetto della frequenza sembra simile per tutti i soggetti?\nPotrebbe essere utile una random slope di Frequency per soggetto?"
+  },
+  {
+    "objectID": "esercizi/lexdec.html#modello-nullo-crossed",
+    "href": "esercizi/lexdec.html#modello-nullo-crossed",
+    "title": "Esercizio: crossed random effects con il dataset lexdec",
+    "section": "9 6. Modello nullo crossed",
+    "text": "9 6. Modello nullo crossed\nStimate un modello nullo con due intercette random:\n\nuna per Subject;\nuna per Word.\n\nDomande guida\n\nQual è la media generale stimata?\nQuanta variabilità è attribuibile ai soggetti?\nQuanta variabilità è attribuibile alle parole?\nQuanta variabilità resta a livello residuo?\nIl modello nullo conferma la presenza di dipendenza nei dati?"
+  },
+  {
+    "objectID": "esercizi/lexdec.html#modello-con-frequenza-della-parola",
+    "href": "esercizi/lexdec.html#modello-con-frequenza-della-parola",
+    "title": "Esercizio: crossed random effects con il dataset lexdec",
+    "section": "10 7. Modello con frequenza della parola",
+    "text": "10 7. Modello con frequenza della parola\nAggiungete Frequency come predittore fisso.\nDomande guida\n\nL’effetto di Frequency è positivo o negativo?\nCome si interpreta il coefficiente?\nL’effetto è coerente con il grafico esplorativo?\nL’aggiunta di Frequency cambia la varianza attribuita alle parole?\nLe parole più frequenti risultano associate a tempi di risposta più bassi?"
+  },
+  {
+    "objectID": "esercizi/lexdec.html#modello-con-più-predittori",
+    "href": "esercizi/lexdec.html#modello-con-più-predittori",
+    "title": "Esercizio: crossed random effects con il dataset lexdec",
+    "section": "11 8. Modello con più predittori",
+    "text": "11 8. Modello con più predittori\nAggiungete altri predittori teoricamente rilevanti, ad esempio:\n\nLength;\nNativeLanguage;\nTrial.\n\nDomande guida\n\nL’effetto di Frequency resta simile dopo aver controllato per altri predittori?\nLe parole più lunghe sono associate a tempi di risposta più alti?\nCi sono differenze tra parlanti nativi e non nativi?\nL’ordine della prova è associato ai tempi di risposta?\nIl modello è più informativo del precedente?"
+  },
+  {
+    "objectID": "esercizi/lexdec.html#random-slope-di-frequency-per-soggetto",
+    "href": "esercizi/lexdec.html#random-slope-di-frequency-per-soggetto",
+    "title": "Esercizio: crossed random effects con il dataset lexdec",
+    "section": "12 9. Random slope di Frequency per soggetto",
+    "text": "12 9. Random slope di Frequency per soggetto\nStimate un modello in cui l’effetto di Frequency può variare tra soggetti.\nValutate, se necessario:\n\nuna struttura con intercetta e slope random correlati;\nuna struttura con intercetta e slope random non correlati.\n\nDomande guida\n\nLa random slope di Frequency è teoricamente sensata?\nLa varianza della random slope è rilevante?\nIl modello converge?\nIl modello è singolare?\nÈ preferibile il modello con slope correlata o non correlata?\nI soggetti sembrano differire nella sensibilità alla frequenza delle parole?"
+  },
+  {
+    "objectID": "esercizi/lexdec.html#altre-random-slope-possibili",
+    "href": "esercizi/lexdec.html#altre-random-slope-possibili",
+    "title": "Esercizio: crossed random effects con il dataset lexdec",
+    "section": "13 10. Altre random slope possibili",
+    "text": "13 10. Altre random slope possibili\nValutate, se sensato, una seconda struttura random alternativa.\nPossibili esempi:\n\nrandom slope di Length per Subject;\nrandom slope di Trial per Subject;\nrandom slope di NativeLanguage per Word.\n\nDomande guida\n\nLa random slope scelta è teoricamente giustificata?\nLa variabile scelta varia dentro il fattore di raggruppamento?\nIl modello converge?\nLa struttura random aggiunge informazione utile?\nIl modello diventa troppo complesso rispetto ai dati?"
+  },
+  {
+    "objectID": "esercizi/lexdec.html#confronto-tra-modelli",
+    "href": "esercizi/lexdec.html#confronto-tra-modelli",
+    "title": "Esercizio: crossed random effects con il dataset lexdec",
+    "section": "14 11. Confronto tra modelli",
+    "text": "14 11. Confronto tra modelli\nConfrontate i modelli stimati.\nConsiderate almeno:\n\nmodello nullo crossed;\nmodello con Frequency;\nmodello con più predittori;\nmodello con random slope, se stimabile.\n\nUsate criteri come:\n\nAIC;\nBIC;\nlikelihood ratio test;\ninterpretabilità;\nconvergenza;\nsingolarità.\n\nDomande guida\n\nL’aggiunta di Frequency migliora il modello?\nL’aggiunta degli altri predittori migliora il modello?\nLa random slope di Frequency migliora il modello?\nAIC e BIC portano alla stessa conclusione?\nQuale modello scegliereste come modello finale?\nPerché?"
+  },
+  {
+    "objectID": "esercizi/lexdec.html#diagnostica-del-modello-finale",
+    "href": "esercizi/lexdec.html#diagnostica-del-modello-finale",
+    "title": "Esercizio: crossed random effects con il dataset lexdec",
+    "section": "15 12. Diagnostica del modello finale",
+    "text": "15 12. Diagnostica del modello finale\nScegliete un modello finale e controllatene la diagnostica.\nConsiderate:\n\nresidui;\nvalori previsti;\neffetti random;\nconvergenza;\nsingolarità;\nsoggetti potenzialmente anomali;\nparole potenzialmente anomale.\n\nDomande guida\n\nI residui mostrano problemi evidenti?\nCi sono segnali di eteroschedasticità?\nGli effetti random sono interpretabili?\nIl modello presenta problemi di convergenza o singolarità?\nCi sono soggetti o parole potenzialmente anomali?\nQuali limiti diagnostici vanno segnalati?"
+  },
+  {
+    "objectID": "esercizi/lexdec.html#interpretazione-finale",
+    "href": "esercizi/lexdec.html#interpretazione-finale",
+    "title": "Esercizio: crossed random effects con il dataset lexdec",
+    "section": "16 13. Interpretazione finale",
+    "text": "16 13. Interpretazione finale\nScrivete un breve commento conclusivo.\nIl commento deve includere:\n\ndescrizione del dataset;\nspiegazione della struttura crossed;\nmodello finale scelto;\ninterpretazione di Frequency;\ninterpretazione degli altri predittori inclusi;\ninterpretazione della variabilità tra soggetti;\ninterpretazione della variabilità tra parole;\nrisposta alla domanda di ricerca.\n\n\n16.1 Traccia\n\nIl dataset lexdec contiene risposte in un compito di decisione lessicale. Ogni osservazione è associata sia a un soggetto sia a una parola; per questo motivo la struttura dei dati è crossed.\nIl modello nullo mostra variabilità sia tra soggetti sia tra parole. Questo indica che è appropriato usare un modello mixed-effects con due intercette random.\nL’aggiunta di Frequency mostra che ....\nIl modello finale scelto è ..., perché ....\nIn conclusione, i risultati suggeriscono che ...."
+  },
+  {
+    "objectID": "esercizi/lexdec.html#consegna",
+    "href": "esercizi/lexdec.html#consegna",
+    "title": "Esercizio: crossed random effects con il dataset lexdec",
+    "section": "17 Consegna",
+    "text": "17 Consegna\nLa consegna deve contenere:\n\ncodice R funzionante;\nbreve descrizione del dataset;\nalmeno tre grafici;\nalmeno tre modelli;\nconfronto tra modelli;\ndiagnostica del modello finale;\nbreve interpretazione scritta.\n\nNon è sufficiente riportare l’output di R: ogni risultato importante deve essere commentato."
   },
   {
     "objectID": "materials/02-complex-random-structures.html",

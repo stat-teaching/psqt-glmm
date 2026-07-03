@@ -10,6 +10,14 @@ listing:
       - file-modified
       - title
     date-format: "YYYY-MM-DD"
+  - id: esercizi
+    contents: "esercizi"
+    type: table
+    sort: "filename"
+    fields: 
+      - file-modified
+      - title
+    date-format: "YYYY-MM-DD"
 ---
 
 Questo sito contiene il materiale per il corso Estensione dei modelli lineari generalizzati al caso dei modelli con effetti misti (con effetti fissi e random) del master PSQT.
@@ -27,7 +35,8 @@ Questo sito contiene il materiale per il corso Estensione dei modelli lineari ge
 
 ## Esercizi
 
-- Esercizio su dataset di esempio presi da [https://uoepsy.github.io/lmm/00_datasets.html](https://uoepsy.github.io/lmm/00_datasets.html) [[link](esercizi/esercizi.qmd)]
+:::{#esercizi}
+:::
 
 ## Dati
 
