@@ -43,3 +43,4 @@ Questo sito contiene il materiale per il corso Estensione dei modelli lineari ge
 - [stress.rds](data/stress.rds)
 - [heck2011.csv](data/heck2011.csv)
 - [school.rds](data/school.rds)
+- Dataset su face processing [emoint.rds](data/emoint.rds) da @Shimizu2024-xl

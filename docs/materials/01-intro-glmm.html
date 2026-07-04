@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.21">
+<meta name="generator" content="quarto-1.8.26">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -73,10 +73,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ea1d7ac60288e0f1efdbc993fd8432ae.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-45dd08599a1b1e22c1c6eae1dc94be9b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-f245066ca199b7326ac6b360085ddf3a.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -145,8 +145,6 @@ window.Quarto = {
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a href="../index.html" class="navbar-brand navbar-brand-logo">
-    </a>
     <a class="navbar-brand" href="../index.html">
     <span class="navbar-title">PSQT-GLMM</span>
     </a>
@@ -412,7 +410,7 @@ F-statistic: 71.5 on 1 and 178 DF,  p-value: 9.89e-15
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
 <span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">stat_summary</span>(<span class="at">fun =</span> mean, <span class="at">geom =</span> <span class="st">"point"</span>, <span class="at">size =</span> <span class="dv">5</span>, <span class="at">col =</span> <span class="st">"red"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
-<div id="fig-cluster-means" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" width="960">
+<div id="fig-cluster-means" class="quarto-float quarto-figure quarto-figure-center anchored" width="960" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-cluster-means-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="01-intro-glmm_files/figure-html/fig-cluster-means-1.svg" id="fig-cluster-means" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" width="960">
@@ -450,7 +448,7 @@ Figure&nbsp;1
 <span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">group =</span> Subject)) <span class="sc">+</span></span>
 <span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
-<div id="fig-overall-lm-line" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" width="960">
+<div id="fig-overall-lm-line" class="quarto-float quarto-figure quarto-figure-center anchored" width="960" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-overall-lm-line-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="01-intro-glmm_files/figure-html/fig-overall-lm-line-1.svg" id="fig-overall-lm-line" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" width="960">
@@ -575,7 +573,7 @@ n_{\text{eff}} = \frac{km}{1 + (m - 1) \rho}
 <span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">xlab</span>(<span class="st">"ICC"</span>) <span class="sc">+</span></span>
 <span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ylab</span>(<span class="st">"Effective Sample Size"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
-<div id="fig-neff-icc" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" width="960">
+<div id="fig-neff-icc" class="quarto-float quarto-figure quarto-figure-center anchored" width="960" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-neff-icc-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="01-intro-glmm_files/figure-html/fig-neff-icc-1.svg" id="fig-neff-icc" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" width="960">
@@ -608,7 +606,7 @@ Figure&nbsp;3
 <span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">xlab</span>(<span class="st">"Soggetti"</span>) <span class="sc">+</span></span>
 <span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ylab</span>(<span class="st">"Y"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
-<div id="fig-simulate-icc" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" width="960">
+<div id="fig-simulate-icc" class="quarto-float quarto-figure quarto-figure-center anchored" width="960" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-simulate-icc-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="01-intro-glmm_files/figure-html/fig-simulate-icc-1.svg" id="fig-simulate-icc" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" width="960">
@@ -735,7 +733,7 @@ F-statistic:  462 on 18 and 162 DF,  p-value: &lt;2e-16
 <span id="cb41-13"><a href="#cb41-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_segment</span>(<span class="fu">aes</span>(<span class="at">x =</span> Subject, <span class="at">xend =</span> Subject, <span class="at">y =</span> gm, <span class="at">yend =</span> cm), <span class="at">col =</span> <span class="st">"dodgerblue"</span>, <span class="at">lwd =</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
-<div id="fig-variance-decomposition" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" width="960">
+<div id="fig-variance-decomposition" class="quarto-float quarto-figure quarto-figure-center anchored" width="960" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-variance-decomposition-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="01-intro-glmm_files/figure-html/fig-variance-decomposition-1.svg" id="fig-variance-decomposition" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" width="960">
@@ -1117,7 +1115,7 @@ Subject372     318  315     372
 <span id="cb71-4"><a href="#cb71-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>() <span class="sc">+</span></span>
 <span id="cb71-5"><a href="#cb71-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="fu">fixef</span>(fit)[<span class="dv">1</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
-<div id="fig-partial-pooling-intercepts" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" width="960">
+<div id="fig-partial-pooling-intercepts" class="quarto-float quarto-figure quarto-figure-center anchored" width="960" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-partial-pooling-intercepts-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="01-intro-glmm_files/figure-html/fig-partial-pooling-intercepts-1.svg" id="fig-partial-pooling-intercepts" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" width="960">
@@ -1353,7 +1351,7 @@ SE            0.804   1.238
 <span id="cb84-4"><a href="#cb84-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>() <span class="sc">+</span></span>
 <span id="cb84-5"><a href="#cb84-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">facet_wrap</span>(<span class="sc">~</span>name)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
-<div id="fig-random-intercept-lines" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" width="960">
+<div id="fig-random-intercept-lines" class="quarto-float quarto-figure quarto-figure-center anchored" width="960" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-random-intercept-lines-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="01-intro-glmm_files/figure-html/fig-random-intercept-lines-1.svg" id="fig-random-intercept-lines" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" width="960">
@@ -1456,7 +1454,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 <span id="cb89-5"><a href="#cb89-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">facet_wrap</span>(<span class="sc">~</span>model) <span class="sc">+</span></span>
 <span id="cb89-6"><a href="#cb89-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
-<div id="fig-random-slope-lines" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" width="960">
+<div id="fig-random-slope-lines" class="quarto-float quarto-figure quarto-figure-center anchored" width="960" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-random-slope-lines-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="01-intro-glmm_files/figure-html/fig-random-slope-lines-1.svg" id="fig-random-slope-lines" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" width="960">
@@ -1947,7 +1945,7 @@ attr(,"model.name")
 <span id="cb131-20"><a href="#cb131-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Slope soggetto-specifico per Days"</span>,</span>
 <span id="cb131-21"><a href="#cb131-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Densità"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
-<div id="fig-fixed-random-distributions" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" width="960">
+<div id="fig-fixed-random-distributions" class="quarto-float quarto-figure quarto-figure-center anchored" width="960" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-fixed-random-distributions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="01-intro-glmm_files/figure-html/fig-fixed-random-distributions-1.svg" id="fig-fixed-random-distributions" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" width="960">
@@ -2078,13 +2076,14 @@ Figure&nbsp;9
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
